@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>سجل موظفي AEI – WFP</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script>
+/* ===== الإعداد: ضع هنا بيانات مشروع Supabase (Project Settings > API) ===== */
+const CONFIG={
+  SUPABASE_URL:"https://npmwogbryhitvgbfrlag.supabase.co",
+  SUPABASE_KEY:"sb_publishable_JGk0XrMQ4Puvuv0994CKCg_IDaR_Uto"
+};
+</script>
+<style>
+body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+body.ro .adm{display:none!important}
+
+/* Layout: a field roster. Sticky header with tabs, one working surface per tab; points are ledger blocks grouped by governorate. */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --sunk:#e9edf1; --line:#d5dce3; --fg:#17242f; --muted:#5b6b79;
+  --brand:#245b8a; --brand-fg:#ffffff; --brand-soft:#e3edf6;
+  --warn:#a85b00; --warn-soft:#fdf0dc; --bad:#b3261e; --bad-soft:#fbe6e4; --ok:#1d6b45;
+  --t-prev:#1f6f8b; --t-prev-bg:#dff0f5; --t-cure:#8a3d6b; --t-cure-bg:#f6e3ee; --t-cash:#7a5a00; --t-cash-bg:#f7ecc8;
+  --t-sec:#4a5560; --t-sec-bg:#e4e8ec; --t-adm:#3d4a9a; --t-adm-bg:#e5e7f7;
+  --font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#10171d; --surface:#18222b; --sunk:#0c1217; --line:#2b3945; --fg:#e6edf2; --muted:#93a3b1;
+  --brand:#6fb0e6; --brand-fg:#0b1620; --brand-soft:#1b3246;
+  --warn:#f0b35a; --warn-soft:#3a2a10; --bad:#ff8a80; --bad-soft:#3d1a18; --ok:#6fd3a0;
+  --t-prev:#7fd0e6; --t-prev-bg:#143540; --t-cure:#e79cc6; --t-cure-bg:#3b1c30; --t-cash:#e6c35a; --t-cash-bg:#352b0c;
+  --t-sec:#b6c2cd; --t-sec-bg:#28333d; --t-adm:#a9b3f5; --t-adm-bg:#22284f; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#10171d; --surface:#18222b; --sunk:#0c1217; --line:#2b3945; --fg:#e6edf2; --muted:#93a3b1;
+  --brand:#6fb0e6; --brand-fg:#0b1620; --brand-soft:#1b3246;
+  --warn:#f0b35a; --warn-soft:#3a2a10; --bad:#ff8a80; --bad-soft:#3d1a18; --ok:#6fd3a0;
+  --t-prev:#7fd0e6; --t-prev-bg:#143540; --t-cure:#e79cc6; --t-cure-bg:#3b1c30; --t-cash:#e6c35a; --t-cash-bg:#352b0c;
+  --t-sec:#b6c2cd; --t-sec-bg:#28333d; --t-adm:#a9b3f5; --t-adm-bg:#22284f; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.6}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:1280px;margin-inline:auto;padding-inline:16px;padding-block:0 48px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;font-size:.9em}
+.muted{color:var(--muted)}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* lock */
+.lock{min-height:70vh;display:grid;place-items:center}
+.lock form{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:28px;width:min(360px,100%);display:grid;gap:14px}
+.lock h1{font-size:20px;margin:0;text-wrap:balance}
+.lock input{font-family:var(--mono);font-size:24px;letter-spacing:.4em;text-align:center;direction:ltr}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px 0;border-bottom:1px solid var(--line)}
+.bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.bar h1{font-size:19px;font-weight:700;margin:0}
+.bar .sub{font-size:13px;color:var(--muted)}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.tabs{display:flex;gap:4px;margin-top:12px;overflow-x:auto}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:8px 14px;cursor:pointer;color:var(--muted);font-weight:600;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--brand);border-bottom-color:var(--brand)}
+
+.btn{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:7px 14px;cursor:pointer;font-weight:600;font-size:14px}
+.btn:hover{border-color:var(--brand)}
+.btn.pri{background:var(--brand);color:var(--brand-fg);border-color:var(--brand)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.sm{padding:3px 10px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+input,select{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:7px 10px;min-width:0;width:100%}
+
+/* summary + filters */
+.sum{display:flex;flex-wrap:wrap;gap:6px 18px;margin-block:16px 12px;font-size:14px}
+.sum b{font-size:18px;font-variant-numeric:tabular-nums}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px}
+.filters .q{grid-column:span 2}
+@media(max-width:520px){.filters .q{grid-column:auto}}
+.chk{display:flex;align-items:center;gap:6px;font-size:14px;white-space:nowrap}
+.chk input{width:auto}
+
+/* table */
+.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;text-align:start;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:var(--sunk);font-size:12.5px;font-weight:600;color:var(--muted);position:sticky;top:0}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--brand-soft)}
+tbody tr:last-child td{border-bottom:0}
+td.nm{font-weight:600}
+.chip{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12.5px;font-weight:600;background:var(--t-sec-bg);color:var(--t-sec)}
+.chip.t-prev{background:var(--t-prev-bg);color:var(--t-prev)} .chip.t-cure{background:var(--t-cure-bg);color:var(--t-cure)}
+.chip.t-cash{background:var(--t-cash-bg);color:var(--t-cash)} .chip.t-adm{background:var(--t-adm-bg);color:var(--t-adm)}
+.flag{color:var(--warn);font-weight:700;margin-inline-start:4px}
+.fp{font-size:11.5px;background:var(--brand);color:var(--brand-fg);border-radius:4px;padding:0 6px;margin-inline-start:6px;font-weight:600}
+.empty{padding:40px 16px;text-align:center;color:var(--muted)}
+
+/* points */
+.region{margin-top:22px}
+.region>h2{font-size:16px;margin:0 0 10px;display:flex;gap:10px;align-items:baseline}
+.region>h2 span{font-size:13px;color:var(--muted);font-weight:400}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;align-items:start}
+.pt{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);min-width:0}
+.pt>header{padding:10px 12px;border-bottom:1px solid var(--line);display:grid;gap:2px}
+.pt h3{margin:0;font-size:15.5px;display:flex;justify-content:space-between;gap:8px}
+.pt h3 .num{color:var(--muted)}
+.pt .meta{font-size:12.5px;color:var(--muted)}
+.pt ul{list-style:none;margin:0;padding:4px 0}
+.pt li{display:flex;align-items:center;gap:8px;padding:5px 12px}
+.pt li .who{flex:1;min-width:0;background:none;border:0;padding:0;text-align:start;cursor:pointer;overflow-wrap:anywhere}
+.pt li .who:hover{color:var(--brand);text-decoration:underline}
+.pt li small{color:var(--muted)}
+.sv{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-top:14px}
+.sv>header{padding:12px 14px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;border-bottom:1px solid var(--line)}
+.sv h2{margin:0;font-size:17px}
+.sv .tw{border:0;border-radius:0}
+.grp td{background:var(--sunk);font-weight:600;font-size:13px;cursor:default}
+
+/* dialog */
+dialog{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--fg);padding:0;width:min(760px,calc(100% - 24px));max-height:calc(100% - 24px)}
+dialog::backdrop{background:rgba(8,14,20,.55)}
+.dh{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center;position:sticky;top:0;background:var(--surface);z-index:1}
+.dh h2{margin:0;font-size:17px}
+.db{padding:16px 18px;display:grid;gap:16px}
+.df{padding:12px 18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;position:sticky;bottom:0;background:var(--surface)}
+.df>div{display:flex;gap:8px;flex-wrap:wrap}
+fieldset{border:0;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 14px}
+legend{font-size:12.5px;font-weight:700;color:var(--brand);letter-spacing:.02em;padding:0;margin-bottom:8px}
+label{display:grid;gap:3px;font-size:13px;color:var(--muted);min-width:0}
+label.wide{grid-column:1/-1}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 14px}
+.kv div{min-width:0}.kv dt{font-size:12.5px;color:var(--muted)}.kv dd{margin:0;overflow-wrap:anywhere}
+.note{font-size:13px;padding:8px 12px;border-radius:var(--r);background:var(--warn-soft);color:var(--warn)}
+.note.bad{background:var(--bad-soft);color:var(--bad)}
+.log{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-top:16px}
+.log div{padding:9px 14px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:4px 14px}
+.log div:last-child{border:0}.log time{color:var(--muted);font-size:12.5px}
+.ibs{display:flex;gap:4px}
+.ib{display:grid;place-items:center;width:30px;height:30px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);cursor:pointer;color:var(--muted);padding:0}
+.ib svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ib.on{color:var(--brand-fg);background:var(--brand);border-color:var(--brand)} .ib.on svg{fill:currentColor}
+.ib:hover{color:var(--brand);border-color:var(--brand)} .ib.out:hover{color:var(--bad);border-color:var(--bad)}
+textarea{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:7px 10px;width:100%;min-height:70px;resize:vertical}
+#toast{position:fixed;inset-inline:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));margin-inline:auto;width:fit-content;max-width:calc(100% - 32px);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:var(--r);font-weight:600;z-index:20}
+</style>
+</head>
+<body>
+<div class="wrap" dir="rtl" lang="ar">
+  <div id="app"><div class="empty">جاري الاتصال بقاعدة البيانات…</div></div>
+</div>
+<dialog id="dlg" dir="rtl" lang="ar"></dialog>
+<div id="toast" dir="rtl" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+document.documentElement.dir='rtl'; document.documentElement.lang='ar';
+const $=s=>document.querySelector(s), app=$('#app'), dlg=$('#dlg');
+const h=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const TRACKS=['وقائي','علاجي','كاش','أمن','إداري'], TCLS={'وقائي':'t-prev','علاجي':'t-cure','كاش':'t-cash','أمن':'t-sec','إداري':'t-adm'};
+const CATS=['موظف/ة','متطوع/ة','أمن','مشرف/ة'], DEPTS=['وقائي','علاجي','إداري'], MARITAL=['متزوج/ة','أعزب / آنسة','أرمل/ة','مطلق/ة'], PAYS=['بنك فلسطين','محفظة بال بي'];
+const F=[ // key, label, excel header
+ ['num','#'],['id','رقم الهوية'],['focal','الفوكال بوينت في النقطة'],['assign','دوام جديد'],['name','الاسم الرباعي'],['mobile','رقم الجوال'],['dept','القسم'],['cat','الفئة الوظيفية'],
+ ['sup','المشرف المباشر'],['psup','مشرف النقطة'],['region','النطاق الجغرافي'],['area','منطقة النقطة'],['dob','تاريخ الميلاد'],['marital','الحالة الاجتماعية'],['uni','الجامعة'],
+ ['degree','الدرجة العلمية'],['major','التخصص'],['grad','تاريخ الحصول على الشهادة'],['pay','طريقة تلقي الراتب'],['iban','الأيبان / رقم المحفظة']];
+const S={db:null,dl:null,emps:new Map(),res:new Map(),tab:'db',ready:false,pinHash:null,tries:0,lockUntil:0,f:{q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false}};
+let unsub=null;
+const IC={view:'<svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+ edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
+ focal:'<svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9 6.6 19.8l1.1-6.1L3.2 9.4l6.1-.8z"/></svg>',
+ out:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M16 11h6"/></svg>'};
+const nrm=v=>String(v??'').toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/[ىئ]/g,'ي').replace(/ؤ/g,'و').replace(/ء/g,'').replace(/\s+/g,' ').trim();
+const ibs=e=>{const id=e.id;return `<div class="ibs"><button class="ib" data-emp="${h(id)}" title="عرض البيانات" aria-label="عرض البيانات">${IC.view}</button><button class="ib adm" data-edit="${h(id)}" title="تعديل البيانات" aria-label="تعديل البيانات">${IC.edit}</button><button class="ib adm${e.focal?' on':''}" data-focal="${h(id)}" title="${e.focal?'إلغاء الفوكال بوينت':'تعيين فوكال بوينت'}" aria-label="${e.focal?'إلغاء الفوكال بوينت':'تعيين فوكال بوينت'}">${IC.focal}</button><button class="ib out adm" data-resign="${h(id)}" title="استقالة موظف" aria-label="استقالة موظف">${IC.out}</button></div>`};
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)}
+function hp(p){let a=0x811c9dc5,b=0x1234567;for(const ch of 'aei-wfp:'+p){const c=ch.charCodeAt(0);a^=c;a=Math.imul(a,16777619);b=Math.imul(b^c,0x5bd1e995);b^=b>>>13}return (a>>>0).toString(16)+(b>>>0).toString(16)}
+const ss={get(){try{return sessionStorage.getItem('u')}catch(e){return null}},set(v){try{sessionStorage.setItem('u',v)}catch(e){}}};
+const mob=m=>{m=String(m||'').replace(/\D/g,'');return m.length===9?'0'+m:m};
+const fd=d=>d&&/^\d{4}-\d\d-\d\d$/.test(d)?d.slice(8)+'/'+d.slice(5,7)+'/'+d.slice(0,4):(d||'');
+const assign=e=>e.point==='إداري'?'إداري':[e.point,e.track,e.note].filter(Boolean).join(' - ');
+function ibanOk(s){s=String(s||'').toUpperCase();if(!/^PS\d{2}PALS\d{21}$/.test(s))return false;const t=s.slice(4)+s.slice(0,4);let n='';for(const c of t)n+=parseInt(c,36);return BigInt(n)%97n===1n}
+function issues(e){const r=[];if(!isAdmin())return r;
+  if(!/^\d{9}$/.test(e.id||''))r.push('رقم الهوية ليس 9 أرقام');
+  if(!/^05[69]\d{7}$/.test(mob(e.mobile)))r.push('رقم الجوال غير صحيح');
+  if((e.pay||'').startsWith('بنك')){if(!ibanOk(e.iban))r.push('الأيبان غير صالح')}
+  else if(!/^05[69]\d{7}$/.test(mob(e.iban)))r.push('رقم المحفظة غير صحيح');
+  for(const [k,l] of [['point','النقطة'],['track','المسار'],['psup','مشرف النقطة'],['region','النطاق الجغرافي'],['dob','تاريخ الميلاد']])if(!e[k])r.push('حقل ناقص: '+l);
+  return r}
+const all=()=>[...S.emps.values()];
+const uniq=k=>[...new Set(all().map(e=>e[k]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
+function pointInfo(p){const c={};for(const e of all())if(e.point===p){const k=[e.psup,e.region,e.area].join('|');c[k]=(c[k]||0)+1}
+  const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];if(!top)return null;const [psup,region,area]=top[0].split('|');return{psup,region,area}}
+const chip=t=>`<span class="chip ${TCLS[t]||''}">${h(t||'—')}</span>`;
+const opts=(arr,sel,blank)=>(blank!==undefined?`<option value="">${h(blank)}</option>`:'')+arr.map(v=>`<option${v===sel?' selected':''}>${h(v)}</option>`).join('');
+
+/* ---------- backend (Supabase RPC) ---------- */
+let PIN='';
+const rpc=async(fn,args)=>{let r;try{r=await fetch(CONFIG.SUPABASE_URL.replace(/\/$/,'')+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:CONFIG.SUPABASE_KEY,Authorization:'Bearer '+CONFIG.SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify(args)})}
+  catch(e){throw{code:'network',message:'لا يوجد اتصال بالإنترنت أو تعذّر الوصول إلى الخادم'}}
+  const j=await r.json().catch(()=>null);if(!r.ok)throw{code:'error',message:(j&&j.message)||('HTTP '+r.status)};return j};
+const subs={},snapOf=rows=>({docs:(rows||[]).map(x=>({id:x.id,data:()=>x.data})),empty:!(rows&&rows.length)});
+async function refresh(c){if(!subs[c])return;const rows=await rpc('aei_list',{p:PIN,c});subs[c].forEach(f=>f(snapOf(rows)))}
+const DB={doc(path){const [c,i]=path.split('/');return{set:d=>rpc('aei_set',{p:PIN,c,i,d}).then(()=>refresh(c)),update:d=>rpc('aei_update',{p:PIN,c,i,d}).then(()=>refresh(c)),delete:()=>rpc('aei_delete',{p:PIN,c,i}).then(()=>refresh(c))}},
+ collection(c){const q={limit:()=>q,orderBy:()=>q,get:async()=>{const rows=await rpc('aei_list',{p:PIN,c});rows.sort((a,b)=>(b.data.ts||0)-(a.data.ts||0));return snapOf(rows.slice(0,200))},
+  onSnapshot(f,err){(subs[c]=subs[c]||[]).push(f);refresh(c).catch(e=>err&&err(e))},add:d=>rpc('aei_set',{p:PIN,c,i:Date.now().toString(36)+Math.random().toString(36).slice(2,7),d})};return q}};
+setInterval(()=>{if(!document.hidden&&!dlg.open&&S.ready)Object.keys(subs).forEach(c=>refresh(c).catch(()=>{}))},30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.ready&&!dlg.open)Object.keys(subs).forEach(c=>refresh(c).catch(()=>{}))});
+const isAdmin=()=>S.role==='admin';
+(async()=>{
+  if(!/^https:\/\//.test(CONFIG.SUPABASE_URL)||CONFIG.SUPABASE_KEY.length<20){app.innerHTML='<div class="empty">لم يُضبط الاتصال بقاعدة البيانات بعد. ضع رابط المشروع والمفتاح في أعلى ملف index.html.</div>';return}
+  S.db=DB;const saved=ss.get();
+  if(saved){try{const r=await rpc('aei_login',{p:saved});if(r){PIN=saved;S.role=r;return start()}}catch(e){}}
+  renderLock()})();
+function renderLock(msg){app.innerHTML=`<div class="lock"><form id="lockf"><h1>سجل موظفي AEI – WFP</h1><div class="muted">أدخل رمز الدخول لعرض البيانات.</div>
+  <input id="pin" inputmode="numeric" type="password" autocomplete="off" maxlength="20" aria-label="رمز الدخول">${msg?`<div class="note bad">${h(msg)}</div>`:''}<button class="btn pri" id="go">دخول</button></form></div>`;$('#pin').focus()}
+async function submitLock(){const p=$('#pin').value.trim();if(!p)return;$('#go').disabled=true;$('#go').textContent='جاري التحقق…';
+  try{const r=await rpc('aei_login',{p});if(r){PIN=p;S.role=r;ss.set(p);start()}else renderLock('الرمز غير صحيح.')}catch(e){renderLock(e.message)}}
+function start(){document.body.classList.toggle('ro',!isAdmin());
+  app.innerHTML='<div class="empty">جاري تحميل بيانات الموظفين…</div>';
+  unsub=S.db.collection('emp').limit(1000).onSnapshot(snap=>{S.emps=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));S.ready=true;render()},
+    e=>{app.innerHTML=`<div class="empty">تعذّر تحميل البيانات: ${h(e.message||e.code)}</div>`});
+  if(isAdmin())S.db.collection('resigned').limit(1000).onSnapshot(snap=>{S.res=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));if(S.ready)render()},()=>{})}
+
+/* ---------- views ---------- */
+function filtered(){const f=S.f,qs=nrm(f.q).split(' ').filter(Boolean);
+  const hit=e=>{const t=nrm([e.name,isAdmin()?e.id:'',mob(e.mobile),e.point,e.iban].join(' ')),t2=t.replace(/ /g,'');return qs.every(w=>t.includes(w))||t2.includes(qs.join(''))};
+  return all().filter(e=>(!f.region||e.region===f.region)&&(!f.psup||e.psup===f.psup)&&(!f.point||e.point===f.point)&&(!f.track||e.track===f.track)&&(!f.cat||e.cat===f.cat)
+    &&(!f.bad||issues(e).length)&&(!qs.length||hit(e)))
+   .sort((a,b)=>(a.region||'').localeCompare(b.region||'','ar')||(a.psup||'').localeCompare(b.psup||'','ar')||(a.point||'').localeCompare(b.point||'','ar')||(a.name||'').localeCompare(b.name||'','ar'))}
+function render(){const n=S.emps.size, bad=all().filter(e=>issues(e).length).length;
+  const keep=document.activeElement?.id, pos=document.activeElement?.selectionStart;
+  app.innerHTML=`<header class="top"><div class="bar"><div><h1>سجل موظفي AEI – WFP</h1><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي</div></div>
+   <div class="acts adm"><button class="btn pri" data-act="add">إضافة موظف</button><button class="btn" data-act="export">تصدير Excel</button><button class="btn" data-act="pin">تغيير الرمز</button></div></div>
+   <div class="tabs" role="tablist">${[['db','قاعدة البيانات'],['points','حسب النقاط'],['sups','حسب المشرفين'],['res','الاستقالات'],['log','سجل التعديلات']].filter(t=>isAdmin()||(t[0]!=='res'&&t[0]!=='log')).map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}</button>`).join('')}</div></header>
+   <div class="sum"><span><b>${n}</b> موظف</span>${TRACKS.map(t=>{const c=all().filter(e=>e.track===t).length;return c?`<span>${chip(t)} <b>${c}</b></span>`:''}).join('')}
+   <span><b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة</span>${S.res.size?`<span><b>${S.res.size}</b> استقالة</span>`:''}${bad?`<span style="color:var(--warn)"><b>${bad}</b> بحاجة لمراجعة</span>`:''}</div>
+   <main id="view"></main>`;
+  if(!n&&S.tab!=='res'&&S.tab!=='log'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
+  ({db:vDb,points:vPoints,sups:vSups,res:vRes,log:vLog})[S.tab]();
+  if(keep){const el=document.getElementById(keep);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(e){}}}}
+function vDb(){const f=S.f,rows=filtered();
+  $('#view').innerHTML=`<div class="filters">
+   <input class="q" id="f-q" type="search" placeholder="بحث بالاسم، الجوال، النقطة…" value="${h(f.q)}" aria-label="بحث">
+   <select id="f-region" aria-label="النطاق">${opts(uniq('region'),f.region,'كل النطاقات')}</select>
+   <select id="f-psup" aria-label="مشرف النقطة">${opts(uniq('psup'),f.psup,'كل المشرفين')}</select>
+   <select id="f-point" aria-label="النقطة">${opts(uniq('point'),f.point,'كل النقاط')}</select>
+   <select id="f-track" aria-label="المسار">${opts(TRACKS,f.track,'كل المسارات')}</select>
+   <select id="f-cat" aria-label="الفئة">${opts(uniq('cat'),f.cat,'كل الفئات')}</select>
+   <label class="chk adm"><input id="f-bad" type="checkbox"${f.bad?' checked':''}> بحاجة لمراجعة فقط</label></div>
+   <div class="muted" style="font-size:13px;margin-bottom:6px">${rows.length} نتيجة · اضغط على أي صف لعرض التفاصيل</div>
+   <div class="tw"><table><thead><tr><th>الاسم الرباعي</th><th class="adm">رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسار</th><th>الفئة</th><th>مشرف النقطة</th><th>النطاق</th><th>المنطقة</th><th class="adm">طريقة الدفع</th><th>إجراءات</th></tr></thead>
+   <tbody>${rows.map(e=>`<tr data-emp="${h(e.id)}"><td class="nm">${h(e.name)}${e.focal?'<span class="fp">فوكال</span>':''}${issues(e).length?'<span class="flag" title="بحاجة لمراجعة">!</span>':''}</td>
+    <td class="num adm">${h(e.id)}</td><td class="num">${h(mob(e.mobile))}</td><td>${h(e.point)}</td><td>${chip(e.track)}</td><td>${h(e.cat)}</td><td>${h(e.psup)}</td><td>${h(e.region)}</td><td>${h(e.area)}</td><td class="adm">${h(e.pay)}</td><td>${ibs(e)}</td></tr>`).join('')
+    ||'<tr><td colspan="11" class="empty">لا توجد نتائج مطابقة.</td></tr>'}</tbody></table></div>`}
+function vPoints(){const regs=uniq('region');
+  $('#view').innerHTML=regs.map(r=>{const es=all().filter(e=>e.region===r),pts=[...new Set(es.map(e=>e.point))].sort((a,b)=>a.localeCompare(b,'ar'));
+   return `<section class="region"><h2>${h(r)} <span>${pts.length} نقطة · ${es.length} موظف</span></h2><div class="pgrid">${pts.map(p=>{
+    const pe=es.filter(e=>e.point===p),i=pointInfo(p)||{};
+    return `<article class="pt"><header><h3>${h(p)} <span class="num">${pe.length}</span></h3><div class="meta">${h(i.area||'')} · المشرف: ${h(i.psup||'—')}</div></header><ul>${
+     pe.sort((a,b)=>TRACKS.indexOf(a.track)-TRACKS.indexOf(b.track)||(b.focal?1:0)-(a.focal?1:0)||a.name.localeCompare(b.name,'ar')).map(e=>`<li>${chip(e.track)}<button class="who" data-emp="${h(e.id)}">${h(e.name)}${e.focal?'<span class="fp">فوكال</span>':''} <small>${h(e.cat)}</small></button><button class="btn sm adm" data-move="${h(e.id)}">نقل</button></li>`).join('')}</ul></article>`}).join('')}</div></section>`}).join('')}
+function vSups(){
+  $('#view').innerHTML=uniq('psup').map(s=>{const es=all().filter(e=>e.psup===s),pts=[...new Set(es.map(e=>e.point))].sort((a,b)=>a.localeCompare(b,'ar'));
+   return `<section class="sv"><header><h2>${h(s)}</h2><span class="muted">${pts.length} نقطة · ${es.length} موظف · ${[...new Set(es.map(e=>e.region))].map(h).join('، ')}</span></header>
+   <div class="tw"><table><thead><tr><th>الاسم</th><th>المسار</th><th>الفئة</th><th>الجوال</th><th>المشرف المباشر</th><th></th></tr></thead><tbody>${pts.map(p=>{const pe=es.filter(e=>e.point===p).sort((a,b)=>TRACKS.indexOf(a.track)-TRACKS.indexOf(b.track));
+    return `<tr class="grp"><td colspan="6">${h(p)} · ${h(pe[0].region)} / ${h(pe[0].area)} · ${pe.length}</td></tr>`+pe.map(e=>`<tr data-emp="${h(e.id)}"><td class="nm">${h(e.name)}${e.focal?'<span class="fp">فوكال</span>':''}</td><td>${chip(e.track)}</td><td>${h(e.cat)}</td><td class="num">${h(mob(e.mobile))}</td><td>${h(e.sup)}</td><td><button class="btn sm adm" data-move="${h(e.id)}">نقل</button></td></tr>`).join('')}).join('')}</tbody></table></div></section>`}).join('')}
+function vRes(){const rs=[...S.res.values()].sort((a,b)=>(b.resignDate||'').localeCompare(a.resignDate||''));
+  $('#view').innerHTML=rs.length?`<div class="tw" style="margin-top:8px"><table><thead><tr><th>الاسم الرباعي</th><th>رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسار</th><th>تاريخ الاستقالة</th><th>ملاحظات</th><th>البديل</th><th></th></tr></thead><tbody>${
+   rs.map(e=>`<tr style="cursor:default"><td class="nm">${h(e.name)}</td><td class="num">${h(e.id)}</td><td class="num">${h(mob(e.mobile))}</td><td>${h(e.point)}</td><td>${chip(e.track)}</td><td class="num">${h(fd(e.resignDate))}</td><td style="white-space:normal;min-width:180px">${h(e.resignNote||'—')}</td>
+    <td style="white-space:normal;min-width:180px">${e.repName||e.repId||e.repMobile||e.repPoint?`${h(e.repName||'—')}<br><span class="num">${h(e.repId||'')}</span> <span class="num">${h(mob(e.repMobile))}</span><br><small class="muted">${h(e.repPoint||'')}</small>`:'—'}</td>
+    <td><button class="btn sm" data-restore="${h(e.id)}">إرجاع للعمل</button></td></tr>`).join('')}</tbody></table></div>`
+   :'<div class="empty">لا توجد استقالات مسجلة. لتسجيل استقالة اضغط أيقونة الاستقالة بجانب الموظف في قاعدة البيانات.</div>'}
+async function vLog(){const v=$('#view');v.innerHTML='<div class="empty">جاري تحميل السجل…</div>';
+  try{const s=await S.db.collection('log').orderBy('ts','desc').limit(200).get();if(S.tab!=='log')return;
+   v.innerHTML=s.empty?'<div class="empty">لا توجد تعديلات مسجلة بعد. كل إضافة أو نقل أو تعديل سيظهر هنا.</div>'
+    :`<div class="log">${s.docs.map(d=>{const x=d.data();return `<div><time class="num">${h(new Date(x.ts).toLocaleString('en-GB',{dateStyle:'short',timeStyle:'short'}))}</time><b>${h(x.type)}</b><span>${h(x.name)}</span><span class="muted">${h(x.text)}</span></div>`}).join('')}</div>`}
+  catch(e){v.innerHTML=`<div class="empty">تعذّر تحميل السجل: ${h(e.message||e.code)}</div>`}}
+
+/* ---------- dialogs ---------- */
+const head=t=>`<div class="dh"><h2>${t}</h2><button class="btn sm" data-act="close" type="button">إغلاق</button></div>`;
+function showEmp(id){const e=S.emps.get(id);if(!e)return;const is=issues(e);
+  const kv=(l,v,num)=>!isAdmin()&&!v?'':`<div><dt>${l}</dt><dd${num?' class="num"':''}>${h(v||'—')}</dd></div>`;
+  dlg.innerHTML=head(h(e.name))+`<div class="db">${is.length?`<div class="note">${is.map(h).join(' · ')}</div>`:''}
+   <dl class="kv" style="margin:0">${kv('رقم الهوية',isAdmin()?e.id:'',1)}${kv('رقم الجوال',mob(e.mobile),1)}${kv('النقطة',e.point)}<div><dt>المسار</dt><dd>${chip(e.track)} ${e.focal?'<span class="fp">فوكال بوينت</span>':''}</dd></div>
+   ${kv('القسم',e.dept)}${kv('الفئة الوظيفية',e.cat)}${kv('المشرف المباشر',e.sup)}${kv('مشرف النقطة',e.psup)}${kv('النطاق الجغرافي',e.region)}${kv('منطقة النقطة',e.area)}${e.note?kv('ملاحظة الدوام',e.note):''}
+   ${kv('تاريخ الميلاد',fd(e.dob),1)}${kv('الحالة الاجتماعية',e.marital)}${kv('الجامعة',e.uni)}${kv('الدرجة العلمية',e.degree)}${kv('التخصص',e.major)}${kv('تاريخ الشهادة',fd(e.grad),1)}
+   ${kv('طريقة تلقي الراتب',e.pay)}<div class="adm"><dt>الأيبان / رقم المحفظة</dt><dd class="num">${h(e.iban||'—')} ${e.iban?`<button class="btn sm" data-copy="${h(e.iban)}" type="button">نسخ</button>`:''}</dd></div></dl></div>
+   <div class="df adm"><div><button class="btn pri" data-edit="${h(id)}">تعديل البيانات</button><button class="btn" data-move="${h(id)}">نقل إلى نقطة أخرى</button></div><button class="btn" data-focal="${h(id)}">${e.focal?'إلغاء الفوكال':'تعيين فوكال'}</button></div><div><button class="btn danger" data-resign="${h(id)}">استقالة موظف</button></div></div>`;
+  open()}
+function open(){if(!dlg.open)dlg.showModal();dlg.scrollTop=0}
+function inp(k,l,v,o={}){return `<label${o.wide?' class="wide"':''}>${l}<input id="e-${k}" name="${k}" value="${h(v??'')}" ${o.type?`type="${o.type}"`:''} ${o.list?`list="${o.list}"`:''} ${o.req?'required':''} ${o.ltr?'dir="ltr"':''} ${o.ro?'readonly':''}></label>`}
+function sel(k,l,arr,v){if(v&&!arr.includes(v))arr=[...arr,v];return `<label>${l}<select id="e-${k}" name="${k}">${opts(arr,v,'—')}</select></label>`}
+const lists=()=>`<datalist id="l-point">${opts(uniq('point'))}</datalist><datalist id="l-sup">${opts([...new Set([...uniq('psup'),...uniq('sup')])])}</datalist><datalist id="l-region">${opts(uniq('region'))}</datalist><datalist id="l-area">${opts(uniq('area'))}</datalist><datalist id="l-uni">${opts(uniq('uni'))}</datalist>`;
+function editEmp(id){const e=id?S.emps.get(id):{pay:'بنك فلسطين'};
+  dlg.innerHTML=`<form id="empf" data-id="${h(id||'')}">`+head(id?'تعديل: '+h(e.name):'إضافة موظف جديد')+`<div class="db">${lists()}<div id="ferr"></div>
+   <fieldset><legend>البيانات الأساسية</legend>${inp('name','الاسم الرباعي',e.name,{req:1,wide:1})}${inp('id','رقم الهوية (9 أرقام)',e.id,{req:1,ltr:1,ro:!!id})}${inp('mobile','رقم الجوال',mob(e.mobile),{ltr:1})}
+    ${inp('dob','تاريخ الميلاد',e.dob,{type:'date'})}${sel('marital','الحالة الاجتماعية',MARITAL,e.marital)}</fieldset>
+   <fieldset><legend>الدوام</legend>${inp('point','النقطة (اختر أو اكتب نقطة جديدة)',e.point,{list:'l-point',req:1})}${sel('track','المسار',TRACKS,e.track)}${sel('dept','القسم',DEPTS,e.dept)}${sel('cat','الفئة الوظيفية',CATS,e.cat)}
+    ${inp('psup','مشرف النقطة',e.psup,{list:'l-sup'})}${inp('sup','المشرف المباشر',e.sup,{list:'l-sup'})}${inp('region','النطاق الجغرافي',e.region,{list:'l-region'})}${inp('area','منطقة النقطة',e.area,{list:'l-area'})}
+    ${inp('note','ملاحظة الدوام (اختياري)',e.note)}<label class="chk" style="align-self:end"><input id="e-focal" name="focal" type="checkbox"${e.focal?' checked':''}> فوكال بوينت في النقطة</label></fieldset>
+   <fieldset><legend>المؤهل العلمي</legend>${inp('uni','الجامعة',e.uni,{list:'l-uni'})}${inp('degree','الدرجة العلمية',e.degree)}${inp('grad','تاريخ الحصول على الشهادة',e.grad,{type:'date'})}${inp('major','التخصص',e.major,{wide:1})}</fieldset>
+   <fieldset><legend>الراتب</legend>${sel('pay','طريقة تلقي الراتب',PAYS,e.pay)}${inp('iban','الأيبان / رقم المحفظة',e.iban,{ltr:1})}</fieldset></div>
+   <div class="df"><div><button class="btn pri">${id?'حفظ التعديلات':'إضافة الموظف'}</button><button class="btn" type="button" data-act="close">إلغاء</button></div>
+   ${id?`<div><button class="btn danger" type="button" data-del="${h(id)}">حذف الموظف</button></div>`:''}</div></form>`;
+  open()}
+function moveEmp(id){const e=S.emps.get(id);if(!e)return;
+  dlg.innerHTML=`<form id="movef" data-id="${h(id)}">`+head('نقل: '+h(e.name))+`<div class="db">${lists()}<div class="muted">الحالي: ${h(e.point)} · ${h(e.track)} · مشرف النقطة ${h(e.psup)} · ${h(e.region)} / ${h(e.area)}</div>
+   <fieldset>${inp('point','النقطة الجديدة',e.point,{list:'l-point',req:1})}${sel('track','المسار',TRACKS,e.track)}${inp('psup','مشرف النقطة',e.psup,{list:'l-sup'})}${inp('sup','المشرف المباشر',e.sup,{list:'l-sup'})}${inp('region','النطاق الجغرافي',e.region,{list:'l-region'})}${inp('area','منطقة النقطة',e.area,{list:'l-area'})}</fieldset>
+   <div class="muted" style="font-size:13px">عند اختيار نقطة موجودة يُعبّأ مشرفها ونطاقها ومنطقتها تلقائياً، ويمكنك تعديلها قبل الحفظ.</div></div>
+   <div class="df"><div><button class="btn pri">تأكيد النقل</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;
+  open()}
+function resignEmp(id){const e=S.emps.get(id);if(!e)return;
+  dlg.innerHTML=`<form id="resf" data-id="${h(id)}">`+head('استقالة موظف')+`<div class="db">${lists()}<div id="ferr"></div>
+   <div class="note bad">تأكيد استقالة <b>${h(e.name)}</b> (${h(assign(e))}). سيُنقل من قاعدة البيانات إلى صفحة الاستقالات مع كافة بياناته.</div>
+   <fieldset>${inp('resignDate','تاريخ الاستقالة',today(),{type:'date',req:1})}<label class="wide">ملاحظات<textarea id="e-resignNote" name="resignNote"></textarea></label></fieldset>
+   <fieldset><legend>بيانات البديل (اختياري)</legend>${inp('repName','اسم البديل','')}${inp('repId','رقم هوية البديل','',{ltr:1})}${inp('repMobile','رقم جوال البديل','',{ltr:1})}${inp('repPoint','اسم النقطة',e.point,{list:'l-point'})}</fieldset>
+   <label class="chk"><input id="e-sure" name="sure" type="checkbox" required> أؤكد استقالة هذا الموظف</label></div>
+   <div class="df"><div><button class="btn pri">تأكيد الاستقالة</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;
+  open()}
+async function saveResign(f){const id=f.dataset.id,o=formData(f),e=S.emps.get(id);if(!e)return dlg.close();
+  o.repId=o.repId.replace(/\D/g,'');o.repMobile=mob(o.repMobile).replace(/^0/,'');
+  if(!o.sure)return ferr('ضع علامة التأكيد أولاً.');
+  if(!o.resignDate)return ferr('أدخل تاريخ الاستقالة.');
+  if(o.repId&&!/^\d{9}$/.test(o.repId))return ferr('رقم هوية البديل يجب أن يكون 9 أرقام.');
+  if(!o.repName&&!o.repId&&!o.repMobile)o.repPoint='';
+  delete o.sure;const doc={...e,...o};delete doc.id;const btn=f.querySelector('.pri');btn.disabled=true;
+  try{await S.db.doc('resigned/'+id).set(doc);await S.db.doc('emp/'+id).delete();
+    log('استقالة',e,`${assign(e)} · ${fd(o.resignDate)}${o.resignNote?' · '+o.resignNote:''}${o.repName?' · البديل: '+o.repName:''}`);dlg.close();toast('سُجّلت الاستقالة')}
+  catch(err){btn.disabled=false;ferr('لم تُحفظ: '+(err.message||err.code))}}
+async function restoreEmp(btn){const id=btn.dataset.restore,e=S.res.get(id);if(!e)return;
+  if(!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='اضغط مرة أخرى للتأكيد';return}
+  const doc={...e};for(const k of ['id','resignDate','resignNote','repName','repId','repMobile','repPoint'])delete doc[k];
+  try{await S.db.doc('emp/'+id).set(doc);await S.db.doc('resigned/'+id).delete();log('إرجاع للعمل',e,assign(e));toast('أُرجع الموظف إلى قاعدة البيانات')}catch(err){toast('لم يُحفظ: '+(err.message||err.code))}}
+function focalDlg(id){const e=S.emps.get(id);if(!e)return;const cur=all().filter(x=>x.focal&&x.point===e.point&&x.id!==id);
+  dlg.innerHTML=`<form id="focf" data-id="${h(id)}">`+head(e.focal?'إلغاء الفوكال بوينت':'تعيين فوكال بوينت')+`<div class="db">
+   <div>${e.focal?'إلغاء تعيين':'تعيين'} <b>${h(e.name)}</b> ${e.focal?'من مهمة':'كـ'} فوكال بوينت في نقطة <b>${h(e.point)}</b>؟</div>
+   ${!e.focal&&cur.length?`<div class="note">يوجد فوكال بوينت حالي في هذه النقطة: ${cur.map(x=>h(x.name)+' ('+h(x.track)+')').join('، ')}. سيبقى كما هو.</div>`:''}</div>
+   <div class="df"><div><button class="btn pri">اعتماد</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;
+  open()}
+async function saveFocal(f){const id=f.dataset.id,e=S.emps.get(id);if(!e)return dlg.close();const v=!e.focal,btn=f.querySelector('.pri');btn.disabled=true;
+  try{await S.db.doc('emp/'+id).update({focal:v});log(v?'تعيين فوكال':'إلغاء فوكال',e,e.point);dlg.close();toast(v?'تم تعيين الفوكال بوينت':'أُلغي تعيين الفوكال بوينت')}
+  catch(err){btn.disabled=false;toast('لم يُحفظ: '+(err.message||err.code))}}
+function pinDlg(){dlg.innerHTML=`<form id="pinf">`+head('تغيير رموز الدخول')+`<div class="db"><div id="ferr"></div><fieldset><label>الرمز المراد تغييره<select id="e-role" name="role"><option value="view">رمز العرض (للمشرفين)</option><option value="admin">رمز المدير (تعديل كامل)</option></select></label>${inp('new','الرمز الجديد (6 خانات على الأقل)','',{type:'password',ltr:1,req:1})}</fieldset></div><div class="df"><div><button class="btn pri">حفظ الرمز</button></div></div></form>`;open()}
+const ferr=m=>{const el=$('#ferr');if(el){el.innerHTML=`<div class="note bad">${h(m)}</div>`;dlg.scrollTop=0}};
+const log=(type,e,text)=>S.db.collection('log').add({ts:Date.now(),type,empId:e.id,name:e.name,text}).catch(()=>{});
+function formData(f){const o={};for(const el of f.elements)if(el.name)o[el.name]=el.type==='checkbox'?el.checked:el.value.trim();return o}
+
+async function saveEmp(f){const id0=f.dataset.id,o=formData(f),old=id0?S.emps.get(id0):null;
+  o.id=o.id.replace(/\D/g,'');o.mobile=mob(o.mobile).replace(/^0/,'');o.iban=o.iban.replace(/[\s‎‏']/g,'');
+  if(!/^\d{9}$/.test(o.id))return ferr('رقم الهوية يجب أن يكون 9 أرقام.');
+  if(!id0&&S.emps.has(o.id))return ferr('يوجد موظف مسجل بنفس رقم الهوية: '+S.emps.get(o.id).name);
+  if(!id0&&S.res.has(o.id))return ferr('هذا الرقم مسجل في الاستقالات باسم '+S.res.get(o.id).name+'. استخدم «إرجاع للعمل» من صفحة الاستقالات.');
+  const id=o.id;delete o.id;const doc={...(old||{}),...o};delete doc.id;if(!old)doc.num=String(Math.max(0,...all().map(e=>parseInt(e.num)||0))+1);
+  const btn=f.querySelector('.pri');btn.disabled=true;
+  try{await S.db.doc('emp/'+id).set(doc);
+    if(old){const ch=F.filter(([k])=>k!=='assign'&&k!=='id').concat([['point','النقطة'],['track','المسار'],['note','ملاحظة']]).filter(([k])=>String(old[k]??'')!==String(doc[k]??'')).map(([k,l])=>`${l}: ${old[k]||'—'} ← ${doc[k]===true?'نعم':doc[k]||'—'}`);
+      if(ch.length)log('تعديل',{id,name:doc.name},ch.join(' | '))}
+    else log('إضافة',{id,name:doc.name},assign(doc));
+    dlg.close();toast(old?'حُفظت التعديلات':'أُضيف الموظف')}
+  catch(e){btn.disabled=false;ferr('لم يُحفظ: '+(e.message||e.code))}}
+async function saveMove(f){const id=f.dataset.id,o=formData(f),e=S.emps.get(id);const btn=f.querySelector('.pri');btn.disabled=true;
+  try{await S.db.doc('emp/'+id).update(o);log('نقل',e,`${assign(e)} (${e.psup}) ← ${assign({...e,...o})} (${o.psup})`);dlg.close();toast('تم نقل الموظف')}
+  catch(err){btn.disabled=false;toast('لم يُحفظ النقل: '+(err.message||err.code))}}
+async function delEmp(btn){const id=btn.dataset.del,e=S.emps.get(id);
+  if(!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='اضغط مرة أخرى لتأكيد الحذف';return}
+  try{await S.db.doc('emp/'+id).delete();log('حذف',e,assign(e));dlg.close();toast('حُذف الموظف')}catch(err){toast('لم يُحذف: '+(err.message||err.code))}}
+async function savePin(f){const o=formData(f);if(o.new.length<6)return ferr('الرمز الجديد يجب أن يكون 6 خانات على الأقل.');
+  try{await rpc('aei_set_pin',{p:PIN,r:o.role,n:o.new});if(o.role==='admin'){PIN=o.new;ss.set(PIN)}dlg.close();toast('تم تغيير الرمز')}catch(e){ferr('لم يُحفظ: '+e.message)}}
+async function exportXlsx(){if(!window.XLSX)return toast('تعذّر تحميل مكتبة التصدير. تحقق من الاتصال.');
+  const rows=filteredAllSorted(),val=(e,k)=>k==='assign'?assign(e):k==='focal'?(e.focal?'فوكال بوينت':''):k==='dob'||k==='grad'?fd(e[k]):k==='mobile'?mob(e[k]):(e[k]??'');
+  const ws=XLSX.utils.aoa_to_sheet([F.map(f=>f[1]),...rows.map(e=>F.map(([k])=>String(val(e,k))))]);ws['!cols']=F.map(([k])=>({wch:k==='name'||k==='major'||k==='iban'?34:k==='assign'?26:16}));
+  const ws2=XLSX.utils.aoa_to_sheet([['النطاق','منطقة النقطة','النقطة','مشرف النقطة','المسار','الاسم','الفئة','الجوال','المشرف المباشر'],...rows.map(e=>[e.region,e.area,e.point,e.psup,e.track,e.name,e.cat,mob(e.mobile),e.sup].map(v=>String(v??'')))]);ws2['!cols']=[14,14,20,18,10,34,12,14,18].map(w=>({wch:w}));
+  const rs=[...S.res.values()].sort((a,b)=>(a.resignDate||'').localeCompare(b.resignDate||''));
+  const ws3=XLSX.utils.aoa_to_sheet([[...F.map(f=>f[1]),'تاريخ الاستقالة','ملاحظات الاستقالة','اسم البديل','رقم هوية البديل','رقم جوال البديل','نقطة البديل'],...rs.map(e=>[...F.map(([k])=>String(val(e,k))),fd(e.resignDate),e.resignNote||'',e.repName||'',e.repId||'',mob(e.repMobile),e.repPoint||''])]);
+  ws3['!cols']=[...ws['!cols'],{wch:16},{wch:40},{wch:30},{wch:16},{wch:16},{wch:20}];
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'قاعدة البيانات');XLSX.utils.book_append_sheet(wb,ws2,'حسب النقاط والمشرفين');XLSX.utils.book_append_sheet(wb,ws3,'الاستقالات');wb.Workbook={Views:[{RTL:true},{RTL:true},{RTL:true}]};
+  const d=new Date(),name=`موظفو AEI-WFP ${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}.xlsx`;
+  try{const u=URL.createObjectURL(new Blob([XLSX.write(wb,{type:'array',bookType:'xlsx'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);toast('تم تنزيل الملف')}catch(e){toast('تعذّر التصدير: '+(e.message||e))}}
+function filteredAllSorted(){const f=S.f;S.f={q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false};const r=filtered();S.f=f;return r}
+
+/* ---------- events ---------- */
+document.addEventListener('submit',ev=>{ev.preventDefault();const f=ev.target;({lockf:submitLock,empf:()=>saveEmp(f),movef:()=>saveMove(f),resf:()=>saveResign(f),focf:()=>saveFocal(f),pinf:()=>savePin(f)})[f.getAttribute('id')]?.()});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[data-act],[data-move],[data-edit],[data-del],[data-resign],[data-focal],[data-restore],[data-copy],[data-emp]');if(!t)return;const d=t.dataset;
+  if(d.tab){S.tab=d.tab;render()}
+  else if(d.act==='close')dlg.close(); else if(d.act==='add')editEmp(); else if(d.act==='export')exportXlsx(); else if(d.act==='pin')pinDlg();
+  else if(d.move)moveEmp(d.move); else if(d.edit)editEmp(d.edit); else if(d.del)delEmp(t); else if(d.resign)resignEmp(d.resign); else if(d.focal)focalDlg(d.focal); else if(d.restore)restoreEmp(t);
+  else if(d.copy)navigator.clipboard?.writeText(d.copy).then(()=>toast('تم النسخ'),()=>toast('حدّد الرقم وانسخه يدوياً'));
+  else if(d.emp)showEmp(d.emp)});
+document.addEventListener('input',ev=>{const el=ev.target;
+  if(el.id?.startsWith('f-')){const k=el.id.slice(2);S.f[k]=el.type==='checkbox'?el.checked:el.value;vDb();if(k==='q'){const q=$('#f-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}}
+  if(el.id==='e-point'){const i=pointInfo(el.value.trim());if(i)for(const k of ['psup','region','area']){const x=el.form.querySelector('#e-'+k);if(x)x.value=i[k]}}});
+dlg.addEventListener('click',ev=>{if(ev.target===dlg)dlg.close()});
+</script>
+</body>
+</html>
