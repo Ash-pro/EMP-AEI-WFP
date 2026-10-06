@@ -342,7 +342,7 @@ const pRole=e=>e.track==='أمن'?chip('أمن')+(e.focal?'<span class="fp">فو
 const pCells=e=>e?`<td>${pRole(e)}</td><td class="nm"><button class="who" data-emp="${h(e.id)}" style="background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;text-align:start">${h(e.name)}</button></td><td class="num">${h(mob(e.mobile))}</td><td>${h(e.psup||'—')}</td>`:'<td colspan="4" class="muted">لا يوجد فوكال بوينت أو أمن معيّن</td>';
 function vPts(){const f=S.pf,rows0=pointRows(),qs=nrm(f.q).split(' ').filter(Boolean);
   const rows=rows0.filter(r=>(!f.region||r.region===f.region)&&(!f.sup||r.sups.includes(f.sup))&&(!f.type||r.types.includes(f.type))&&(!qs.length||qs.every(w=>nrm([r.name,r.region,r.area,...r.people.map(e=>e.name)].join(' ')).includes(w))));
-  if(f.sup)rows.forEach((r,i)=>{rows[i]={...r,people:r.people.filter(e=>e.psup===f.sup),total:r.count,count:all().filter(e=>e.point===r.name&&e.psup===f.sup).length}});
+  if(f.sup){rows.forEach((r,i)=>{rows[i]={...r,people:r.people.filter(e=>e.psup===f.sup),total:r.count,count:all().filter(e=>e.point===r.name&&e.psup===f.sup).length}});for(let i=rows.length-1;i>=0;i--)if(!rows[i].people.length)rows.splice(i,1)}
   S.ptRows=rows;
   $('#view').innerHTML=`<div class="filters"><input class="q" id="pf-q" type="search" placeholder="بحث باسم النقطة أو الفوكال أو موظف الأمن…" value="${h(f.q)}" aria-label="بحث في النقاط">
    <select id="pf-region" aria-label="المحافظة">${opts([...new Set(rows0.map(r=>r.region).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar')),f.region,'كل المحافظات')}</select>
