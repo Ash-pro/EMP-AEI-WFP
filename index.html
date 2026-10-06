@@ -235,14 +235,14 @@ async function renderLeave(){app.innerHTML='<div class="empty">جاري تحمي
   try{LISTS=LISTS||await rpc('aei_public_lists',{})}catch(e){app.innerHTML=`<div class="page"><div class="okbox"><div class="note bad">تعذّر تحميل النموذج: ${h(e.message)}</div><button class="btn" data-act="home">رجوع</button></div></div>`;return}
   app.innerHTML=`<div class="page"><form id="leavef"><div class="dh"><h2>طلب إجازة</h2><button class="btn sm" type="button" data-act="home">رجوع</button></div><div class="db"><div id="ferr"></div>
    <fieldset><legend>بيانات الموظف</legend>${inp('name','الاسم الرباعي','',{req:1,wide:1})}${inp('id','رقم الهوية (9 أرقام)','',{req:1,ltr:1})}${inp('mobile','رقم الجوال','',{req:1,ltr:1})}
-    ${sel('point','اسم النقطة',LISTS.points||[],'')}${inp('title','المسمى الوظيفي','',{req:1})}${sel('sup','اسم المشرف',LISTS.sups||[],'')}</fieldset>
+    ${sel('point','اسم النقطة',LISTS.points||[],'')}${sel('title','المسمى الوظيفي',(LISTS.cats&&LISTS.cats.length?LISTS.cats:CATS),'')}${sel('sup','اسم المشرف',LISTS.sups||[],'')}</fieldset>
    <fieldset><legend>مدة الإجازة</legend>${inp('start','بداية الإجازة','',{type:'date',req:1})}${inp('end','نهاية الإجازة','',{type:'date',req:1})}<label class="wide">ملاحظات<textarea id="e-notes" name="notes" maxlength="1000"></textarea></label></fieldset></div>
    <div class="df"><div><button class="btn pri">إرسال الطلب</button><button class="btn" type="button" data-act="home">إلغاء</button></div></div></form></div>`}
 async function saveLeave(f){const o=formData(f);o.id=o.id.replace(/\D/g,'');
   if(o.name.split(/\s+/).length<3)return ferr('أدخل الاسم الرباعي كاملاً.');
   if(!/^\d{9}$/.test(o.id))return ferr('رقم الهوية يجب أن يكون 9 أرقام.');
   if(!/^05[69]\d{7}$/.test(mob(o.mobile)))return ferr('رقم الجوال غير صحيح.');
-  if(!o.point)return ferr('اختر اسم النقطة.'); if(!o.sup)return ferr('اختر اسم المشرف.');
+  if(!o.point)return ferr('اختر اسم النقطة.'); if(!o.title)return ferr('اختر المسمى الوظيفي.'); if(!o.sup)return ferr('اختر اسم المشرف.');
   if(!o.start||!o.end)return ferr('أدخل تاريخ بداية ونهاية الإجازة.'); if(o.end<o.start)return ferr('تاريخ النهاية قبل تاريخ البداية.');
   const btn=f.querySelector('.pri');btn.disabled=true;btn.textContent='جاري الإرسال…';
   try{await rpc('aei_leave_submit',{d:o});
