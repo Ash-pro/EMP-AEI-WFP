@@ -170,7 +170,7 @@ const IC={view:'<svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6
  focal:'<svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9 6.6 19.8l1.1-6.1L3.2 9.4l6.1-.8z"/></svg>',
  out:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M16 11h6"/></svg>'};
 const nrm=v=>String(v??'').toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/[ىئ]/g,'ي').replace(/ؤ/g,'و').replace(/ء/g,'').replace(/\s+/g,' ').trim();
-const ibs=e=>{const id=e.id;return `<div class="ibs"><button class="ib" data-emp="${h(id)}" title="عرض البيانات" aria-label="عرض البيانات">${IC.view}</button><button class="ib adm" data-edit="${h(id)}" title="تعديل البيانات" aria-label="تعديل البيانات">${IC.edit}</button><button class="ib adm${e.focal?' on':''}" data-focal="${h(id)}" title="${e.focal?'إلغاء الفوكال بوينت':'تعيين فوكال بوينت'}" aria-label="${e.focal?'إلغاء الفوكال بوينت':'تعيين فوكال بوينت'}">${IC.focal}</button><button class="ib out adm" data-resign="${h(id)}" title="استقالة موظف" aria-label="استقالة موظف">${IC.out}</button></div>`};
+const ibs=e=>{const id=e.id;return `<div class="ibs"><button class="ib" data-emp="${h(id)}" title="عرض البيانات" aria-label="عرض البيانات">${IC.view}</button><button class="ib adm" data-edit="${h(id)}" title="تعديل البيانات" aria-label="تعديل البيانات">${IC.edit}</button><button class="ib${e.focal?' on':''}" data-focal="${h(id)}" title="${e.focal?'إلغاء الفوكال بوينت':'تعيين فوكال بوينت'}" aria-label="${e.focal?'إلغاء الفوكال بوينت':'تعيين فوكال بوينت'}">${IC.focal}</button><button class="ib out adm" data-resign="${h(id)}" title="استقالة موظف" aria-label="استقالة موظف">${IC.out}</button></div>`};
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 
 function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)}
@@ -285,7 +285,7 @@ function showEmp(id){const e=S.emps.get(id);if(!e)return;const is=issues(e);
    ${kv('القسم',e.dept)}${kv('الفئة الوظيفية',e.cat)}${kv('المشرف المباشر',e.sup)}${kv('مشرف النقطة',e.psup)}${kv('النطاق الجغرافي',e.region)}${kv('منطقة النقطة',e.area)}${e.note?kv('ملاحظة الدوام',e.note):''}
    ${kv('تاريخ الميلاد',fd(e.dob),1)}${kv('الحالة الاجتماعية',e.marital)}${kv('الجامعة',e.uni)}${kv('الدرجة العلمية',e.degree)}${kv('التخصص',e.major)}${kv('تاريخ الشهادة',fd(e.grad),1)}
    ${kv('طريقة تلقي الراتب',e.pay)}<div><dt>الأيبان / رقم المحفظة</dt><dd class="num">${h(e.iban||'—')} ${e.iban?`<button class="btn sm" data-copy="${h(e.iban)}" type="button">نسخ</button>`:''}</dd></div></dl></div>
-   <div class="df adm"><div><button class="btn pri" data-edit="${h(id)}">تعديل البيانات</button><button class="btn" data-move="${h(id)}">نقل إلى نقطة أخرى</button><button class="btn" data-focal="${h(id)}">${e.focal?'إلغاء الفوكال':'تعيين فوكال'}</button></div><div><button class="btn danger" data-resign="${h(id)}">استقالة موظف</button></div></div>`;
+   <div class="df"><div><button class="btn pri adm" data-edit="${h(id)}">تعديل البيانات</button><button class="btn adm" data-move="${h(id)}">نقل إلى نقطة أخرى</button><button class="btn" data-focal="${h(id)}">${e.focal?'إلغاء الفوكال':'تعيين فوكال'}</button></div><div class="adm"><button class="btn danger" data-resign="${h(id)}">استقالة موظف</button></div></div>`;
   open()}
 function open(){if(!dlg.open)dlg.showModal();dlg.scrollTop=0}
 function inp(k,l,v,o={}){return `<label${o.wide?' class="wide"':''}>${l}<input id="e-${k}" name="${k}" value="${h(v??'')}" ${o.type?`type="${o.type}"`:''} ${o.list?`list="${o.list}"`:''} ${o.req?'required':''} ${o.ltr?'dir="ltr"':''} ${o.ro?'readonly':''}></label>`}
@@ -338,7 +338,7 @@ function focalDlg(id){const e=S.emps.get(id);if(!e)return;const cur=all().filter
    <div class="df"><div><button class="btn pri">اعتماد</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;
   open()}
 async function saveFocal(f){const id=f.dataset.id,e=S.emps.get(id);if(!e)return dlg.close();const v=!e.focal,btn=f.querySelector('.pri');btn.disabled=true;
-  try{await S.db.doc('emp/'+id).update({focal:v});log(v?'تعيين فوكال':'إلغاء فوكال',e,e.point);dlg.close();toast(v?'تم تعيين الفوكال بوينت':'أُلغي تعيين الفوكال بوينت')}
+  try{await rpc('aei_focal',{p:PIN,i:id,v});await refresh('emp');dlg.close();toast(v?'تم تعيين الفوكال بوينت':'أُلغي تعيين الفوكال بوينت')}
   catch(err){btn.disabled=false;toast('لم يُحفظ: '+(err.message||err.code))}}
 function pinDlg(){dlg.innerHTML=`<form id="pinf">`+head('تغيير رموز الدخول')+`<div class="db"><div id="ferr"></div><fieldset><label>الرمز المراد تغييره<select id="e-role" name="role"><option value="view">رمز العرض (للمشرفين)</option><option value="admin">رمز المدير (تعديل كامل)</option></select></label>${inp('new','الرمز الجديد (6 خانات على الأقل)','',{type:'password',ltr:1,req:1})}</fieldset></div><div class="df"><div><button class="btn pri">حفظ الرمز</button></div></div></form>`;open()}
 const ferr=m=>{const el=$('#ferr');if(el){el.innerHTML=`<div class="note bad">${h(m)}</div>`;dlg.scrollTop=0}};
