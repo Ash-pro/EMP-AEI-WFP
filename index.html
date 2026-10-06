@@ -180,7 +180,7 @@ const mob=m=>{m=String(m||'').replace(/\D/g,'');return m.length===9?'0'+m:m};
 const fd=d=>d&&/^\d{4}-\d\d-\d\d$/.test(d)?d.slice(8)+'/'+d.slice(5,7)+'/'+d.slice(0,4):(d||'');
 const assign=e=>e.point==='إداري'?'إداري':[e.point,e.track,e.note].filter(Boolean).join(' - ');
 function ibanOk(s){s=String(s||'').toUpperCase();if(!/^PS\d{2}PALS\d{21}$/.test(s))return false;const t=s.slice(4)+s.slice(0,4);let n='';for(const c of t)n+=parseInt(c,36);return BigInt(n)%97n===1n}
-function issues(e){const r=[];if(!isAdmin())return r;
+function issues(e){const r=[];
   if(!/^\d{9}$/.test(e.id||''))r.push('رقم الهوية ليس 9 أرقام');
   if(!/^05[69]\d{7}$/.test(mob(e.mobile)))r.push('رقم الجوال غير صحيح');
   if((e.pay||'').startsWith('بنك')){if(!ibanOk(e.iban))r.push('الأيبان غير صالح')}
@@ -224,7 +224,7 @@ function start(){document.body.classList.toggle('ro',!isAdmin());
 
 /* ---------- views ---------- */
 function filtered(){const f=S.f,qs=nrm(f.q).split(' ').filter(Boolean);
-  const hit=e=>{const t=nrm([e.name,isAdmin()?e.id:'',mob(e.mobile),e.point,e.iban].join(' ')),t2=t.replace(/ /g,'');return qs.every(w=>t.includes(w))||t2.includes(qs.join(''))};
+  const hit=e=>{const t=nrm([e.name,e.id,mob(e.mobile),e.point,e.iban].join(' ')),t2=t.replace(/ /g,'');return qs.every(w=>t.includes(w))||t2.includes(qs.join(''))};
   return all().filter(e=>(!f.region||e.region===f.region)&&(!f.psup||e.psup===f.psup)&&(!f.point||e.point===f.point)&&(!f.track||e.track===f.track)&&(!f.cat||(f.cat==='فوكال بوينت'?!!e.focal:e.cat===f.cat))
     &&(!f.bad||issues(e).length)&&(!qs.length||hit(e)))
    .sort((a,b)=>(a.region||'').localeCompare(b.region||'','ar')||(a.psup||'').localeCompare(b.psup||'','ar')||(a.point||'').localeCompare(b.point||'','ar')||(a.name||'').localeCompare(b.name||'','ar'))}
@@ -241,17 +241,17 @@ function render(){const n=S.emps.size, bad=all().filter(e=>issues(e).length).len
   if(keep){const el=document.getElementById(keep);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(e){}}}}
 function vDb(){const f=S.f,rows=filtered();
   $('#view').innerHTML=`<div class="filters">
-   <input class="q" id="f-q" type="search" placeholder="بحث بالاسم، الجوال، النقطة…" value="${h(f.q)}" aria-label="بحث">
+   <input class="q" id="f-q" type="search" placeholder="بحث بالاسم، الهوية، الجوال، النقطة…" value="${h(f.q)}" aria-label="بحث">
    <select id="f-region" aria-label="النطاق">${opts(uniq('region'),f.region,'كل النطاقات')}</select>
    <select id="f-psup" aria-label="مشرف النقطة">${opts(uniq('psup'),f.psup,'كل المشرفين')}</select>
    <select id="f-point" aria-label="النقطة">${opts(uniq('point'),f.point,'كل النقاط')}</select>
    <select id="f-track" aria-label="المسار">${opts(TRACKS,f.track,'كل المسارات')}</select>
    <select id="f-cat" aria-label="الفئة">${opts([...uniq('cat'),'فوكال بوينت'],f.cat,'كل الفئات')}</select>
-   <label class="chk adm"><input id="f-bad" type="checkbox"${f.bad?' checked':''}> بحاجة لمراجعة فقط</label></div>
+   <label class="chk"><input id="f-bad" type="checkbox"${f.bad?' checked':''}> بحاجة لمراجعة فقط</label></div>
    <div class="muted" style="font-size:13px;margin-bottom:6px">${rows.length} نتيجة · اضغط على أي صف لعرض التفاصيل</div>
-   <div class="tw"><table><thead><tr><th>الاسم الرباعي</th><th class="adm">رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسار</th><th>الفئة</th><th>مشرف النقطة</th><th>النطاق</th><th>المنطقة</th><th class="adm">طريقة الدفع</th><th>إجراءات</th></tr></thead>
+   <div class="tw"><table><thead><tr><th>الاسم الرباعي</th><th>رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسار</th><th>الفئة</th><th>مشرف النقطة</th><th>النطاق</th><th>المنطقة</th><th>طريقة الدفع</th><th>إجراءات</th></tr></thead>
    <tbody>${rows.map(e=>`<tr data-emp="${h(e.id)}"><td class="nm">${h(e.name)}${e.focal?'<span class="fp">فوكال</span>':''}${issues(e).length?'<span class="flag" title="بحاجة لمراجعة">!</span>':''}</td>
-    <td class="num adm">${h(e.id)}</td><td class="num">${h(mob(e.mobile))}</td><td>${h(e.point)}</td><td>${chip(e.track)}</td><td>${h(e.cat)}</td><td>${h(e.psup)}</td><td>${h(e.region)}</td><td>${h(e.area)}</td><td class="adm">${h(e.pay)}</td><td>${ibs(e)}</td></tr>`).join('')
+    <td class="num">${h(e.id)}</td><td class="num">${h(mob(e.mobile))}</td><td>${h(e.point)}</td><td>${chip(e.track)}</td><td>${h(e.cat)}</td><td>${h(e.psup)}</td><td>${h(e.region)}</td><td>${h(e.area)}</td><td>${h(e.pay)}</td><td>${ibs(e)}</td></tr>`).join('')
     ||'<tr><td colspan="11" class="empty">لا توجد نتائج مطابقة.</td></tr>'}</tbody></table></div>`}
 function vPoints(){const regs=uniq('region');
   $('#view').innerHTML=regs.map(r=>{const es=all().filter(e=>e.region===r),pts=[...new Set(es.map(e=>e.point))].sort((a,b)=>a.localeCompare(b,'ar'));
@@ -279,12 +279,12 @@ async function vLog(){const v=$('#view');v.innerHTML='<div class="empty">جار�
 /* ---------- dialogs ---------- */
 const head=t=>`<div class="dh"><h2>${t}</h2><button class="btn sm" data-act="close" type="button">إغلاق</button></div>`;
 function showEmp(id){const e=S.emps.get(id);if(!e)return;const is=issues(e);
-  const kv=(l,v,num)=>!isAdmin()&&!v?'':`<div><dt>${l}</dt><dd${num?' class="num"':''}>${h(v||'—')}</dd></div>`;
+  const kv=(l,v,num)=>`<div><dt>${l}</dt><dd${num?' class="num"':''}>${h(v||'—')}</dd></div>`;
   dlg.innerHTML=head(h(e.name))+`<div class="db">${is.length?`<div class="note">${is.map(h).join(' · ')}</div>`:''}
-   <dl class="kv" style="margin:0">${kv('رقم الهوية',isAdmin()?e.id:'',1)}${kv('رقم الجوال',mob(e.mobile),1)}${kv('النقطة',e.point)}<div><dt>المسار</dt><dd>${chip(e.track)} ${e.focal?'<span class="fp">فوكال بوينت</span>':''}</dd></div>
+   <dl class="kv" style="margin:0">${kv('رقم الهوية',e.id,1)}${kv('رقم الجوال',mob(e.mobile),1)}${kv('النقطة',e.point)}<div><dt>المسار</dt><dd>${chip(e.track)} ${e.focal?'<span class="fp">فوكال بوينت</span>':''}</dd></div>
    ${kv('القسم',e.dept)}${kv('الفئة الوظيفية',e.cat)}${kv('المشرف المباشر',e.sup)}${kv('مشرف النقطة',e.psup)}${kv('النطاق الجغرافي',e.region)}${kv('منطقة النقطة',e.area)}${e.note?kv('ملاحظة الدوام',e.note):''}
    ${kv('تاريخ الميلاد',fd(e.dob),1)}${kv('الحالة الاجتماعية',e.marital)}${kv('الجامعة',e.uni)}${kv('الدرجة العلمية',e.degree)}${kv('التخصص',e.major)}${kv('تاريخ الشهادة',fd(e.grad),1)}
-   ${kv('طريقة تلقي الراتب',e.pay)}<div class="adm"><dt>الأيبان / رقم المحفظة</dt><dd class="num">${h(e.iban||'—')} ${e.iban?`<button class="btn sm" data-copy="${h(e.iban)}" type="button">نسخ</button>`:''}</dd></div></dl></div>
+   ${kv('طريقة تلقي الراتب',e.pay)}<div><dt>الأيبان / رقم المحفظة</dt><dd class="num">${h(e.iban||'—')} ${e.iban?`<button class="btn sm" data-copy="${h(e.iban)}" type="button">نسخ</button>`:''}</dd></div></dl></div>
    <div class="df adm"><div><button class="btn pri" data-edit="${h(id)}">تعديل البيانات</button><button class="btn" data-move="${h(id)}">نقل إلى نقطة أخرى</button></div><button class="btn" data-focal="${h(id)}">${e.focal?'إلغاء الفوكال':'تعيين فوكال'}</button></div><div><button class="btn danger" data-resign="${h(id)}">استقالة موظف</button></div></div>`;
   open()}
 function open(){if(!dlg.open)dlg.showModal();dlg.scrollTop=0}
