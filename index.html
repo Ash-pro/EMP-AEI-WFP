@@ -225,13 +225,13 @@ function start(){document.body.classList.toggle('ro',!isAdmin());
 /* ---------- views ---------- */
 function filtered(){const f=S.f,qs=nrm(f.q).split(' ').filter(Boolean);
   const hit=e=>{const t=nrm([e.name,isAdmin()?e.id:'',mob(e.mobile),e.point,e.iban].join(' ')),t2=t.replace(/ /g,'');return qs.every(w=>t.includes(w))||t2.includes(qs.join(''))};
-  return all().filter(e=>(!f.region||e.region===f.region)&&(!f.psup||e.psup===f.psup)&&(!f.point||e.point===f.point)&&(!f.track||e.track===f.track)&&(!f.cat||e.cat===f.cat)
+  return all().filter(e=>(!f.region||e.region===f.region)&&(!f.psup||e.psup===f.psup)&&(!f.point||e.point===f.point)&&(!f.track||e.track===f.track)&&(!f.cat||(f.cat==='فوكال بوينت'?!!e.focal:e.cat===f.cat))
     &&(!f.bad||issues(e).length)&&(!qs.length||hit(e)))
    .sort((a,b)=>(a.region||'').localeCompare(b.region||'','ar')||(a.psup||'').localeCompare(b.psup||'','ar')||(a.point||'').localeCompare(b.point||'','ar')||(a.name||'').localeCompare(b.name||'','ar'))}
 function render(){const n=S.emps.size, bad=all().filter(e=>issues(e).length).length;
   const keep=document.activeElement?.id, pos=document.activeElement?.selectionStart;
   app.innerHTML=`<header class="top"><div class="bar"><div><h1>سجل موظفي AEI – WFP</h1><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي</div></div>
-   <div class="acts adm"><button class="btn pri" data-act="add">إضافة موظف</button><button class="btn" data-act="export">تصدير Excel</button><button class="btn" data-act="pin">تغيير الرمز</button></div></div>
+   <div class="acts"><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm" data-act="pin">تغيير الرمز</button><button class="btn" data-act="logout">تسجيل الخروج</button></div></div>
    <div class="tabs" role="tablist">${[['db','قاعدة البيانات'],['points','حسب النقاط'],['sups','حسب المشرفين'],['res','الاستقالات'],['log','سجل التعديلات']].filter(t=>isAdmin()||(t[0]!=='res'&&t[0]!=='log')).map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}</button>`).join('')}</div></header>
    <div class="sum"><span><b>${n}</b> موظف</span>${TRACKS.map(t=>{const c=all().filter(e=>e.track===t).length;return c?`<span>${chip(t)} <b>${c}</b></span>`:''}).join('')}
    <span><b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة</span>${S.res.size?`<span><b>${S.res.size}</b> استقالة</span>`:''}${bad?`<span style="color:var(--warn)"><b>${bad}</b> بحاجة لمراجعة</span>`:''}</div>
@@ -246,7 +246,7 @@ function vDb(){const f=S.f,rows=filtered();
    <select id="f-psup" aria-label="مشرف النقطة">${opts(uniq('psup'),f.psup,'كل المشرفين')}</select>
    <select id="f-point" aria-label="النقطة">${opts(uniq('point'),f.point,'كل النقاط')}</select>
    <select id="f-track" aria-label="المسار">${opts(TRACKS,f.track,'كل المسارات')}</select>
-   <select id="f-cat" aria-label="الفئة">${opts(uniq('cat'),f.cat,'كل الفئات')}</select>
+   <select id="f-cat" aria-label="الفئة">${opts([...uniq('cat'),'فوكال بوينت'],f.cat,'كل الفئات')}</select>
    <label class="chk adm"><input id="f-bad" type="checkbox"${f.bad?' checked':''}> بحاجة لمراجعة فقط</label></div>
    <div class="muted" style="font-size:13px;margin-bottom:6px">${rows.length} نتيجة · اضغط على أي صف لعرض التفاصيل</div>
    <div class="tw"><table><thead><tr><th>الاسم الرباعي</th><th class="adm">رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسار</th><th>الفئة</th><th>مشرف النقطة</th><th>النطاق</th><th>المنطقة</th><th class="adm">طريقة الدفع</th><th>إجراءات</th></tr></thead>
@@ -382,7 +382,7 @@ function filteredAllSorted(){const f=S.f;S.f={q:'',region:'',psup:'',point:'',tr
 document.addEventListener('submit',ev=>{ev.preventDefault();const f=ev.target;({lockf:submitLock,empf:()=>saveEmp(f),movef:()=>saveMove(f),resf:()=>saveResign(f),focf:()=>saveFocal(f),pinf:()=>savePin(f)})[f.getAttribute('id')]?.()});
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[data-act],[data-move],[data-edit],[data-del],[data-resign],[data-focal],[data-restore],[data-copy],[data-emp]');if(!t)return;const d=t.dataset;
   if(d.tab){S.tab=d.tab;render()}
-  else if(d.act==='close')dlg.close(); else if(d.act==='add')editEmp(); else if(d.act==='export')exportXlsx(); else if(d.act==='pin')pinDlg();
+  else if(d.act==='close')dlg.close(); else if(d.act==='add')editEmp(); else if(d.act==='export')exportXlsx(); else if(d.act==='pin')pinDlg(); else if(d.act==='logout'){try{sessionStorage.removeItem('u')}catch(e){}location.reload()}
   else if(d.move)moveEmp(d.move); else if(d.edit)editEmp(d.edit); else if(d.del)delEmp(t); else if(d.resign)resignEmp(d.resign); else if(d.focal)focalDlg(d.focal); else if(d.restore)restoreEmp(t);
   else if(d.copy)navigator.clipboard?.writeText(d.copy).then(()=>toast('تم النسخ'),()=>toast('حدّد الرقم وانسخه يدوياً'));
   else if(d.emp)showEmp(d.emp)});
