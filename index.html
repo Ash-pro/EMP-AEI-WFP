@@ -154,6 +154,9 @@ textarea{font:inherit;color:inherit;background:var(--surface);border:1px solid v
 .page{max-width:760px;margin-inline:auto;padding-block:28px}
 .page>form{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
 .okbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:28px;display:grid;gap:12px;justify-items:start}
+.mon{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.mon select{width:auto;font-weight:600;color:var(--fg)}
+body.arch [data-act=add],body.arch [data-edit],body.arch [data-move],body.arch [data-resign],body.arch [data-focal],body.arch [data-restore]{display:none!important}
 #toast{position:fixed;inset-inline:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));margin-inline:auto;width:fit-content;max-width:calc(100% - 32px);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:var(--r);font-weight:600;z-index:20}
 </style>
 </head>
@@ -175,7 +178,7 @@ const F=[ // key, label, excel header
  ['num','#'],['id','رقم الهوية'],['focal','الفوكال بوينت في النقطة'],['assign','دوام جديد'],['name','الاسم الرباعي'],['mobile','رقم الجوال'],['dept','القسم'],['cat','الفئة الوظيفية'],
  ['sup','المشرف المباشر'],['psup','مشرف النقطة'],['region','النطاق الجغرافي'],['area','منطقة النقطة'],['dob','تاريخ الميلاد'],['marital','الحالة الاجتماعية'],['uni','الجامعة'],
  ['degree','الدرجة العلمية'],['major','التخصص'],['grad','تاريخ الحصول على الشهادة'],['pay','طريقة تلقي الراتب'],['iban','الأيبان / رقم المحفظة']];
-const S={db:null,dl:null,emps:new Map(),res:new Map(),leaves:new Map(),tab:'db',ready:false,pinHash:null,tries:0,lockUntil:0,f:{q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false}};
+const S={db:null,dl:null,emps:new Map(),res:new Map(),leaves:new Map(),live:new Map(),snaps:new Map(),month:null,tab:'db',ready:false,pinHash:null,tries:0,lockUntil:0,f:{q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false}};
 let unsub=null;
 const IC={view:'<svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
  edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
@@ -200,6 +203,24 @@ function issues(e){const r=[];
   for(const [k,l] of [['point','النقطة'],['track','المسار'],['psup','مشرف النقطة'],['region','النطاق الجغرافي'],['dob','تاريخ الميلاد']])if(!e[k])r.push('حقل ناقص: '+l);
   return r}
 const all=()=>[...S.emps.values()];
+/* ---------- monthly archive ---------- */
+const MN=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const curMonth=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')};
+const mLabel=m=>m==='all'?'كل الأشهر':MN[+m.slice(5)-1]+' '+m.slice(0,4)+(m===curMonth()?' (الحالي)':'');
+const selMonth=()=>S.month||curMonth(), isArch=()=>selMonth()!=='all'&&selMonth()!==curMonth();
+function monthList(){const c=curMonth(),set=new Set([c,...S.snaps.keys()]);
+  for(const x of S.leaves.values()){if(x.start)set.add(x.start.slice(0,7));if(x.end)set.add(x.end.slice(0,7))}
+  for(const e of S.res.values())if(e.resignDate)set.add(e.resignDate.slice(0,7));
+  let m=[...set].filter(x=>/^\d{4}-\d\d$/.test(x)&&x<=c).sort()[0],out=[];
+  while(m<=c){out.push(m);let y=+m.slice(0,4),k=+m.slice(5)+1;if(k>12){k=1;y++}m=y+'-'+String(k).padStart(2,'0')}
+  return out.reverse()}
+function applyMonth(){const m=selMonth();let src=S.live;
+  if(isArch()){const k=[...S.snaps.keys()].filter(x=>x>=m).sort()[0];if(k)src=new Map((S.snaps.get(k)||[]).map(x=>[x.id,{...x.data,id:x.id}]))}
+  S.emps=src;document.body.classList.toggle('arch',isArch())}
+const inMonthLeave=x=>{const m=selMonth();return m==='all'||((x.start||'')<=m+'-31'&&(x.end||'')>=m+'-01')};
+const inMonthRes=e=>{const m=selMonth();return m==='all'||(e.resignDate||'').slice(0,7)===m};
+const inMonthTs=ts=>{const m=selMonth();if(m==='all')return true;const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')===m};
+const mLeaves=()=>[...S.leaves.values()].filter(inMonthLeave), mRes=()=>[...S.res.values()].filter(inMonthRes);
 const uniq=k=>[...new Set(all().map(e=>e[k]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
 function pointInfo(p){const c={};for(const e of all())if(e.point===p){const k=[e.psup,e.region,e.area].join('|');c[k]=(c[k]||0)+1}
   const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];if(!top)return null;const [psup,region,area]=top[0].split('|');return{psup,region,area}}
@@ -214,7 +235,7 @@ const rpc=async(fn,args)=>{let r;try{r=await fetch(CONFIG.SUPABASE_URL.replace(/
 const subs={},snapOf=rows=>({docs:(rows||[]).map(x=>({id:x.id,data:()=>x.data})),empty:!(rows&&rows.length)});
 async function refresh(c){if(!subs[c])return;const rows=await rpc('aei_list',{p:PIN,c});subs[c].forEach(f=>f(snapOf(rows)))}
 const DB={doc(path){const [c,i]=path.split('/');return{set:d=>rpc('aei_set',{p:PIN,c,i,d}).then(()=>refresh(c)),update:d=>rpc('aei_update',{p:PIN,c,i,d}).then(()=>refresh(c)),delete:()=>rpc('aei_delete',{p:PIN,c,i}).then(()=>refresh(c))}},
- collection(c){const q={limit:()=>q,orderBy:()=>q,get:async()=>{const rows=await rpc('aei_list',{p:PIN,c});rows.sort((a,b)=>(b.data.ts||0)-(a.data.ts||0));return snapOf(rows.slice(0,200))},
+ collection(c){const q={limit:()=>q,orderBy:()=>q,get:async()=>{const rows=await rpc('aei_list',{p:PIN,c});rows.sort((a,b)=>(b.data.ts||0)-(a.data.ts||0));return snapOf(rows.slice(0,2000))},
   onSnapshot(f,err){(subs[c]=subs[c]||[]).push(f);refresh(c).catch(e=>err&&err(e))},add:d=>rpc('aei_set',{p:PIN,c,i:Date.now().toString(36)+Math.random().toString(36).slice(2,7),d})};return q}};
 setInterval(()=>{if(!document.hidden&&!dlg.open&&S.ready)Object.keys(subs).forEach(c=>refresh(c).catch(()=>{}))},30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.ready&&!dlg.open)Object.keys(subs).forEach(c=>refresh(c).catch(()=>{}))});
@@ -249,11 +270,11 @@ async function saveLeave(f){const o=formData(f);o.id=o.id.replace(/\D/g,'');
     app.innerHTML=`<div class="page"><div class="okbox"><h2 style="margin:0">تم إرسال طلب الإجازة</h2><div>${h(o.name)} · من <span class="num">${fd(o.start)}</span> إلى <span class="num">${fd(o.end)}</span> (${ldays(o)} يوم)</div><div class="muted">وصل الطلب إلى الإدارة. راجع مشرفك لمعرفة الرد.</div><div class="acts"><button class="btn pri" data-act="home">الصفحة الرئيسية</button><button class="btn" data-act="leave">طلب آخر</button></div></div></div>`}
   catch(e){btn.disabled=false;btn.textContent='إرسال الطلب';ferr(e.message)}}
 const ldays=o=>Math.round((new Date(o.end)-new Date(o.start))/864e5)+1, LSTAT=['جديد','موافق عليه','مرفوض'];
-function vLeave(){const rs=[...S.leaves.values()].sort((a,b)=>(b.ts||0)-(a.ts||0));
+function vLeave(){const rs=mLeaves().sort((a,b)=>(b.ts||0)-(a.ts||0));
   $('#view').innerHTML=rs.length?`<div class="muted" style="font-size:13px;margin-block:8px 6px">${rs.length} طلب · ${rs.filter(x=>x.status==='جديد').length} جديد</div><div class="tw"><table><thead><tr><th>الاسم</th><th>رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسمى الوظيفي</th><th>من</th><th>إلى</th><th>الأيام</th><th>المشرف</th><th>ملاحظات</th><th>تاريخ الطلب</th><th>الحالة</th><th class="adm"></th></tr></thead><tbody>${
    rs.map(x=>`<tr style="cursor:default"><td class="nm">${h(x.name)}${S.emps.has(x.id)?'':'<span class="flag" title="رقم الهوية غير موجود في قاعدة البيانات">!</span>'}</td><td class="num">${h(x.id)}</td><td class="num">${h(mob(x.mobile))}</td><td>${h(x.point)}</td><td>${h(x.title)}</td><td class="num">${h(fd(x.start))}</td><td class="num">${h(fd(x.end))}</td><td class="num">${ldays(x)}</td><td>${h(x.sup)}</td><td style="white-space:normal;min-width:160px">${h(x.notes||'—')}</td><td class="num">${h(new Date(x.ts).toLocaleDateString('en-GB'))}</td>
     <td>${isAdmin()?`<select data-lstatus="${h(x.docId)}" aria-label="حالة الطلب" style="min-width:110px">${opts(LSTAT,x.status)}</select>`:h(x.status)}</td><td class="adm"><button class="btn sm danger" data-ldel="${h(x.docId)}">حذف</button></td></tr>`).join('')}</tbody></table></div>`
-   :'<div class="empty">لا توجد طلبات إجازة بعد. الطلبات المرسلة من نموذج الصفحة الرئيسية تظهر هنا.</div>'}
+   :`<div class="empty">لا توجد طلبات إجازة في ${mLabel(selMonth())}. الطلبات المرسلة من نموذج الصفحة الرئيسية تظهر هنا حسب شهر الإجازة.</div>`}
 async function delLeave(btn){if(!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='تأكيد الحذف';return}
   try{await S.db.doc('leave/'+btn.dataset.ldel).delete();toast('حُذف الطلب')}catch(e){toast('لم يُحذف: '+e.message)}}
 function renderLock(msg){app.innerHTML=`<div class="lock"><form id="lockf"><h1>سجل موظفي AEI – WFP</h1><div class="muted">أدخل رمز الدخول لعرض البيانات.</div>
@@ -262,8 +283,9 @@ async function submitLock(){const p=$('#pin').value.trim();if(!p)return;$('#go')
   try{const r=await rpc('aei_login',{p});if(r){PIN=p;S.role=r;ss.set(p);start()}else renderLock('الرمز غير صحيح.')}catch(e){renderLock(e.message)}}
 function start(){document.body.classList.toggle('ro',!isAdmin());
   app.innerHTML='<div class="empty">جاري تحميل بيانات الموظفين…</div>';
-  unsub=S.db.collection('emp').limit(1000).onSnapshot(snap=>{S.emps=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));S.ready=true;render()},
+  unsub=S.db.collection('emp').limit(1000).onSnapshot(snap=>{S.live=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));S.ready=true;applyMonth();render()},
     e=>{app.innerHTML=`<div class="empty">تعذّر تحميل البيانات: ${h(e.message||e.code)}</div>`});
+  S.db.collection('snap').limit(1000).onSnapshot(snap=>{S.snaps=new Map(snap.docs.map(d=>[d.id,d.data().emp||[]]));if(S.ready){applyMonth();render()}},()=>{});
   S.db.collection('leave').limit(1000).onSnapshot(snap=>{S.leaves=new Map(snap.docs.map(d=>[d.id,{...d.data(),docId:d.id}]));if(S.ready)render()},()=>{});
   if(isAdmin())S.db.collection('resigned').limit(1000).onSnapshot(snap=>{S.res=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));if(S.ready)render()},()=>{})}
 
@@ -276,10 +298,11 @@ function filtered(){const f=S.f,qs=nrm(f.q).split(' ').filter(Boolean);
 function render(){const n=S.emps.size, bad=all().filter(e=>issues(e).length).length;
   const keep=document.activeElement?.id, pos=document.activeElement?.selectionStart;
   app.innerHTML=`<header class="top"><div class="bar"><div><h1>سجل موظفي AEI – WFP</h1><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي</div></div>
-   <div class="acts"><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm" data-act="pin">تغيير الرمز</button><button class="btn" data-act="logout">تسجيل الخروج</button></div></div>
+   <div class="acts"><label class="mon">الشهر<select id="g-month" aria-label="الشهر">${[...monthList(),'all'].map(m=>`<option value="${m}"${m===selMonth()?' selected':''}>${mLabel(m)}</option>`).join('')}</select></label><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm" data-act="pin">تغيير الرمز</button><button class="btn" data-act="logout">تسجيل الخروج</button></div></div>
    <div class="tabs" role="tablist">${[['db','قاعدة البيانات'],['points','حسب النقاط'],['sups','حسب المشرفين'],['leave','الإجازات'],['res','الاستقالات'],['log','سجل التعديلات']].filter(t=>isAdmin()||(t[0]!=='res'&&t[0]!=='log')).map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}</button>`).join('')}</div></header>
    <div class="sum"><span><b>${n}</b> موظف</span>${TRACKS.map(t=>{const c=all().filter(e=>e.track===t).length;return c?`<span>${chip(t)} <b>${c}</b></span>`:''}).join('')}
-   <span><b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة</span>${S.res.size?`<span><b>${S.res.size}</b> استقالة</span>`:''}${[...S.leaves.values()].some(x=>x.status==='جديد')?`<span><b>${[...S.leaves.values()].filter(x=>x.status==='جديد').length}</b> طلب إجازة جديد</span>`:''}${bad?`<span style="color:var(--warn)"><b>${bad}</b> بحاجة لمراجعة</span>`:''}</div>
+   <span><b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة</span>${mRes().length?`<span><b>${mRes().length}</b> استقالة</span>`:''}${mLeaves().length?`<span><b>${mLeaves().length}</b> إجازة</span>`:''}${[...S.leaves.values()].some(x=>x.status==='جديد')?`<span><b>${[...S.leaves.values()].filter(x=>x.status==='جديد').length}</b> طلب إجازة جديد</span>`:''}${bad?`<span style="color:var(--warn)"><b>${bad}</b> بحاجة لمراجعة</span>`:''}</div>
+   ${isArch()?`<div class="note">أرشيف ${mLabel(selMonth())}: بيانات الموظفين كما كانت في نهاية ذلك الشهر، للعرض والتصدير فقط. للتعديل ارجع إلى الشهر الحالي.</div>`:''}
    <main id="view"></main>`;
   if(!n&&S.tab!=='res'&&S.tab!=='log'&&S.tab!=='leave'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
   ({db:vDb,points:vPoints,sups:vSups,leave:vLeave,res:vRes,log:vLog})[S.tab]();
@@ -309,14 +332,14 @@ function vSups(){
    return `<section class="sv"><header><h2>${h(s)}</h2><span class="muted">${pts.length} نقطة · ${es.length} موظف · ${[...new Set(es.map(e=>e.region))].map(h).join('، ')}</span></header>
    <div class="tw"><table><thead><tr><th>الاسم</th><th>المسار</th><th>الفئة</th><th>الجوال</th><th>المشرف المباشر</th><th></th></tr></thead><tbody>${pts.map(p=>{const pe=es.filter(e=>e.point===p).sort((a,b)=>TRACKS.indexOf(a.track)-TRACKS.indexOf(b.track));
     return `<tr class="grp"><td colspan="6">${h(p)} · ${h(pe[0].region)} / ${h(pe[0].area)} · ${pe.length}</td></tr>`+pe.map(e=>`<tr data-emp="${h(e.id)}"><td class="nm">${h(e.name)}${e.focal?'<span class="fp">فوكال</span>':''}</td><td>${chip(e.track)}</td><td>${h(e.cat)}</td><td class="num">${h(mob(e.mobile))}</td><td>${h(e.sup)}</td><td><button class="btn sm adm" data-move="${h(e.id)}">نقل</button></td></tr>`).join('')}).join('')}</tbody></table></div></section>`}).join('')}
-function vRes(){const rs=[...S.res.values()].sort((a,b)=>(b.resignDate||'').localeCompare(a.resignDate||''));
+function vRes(){const rs=mRes().sort((a,b)=>(b.resignDate||'').localeCompare(a.resignDate||''));
   $('#view').innerHTML=rs.length?`<div class="tw" style="margin-top:8px"><table><thead><tr><th>الاسم الرباعي</th><th>رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسار</th><th>تاريخ الاستقالة</th><th>ملاحظات</th><th>البديل</th><th></th></tr></thead><tbody>${
    rs.map(e=>`<tr style="cursor:default"><td class="nm">${h(e.name)}</td><td class="num">${h(e.id)}</td><td class="num">${h(mob(e.mobile))}</td><td>${h(e.point)}</td><td>${chip(e.track)}</td><td class="num">${h(fd(e.resignDate))}</td><td style="white-space:normal;min-width:180px">${h(e.resignNote||'—')}</td>
     <td style="white-space:normal;min-width:180px">${e.repName||e.repId||e.repMobile||e.repPoint?`${h(e.repName||'—')}<br><span class="num">${h(e.repId||'')}</span> <span class="num">${h(mob(e.repMobile))}</span><br><small class="muted">${h(e.repPoint||'')}</small>`:'—'}</td>
     <td><button class="btn sm" data-restore="${h(e.id)}">إرجاع للعمل</button></td></tr>`).join('')}</tbody></table></div>`
-   :'<div class="empty">لا توجد استقالات مسجلة. لتسجيل استقالة اضغط أيقونة الاستقالة بجانب الموظف في قاعدة البيانات.</div>'}
+   :selMonth()!=='all'&&S.res.size?`<div class="empty">لا توجد استقالات في ${mLabel(selMonth())}.</div>`:'<div class="empty">لا توجد استقالات مسجلة. لتسجيل استقالة اضغط أيقونة الاستقالة بجانب الموظف في قاعدة البيانات.</div>'}
 async function vLog(){const v=$('#view');v.innerHTML='<div class="empty">جاري تحميل السجل…</div>';
-  try{const s=await S.db.collection('log').orderBy('ts','desc').limit(200).get();if(S.tab!=='log')return;
+  try{const s0=await S.db.collection('log').orderBy('ts','desc').limit(200).get();if(S.tab!=='log')return;const docs=s0.docs.filter(d=>inMonthTs(d.data().ts)).slice(0,300),s={docs,empty:!docs.length};
    v.innerHTML=s.empty?'<div class="empty">لا توجد تعديلات مسجلة بعد. كل إضافة أو نقل أو تعديل سيظهر هنا.</div>'
     :`<div class="log">${s.docs.map(d=>{const x=d.data();return `<div><time class="num">${h(new Date(x.ts).toLocaleString('en-GB',{dateStyle:'short',timeStyle:'short'}))}</time><b>${h(x.type)}</b><span>${h(x.name)}</span><span class="muted">${h(x.text)}</span></div>`}).join('')}</div>`}
   catch(e){v.innerHTML=`<div class="empty">تعذّر تحميل السجل: ${h(e.message||e.code)}</div>`}}
@@ -415,13 +438,13 @@ async function exportXlsx(){if(!window.XLSX)return toast('تعذّر تحميل 
   const rows=filteredAllSorted(),val=(e,k)=>k==='assign'?assign(e):k==='focal'?(e.focal?'فوكال بوينت':''):k==='dob'||k==='grad'?fd(e[k]):k==='mobile'?mob(e[k]):(e[k]??'');
   const ws=XLSX.utils.aoa_to_sheet([F.map(f=>f[1]),...rows.map(e=>F.map(([k])=>String(val(e,k))))]);ws['!cols']=F.map(([k])=>({wch:k==='name'||k==='major'||k==='iban'?34:k==='assign'?26:16}));
   const ws2=XLSX.utils.aoa_to_sheet([['النطاق','منطقة النقطة','النقطة','مشرف النقطة','المسار','الاسم','الفئة','الجوال','المشرف المباشر'],...rows.map(e=>[e.region,e.area,e.point,e.psup,e.track,e.name,e.cat,mob(e.mobile),e.sup].map(v=>String(v??'')))]);ws2['!cols']=[14,14,20,18,10,34,12,14,18].map(w=>({wch:w}));
-  const rs=[...S.res.values()].sort((a,b)=>(a.resignDate||'').localeCompare(b.resignDate||''));
+  const rs=mRes().sort((a,b)=>(a.resignDate||'').localeCompare(b.resignDate||''));
   const ws3=XLSX.utils.aoa_to_sheet([[...F.map(f=>f[1]),'تاريخ الاستقالة','ملاحظات الاستقالة','اسم البديل','رقم هوية البديل','رقم جوال البديل','نقطة البديل'],...rs.map(e=>[...F.map(([k])=>String(val(e,k))),fd(e.resignDate),e.resignNote||'',e.repName||'',e.repId||'',mob(e.repMobile),e.repPoint||''])]);
   ws3['!cols']=[...ws['!cols'],{wch:16},{wch:40},{wch:30},{wch:16},{wch:16},{wch:20}];
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'قاعدة البيانات');XLSX.utils.book_append_sheet(wb,ws2,'حسب النقاط والمشرفين');XLSX.utils.book_append_sheet(wb,ws3,'الاستقالات');
-  const ls=[...S.leaves.values()].sort((a,b)=>(a.ts||0)-(b.ts||0)),ws4=XLSX.utils.aoa_to_sheet([['الاسم','رقم الهوية','رقم الجوال','اسم النقطة','المسمى الوظيفي','بداية الإجازة','نهاية الإجازة','عدد الأيام','اسم المشرف','ملاحظات','تاريخ الطلب','الحالة'],...ls.map(x=>[x.name,x.id,mob(x.mobile),x.point,x.title,fd(x.start),fd(x.end),String(ldays(x)),x.sup,x.notes||'',new Date(x.ts).toLocaleDateString('en-GB'),x.status].map(v=>String(v??'')))]);
+  const ls=mLeaves().sort((a,b)=>(a.start||'').localeCompare(b.start||'')),ws4=XLSX.utils.aoa_to_sheet([['الاسم','رقم الهوية','رقم الجوال','اسم النقطة','المسمى الوظيفي','بداية الإجازة','نهاية الإجازة','عدد الأيام','اسم المشرف','ملاحظات','تاريخ الطلب','الحالة'],...ls.map(x=>[x.name,x.id,mob(x.mobile),x.point,x.title,fd(x.start),fd(x.end),String(ldays(x)),x.sup,x.notes||'',new Date(x.ts).toLocaleDateString('en-GB'),x.status].map(v=>String(v??'')))]);
   ws4['!cols']=[32,14,14,20,20,14,14,10,18,40,14,12].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws4,'الإجازات');wb.Workbook={Views:[{RTL:true},{RTL:true},{RTL:true},{RTL:true}]};
-  const d=new Date(),name=`موظفو AEI-WFP ${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}.xlsx`;
+  const d=new Date(),mm=selMonth(),name=mm==='all'?`موظفو AEI-WFP كل الأشهر ${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}.xlsx`:`موظفو AEI-WFP ${mm.slice(5)}.${mm.slice(0,4)}.xlsx`;
   try{const u=URL.createObjectURL(new Blob([XLSX.write(wb,{type:'array',bookType:'xlsx'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);toast('تم تنزيل الملف')}catch(e){toast('تعذّر التصدير: '+(e.message||e))}}
 function filteredAllSorted(){const f=S.f;S.f={q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false};const r=filtered();S.f=f;return r}
 
@@ -435,6 +458,7 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[da
   else if(d.emp)showEmp(d.emp)});
 document.addEventListener('input',ev=>{const el=ev.target;
   if(el.id?.startsWith('f-')){const k=el.id.slice(2);S.f[k]=el.type==='checkbox'?el.checked:el.value;vDb();if(k==='q'){const q=$('#f-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}}
+  if(el.id==='g-month'){S.month=el.value;applyMonth();render();return}
   if(el.id==='e-point'){const i=pointInfo(el.value.trim());if(i)for(const k of ['psup','region','area']){const x=el.form.querySelector('#e-'+k);if(x)x.value=i[k]}}});
 document.addEventListener('change',ev=>{const el=ev.target;if(el.dataset&&el.dataset.lstatus)S.db.doc('leave/'+el.dataset.lstatus).update({status:el.value}).then(()=>toast('حُدّثت حالة الطلب'),e=>toast('لم تُحفظ: '+e.message))});
 dlg.addEventListener('click',ev=>{if(ev.target===dlg)dlg.close()});
