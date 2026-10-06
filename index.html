@@ -142,6 +142,18 @@ label.wide{grid-column:1/-1}
 .ib.on{color:var(--brand-fg);background:var(--brand);border-color:var(--brand)} .ib.on svg{fill:currentColor}
 .ib:hover{color:var(--brand);border-color:var(--brand)} .ib.out:hover{color:var(--bad);border-color:var(--bad)}
 textarea{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:7px 10px;width:100%;min-height:70px;resize:vertical}
+.home{max-width:860px;margin-inline:auto;padding-block:48px 24px;display:grid;gap:28px}
+.hero h1{font-size:30px;margin:6px 0 12px;text-wrap:balance}
+.hero p{margin:0;max-width:60ch;color:var(--muted);font-size:16px}
+.hero .sub{color:var(--brand);font-weight:600;font-size:14px}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.hcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:10px;align-content:start}
+.hcard h2{margin:0;font-size:18px}.hcard p{margin:0;color:var(--muted);font-size:14px}.hcard .btn{justify-self:start;margin-top:6px}
+.hfeat{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px 20px;font-size:14px;color:var(--muted)}
+.hfeat b{color:var(--fg);display:block}
+.page{max-width:760px;margin-inline:auto;padding-block:28px}
+.page>form{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.okbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:28px;display:grid;gap:12px;justify-items:start}
 #toast{position:fixed;inset-inline:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));margin-inline:auto;width:fit-content;max-width:calc(100% - 32px);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:var(--r);font-weight:600;z-index:20}
 </style>
 </head>
@@ -163,7 +175,7 @@ const F=[ // key, label, excel header
  ['num','#'],['id','رقم الهوية'],['focal','الفوكال بوينت في النقطة'],['assign','دوام جديد'],['name','الاسم الرباعي'],['mobile','رقم الجوال'],['dept','القسم'],['cat','الفئة الوظيفية'],
  ['sup','المشرف المباشر'],['psup','مشرف النقطة'],['region','النطاق الجغرافي'],['area','منطقة النقطة'],['dob','تاريخ الميلاد'],['marital','الحالة الاجتماعية'],['uni','الجامعة'],
  ['degree','الدرجة العلمية'],['major','التخصص'],['grad','تاريخ الحصول على الشهادة'],['pay','طريقة تلقي الراتب'],['iban','الأيبان / رقم المحفظة']];
-const S={db:null,dl:null,emps:new Map(),res:new Map(),tab:'db',ready:false,pinHash:null,tries:0,lockUntil:0,f:{q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false}};
+const S={db:null,dl:null,emps:new Map(),res:new Map(),leaves:new Map(),tab:'db',ready:false,pinHash:null,tries:0,lockUntil:0,f:{q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false}};
 let unsub=null;
 const IC={view:'<svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
  edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
@@ -211,15 +223,48 @@ const isAdmin=()=>S.role==='admin';
   if(!/^https:\/\//.test(CONFIG.SUPABASE_URL)||CONFIG.SUPABASE_KEY.length<20){app.innerHTML='<div class="empty">لم يُضبط الاتصال بقاعدة البيانات بعد. ضع رابط المشروع والمفتاح في أعلى ملف index.html.</div>';return}
   S.db=DB;const saved=ss.get();
   if(saved){try{const r=await rpc('aei_login',{p:saved});if(r){PIN=saved;S.role=r;return start()}}catch(e){}}
-  renderLock()})();
+  renderHome()})();
+function renderHome(){document.body.classList.remove('ro');
+  app.innerHTML=`<div class="home"><div class="hero"><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي WFP</div><h1>سجل موظفي AEI – WFP</h1>
+   <p>منصة داخلية لطاقم المشروع: بيانات الموظفين موزعة حسب النقاط والمشرفين، ونموذج إلكتروني لتقديم طلبات الإجازة ومتابعتها.</p></div>
+   <div class="hgrid"><section class="hcard"><h2>طلب إجازة</h2><p>للموظفين والمتطوعين والأمن. عبّئ النموذج وسيصل طلبك إلى الإدارة ومشرفك مباشرة، بدون رمز دخول.</p><button class="btn pri" data-act="leave">تقديم طلب إجازة</button></section>
+   <section class="hcard"><h2>دخول النظام</h2><p>للمشرفين والإدارة. عرض بيانات الموظفين والنقاط وطلبات الإجازة باستخدام رمز PIN.</p><button class="btn" data-act="login">دخول برمز PIN</button></section></div>
+   <ul class="hfeat"><li><b>قاعدة بيانات موحدة</b>بحث وفلترة حسب النطاق والنقطة والمشرف</li><li><b>عرض حسب النقاط والمشرفين</b>طاقم كل نقطة والفوكال بوينت</li><li><b>الإجازات والاستقالات</b>سجل واحد يُصدَّر إلى Excel</li></ul></div>`}
+let LISTS=null;
+async function renderLeave(){app.innerHTML='<div class="empty">جاري تحميل النموذج…</div>';
+  try{LISTS=LISTS||await rpc('aei_public_lists',{})}catch(e){app.innerHTML=`<div class="page"><div class="okbox"><div class="note bad">تعذّر تحميل النموذج: ${h(e.message)}</div><button class="btn" data-act="home">رجوع</button></div></div>`;return}
+  app.innerHTML=`<div class="page"><form id="leavef"><div class="dh"><h2>طلب إجازة</h2><button class="btn sm" type="button" data-act="home">رجوع</button></div><div class="db"><div id="ferr"></div>
+   <fieldset><legend>بيانات الموظف</legend>${inp('name','الاسم الرباعي','',{req:1,wide:1})}${inp('id','رقم الهوية (9 أرقام)','',{req:1,ltr:1})}${inp('mobile','رقم الجوال','',{req:1,ltr:1})}
+    ${sel('point','اسم النقطة',LISTS.points||[],'')}${inp('title','المسمى الوظيفي','',{req:1})}${sel('sup','اسم المشرف',LISTS.sups||[],'')}</fieldset>
+   <fieldset><legend>مدة الإجازة</legend>${inp('start','بداية الإجازة','',{type:'date',req:1})}${inp('end','نهاية الإجازة','',{type:'date',req:1})}<label class="wide">ملاحظات<textarea id="e-notes" name="notes" maxlength="1000"></textarea></label></fieldset></div>
+   <div class="df"><div><button class="btn pri">إرسال الطلب</button><button class="btn" type="button" data-act="home">إلغاء</button></div></div></form></div>`}
+async function saveLeave(f){const o=formData(f);o.id=o.id.replace(/\D/g,'');
+  if(o.name.split(/\s+/).length<3)return ferr('أدخل الاسم الرباعي كاملاً.');
+  if(!/^\d{9}$/.test(o.id))return ferr('رقم الهوية يجب أن يكون 9 أرقام.');
+  if(!/^05[69]\d{7}$/.test(mob(o.mobile)))return ferr('رقم الجوال غير صحيح.');
+  if(!o.point)return ferr('اختر اسم النقطة.'); if(!o.sup)return ferr('اختر اسم المشرف.');
+  if(!o.start||!o.end)return ferr('أدخل تاريخ بداية ونهاية الإجازة.'); if(o.end<o.start)return ferr('تاريخ النهاية قبل تاريخ البداية.');
+  const btn=f.querySelector('.pri');btn.disabled=true;btn.textContent='جاري الإرسال…';
+  try{await rpc('aei_leave_submit',{d:o});
+    app.innerHTML=`<div class="page"><div class="okbox"><h2 style="margin:0">تم إرسال طلب الإجازة</h2><div>${h(o.name)} · من <span class="num">${fd(o.start)}</span> إلى <span class="num">${fd(o.end)}</span> (${ldays(o)} يوم)</div><div class="muted">وصل الطلب إلى الإدارة. راجع مشرفك لمعرفة الرد.</div><div class="acts"><button class="btn pri" data-act="home">الصفحة الرئيسية</button><button class="btn" data-act="leave">طلب آخر</button></div></div></div>`}
+  catch(e){btn.disabled=false;btn.textContent='إرسال الطلب';ferr(e.message)}}
+const ldays=o=>Math.round((new Date(o.end)-new Date(o.start))/864e5)+1, LSTAT=['جديد','موافق عليه','مرفوض'];
+function vLeave(){const rs=[...S.leaves.values()].sort((a,b)=>(b.ts||0)-(a.ts||0));
+  $('#view').innerHTML=rs.length?`<div class="muted" style="font-size:13px;margin-block:8px 6px">${rs.length} طلب · ${rs.filter(x=>x.status==='جديد').length} جديد</div><div class="tw"><table><thead><tr><th>الاسم</th><th>رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسمى الوظيفي</th><th>من</th><th>إلى</th><th>الأيام</th><th>المشرف</th><th>ملاحظات</th><th>تاريخ الطلب</th><th>الحالة</th><th class="adm"></th></tr></thead><tbody>${
+   rs.map(x=>`<tr style="cursor:default"><td class="nm">${h(x.name)}${S.emps.has(x.id)?'':'<span class="flag" title="رقم الهوية غير موجود في قاعدة البيانات">!</span>'}</td><td class="num">${h(x.id)}</td><td class="num">${h(mob(x.mobile))}</td><td>${h(x.point)}</td><td>${h(x.title)}</td><td class="num">${h(fd(x.start))}</td><td class="num">${h(fd(x.end))}</td><td class="num">${ldays(x)}</td><td>${h(x.sup)}</td><td style="white-space:normal;min-width:160px">${h(x.notes||'—')}</td><td class="num">${h(new Date(x.ts).toLocaleDateString('en-GB'))}</td>
+    <td>${isAdmin()?`<select data-lstatus="${h(x.docId)}" aria-label="حالة الطلب" style="min-width:110px">${opts(LSTAT,x.status)}</select>`:h(x.status)}</td><td class="adm"><button class="btn sm danger" data-ldel="${h(x.docId)}">حذف</button></td></tr>`).join('')}</tbody></table></div>`
+   :'<div class="empty">لا توجد طلبات إجازة بعد. الطلبات المرسلة من نموذج الصفحة الرئيسية تظهر هنا.</div>'}
+async function delLeave(btn){if(!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='تأكيد الحذف';return}
+  try{await S.db.doc('leave/'+btn.dataset.ldel).delete();toast('حُذف الطلب')}catch(e){toast('لم يُحذف: '+e.message)}}
 function renderLock(msg){app.innerHTML=`<div class="lock"><form id="lockf"><h1>سجل موظفي AEI – WFP</h1><div class="muted">أدخل رمز الدخول لعرض البيانات.</div>
-  <input id="pin" inputmode="numeric" type="password" autocomplete="off" maxlength="20" aria-label="رمز الدخول">${msg?`<div class="note bad">${h(msg)}</div>`:''}<button class="btn pri" id="go">دخول</button></form></div>`;$('#pin').focus()}
+  <input id="pin" inputmode="numeric" type="password" autocomplete="off" maxlength="20" aria-label="رمز الدخول">${msg?`<div class="note bad">${h(msg)}</div>`:''}<div class="acts"><button class="btn pri" id="go">دخول</button><button class="btn" type="button" data-act="home">رجوع</button></div></form></div>`;$('#pin').focus()}
 async function submitLock(){const p=$('#pin').value.trim();if(!p)return;$('#go').disabled=true;$('#go').textContent='جاري التحقق…';
   try{const r=await rpc('aei_login',{p});if(r){PIN=p;S.role=r;ss.set(p);start()}else renderLock('الرمز غير صحيح.')}catch(e){renderLock(e.message)}}
 function start(){document.body.classList.toggle('ro',!isAdmin());
   app.innerHTML='<div class="empty">جاري تحميل بيانات الموظفين…</div>';
   unsub=S.db.collection('emp').limit(1000).onSnapshot(snap=>{S.emps=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));S.ready=true;render()},
     e=>{app.innerHTML=`<div class="empty">تعذّر تحميل البيانات: ${h(e.message||e.code)}</div>`});
+  S.db.collection('leave').limit(1000).onSnapshot(snap=>{S.leaves=new Map(snap.docs.map(d=>[d.id,{...d.data(),docId:d.id}]));if(S.ready)render()},()=>{});
   if(isAdmin())S.db.collection('resigned').limit(1000).onSnapshot(snap=>{S.res=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));if(S.ready)render()},()=>{})}
 
 /* ---------- views ---------- */
@@ -232,12 +277,12 @@ function render(){const n=S.emps.size, bad=all().filter(e=>issues(e).length).len
   const keep=document.activeElement?.id, pos=document.activeElement?.selectionStart;
   app.innerHTML=`<header class="top"><div class="bar"><div><h1>سجل موظفي AEI – WFP</h1><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي</div></div>
    <div class="acts"><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm" data-act="pin">تغيير الرمز</button><button class="btn" data-act="logout">تسجيل الخروج</button></div></div>
-   <div class="tabs" role="tablist">${[['db','قاعدة البيانات'],['points','حسب النقاط'],['sups','حسب المشرفين'],['res','الاستقالات'],['log','سجل التعديلات']].filter(t=>isAdmin()||(t[0]!=='res'&&t[0]!=='log')).map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}</button>`).join('')}</div></header>
+   <div class="tabs" role="tablist">${[['db','قاعدة البيانات'],['points','حسب النقاط'],['sups','حسب المشرفين'],['leave','الإجازات'],['res','الاستقالات'],['log','سجل التعديلات']].filter(t=>isAdmin()||(t[0]!=='res'&&t[0]!=='log')).map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}</button>`).join('')}</div></header>
    <div class="sum"><span><b>${n}</b> موظف</span>${TRACKS.map(t=>{const c=all().filter(e=>e.track===t).length;return c?`<span>${chip(t)} <b>${c}</b></span>`:''}).join('')}
-   <span><b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة</span>${S.res.size?`<span><b>${S.res.size}</b> استقالة</span>`:''}${bad?`<span style="color:var(--warn)"><b>${bad}</b> بحاجة لمراجعة</span>`:''}</div>
+   <span><b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة</span>${S.res.size?`<span><b>${S.res.size}</b> استقالة</span>`:''}${[...S.leaves.values()].some(x=>x.status==='جديد')?`<span><b>${[...S.leaves.values()].filter(x=>x.status==='جديد').length}</b> طلب إجازة جديد</span>`:''}${bad?`<span style="color:var(--warn)"><b>${bad}</b> بحاجة لمراجعة</span>`:''}</div>
    <main id="view"></main>`;
-  if(!n&&S.tab!=='res'&&S.tab!=='log'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
-  ({db:vDb,points:vPoints,sups:vSups,res:vRes,log:vLog})[S.tab]();
+  if(!n&&S.tab!=='res'&&S.tab!=='log'&&S.tab!=='leave'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
+  ({db:vDb,points:vPoints,sups:vSups,leave:vLeave,res:vRes,log:vLog})[S.tab]();
   if(keep){const el=document.getElementById(keep);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(e){}}}}
 function vDb(){const f=S.f,rows=filtered();
   $('#view').innerHTML=`<div class="filters">
@@ -373,22 +418,25 @@ async function exportXlsx(){if(!window.XLSX)return toast('تعذّر تحميل 
   const rs=[...S.res.values()].sort((a,b)=>(a.resignDate||'').localeCompare(b.resignDate||''));
   const ws3=XLSX.utils.aoa_to_sheet([[...F.map(f=>f[1]),'تاريخ الاستقالة','ملاحظات الاستقالة','اسم البديل','رقم هوية البديل','رقم جوال البديل','نقطة البديل'],...rs.map(e=>[...F.map(([k])=>String(val(e,k))),fd(e.resignDate),e.resignNote||'',e.repName||'',e.repId||'',mob(e.repMobile),e.repPoint||''])]);
   ws3['!cols']=[...ws['!cols'],{wch:16},{wch:40},{wch:30},{wch:16},{wch:16},{wch:20}];
-  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'قاعدة البيانات');XLSX.utils.book_append_sheet(wb,ws2,'حسب النقاط والمشرفين');XLSX.utils.book_append_sheet(wb,ws3,'الاستقالات');wb.Workbook={Views:[{RTL:true},{RTL:true},{RTL:true}]};
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'قاعدة البيانات');XLSX.utils.book_append_sheet(wb,ws2,'حسب النقاط والمشرفين');XLSX.utils.book_append_sheet(wb,ws3,'الاستقالات');
+  const ls=[...S.leaves.values()].sort((a,b)=>(a.ts||0)-(b.ts||0)),ws4=XLSX.utils.aoa_to_sheet([['الاسم','رقم الهوية','رقم الجوال','اسم النقطة','المسمى الوظيفي','بداية الإجازة','نهاية الإجازة','عدد الأيام','اسم المشرف','ملاحظات','تاريخ الطلب','الحالة'],...ls.map(x=>[x.name,x.id,mob(x.mobile),x.point,x.title,fd(x.start),fd(x.end),String(ldays(x)),x.sup,x.notes||'',new Date(x.ts).toLocaleDateString('en-GB'),x.status].map(v=>String(v??'')))]);
+  ws4['!cols']=[32,14,14,20,20,14,14,10,18,40,14,12].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws4,'الإجازات');wb.Workbook={Views:[{RTL:true},{RTL:true},{RTL:true},{RTL:true}]};
   const d=new Date(),name=`موظفو AEI-WFP ${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}.xlsx`;
   try{const u=URL.createObjectURL(new Blob([XLSX.write(wb,{type:'array',bookType:'xlsx'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);toast('تم تنزيل الملف')}catch(e){toast('تعذّر التصدير: '+(e.message||e))}}
 function filteredAllSorted(){const f=S.f;S.f={q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false};const r=filtered();S.f=f;return r}
 
 /* ---------- events ---------- */
-document.addEventListener('submit',ev=>{ev.preventDefault();const f=ev.target;({lockf:submitLock,empf:()=>saveEmp(f),movef:()=>saveMove(f),resf:()=>saveResign(f),focf:()=>saveFocal(f),pinf:()=>savePin(f)})[f.getAttribute('id')]?.()});
-document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[data-act],[data-move],[data-edit],[data-del],[data-resign],[data-focal],[data-restore],[data-copy],[data-emp]');if(!t)return;const d=t.dataset;
+document.addEventListener('submit',ev=>{ev.preventDefault();const f=ev.target;({lockf:submitLock,empf:()=>saveEmp(f),movef:()=>saveMove(f),resf:()=>saveResign(f),focf:()=>saveFocal(f),leavef:()=>saveLeave(f),pinf:()=>savePin(f)})[f.getAttribute('id')]?.()});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[data-act],[data-move],[data-edit],[data-del],[data-resign],[data-focal],[data-ldel],[data-restore],[data-copy],[data-emp]');if(!t)return;const d=t.dataset;
   if(d.tab){S.tab=d.tab;render()}
   else if(d.act==='close')dlg.close(); else if(d.act==='add')editEmp(); else if(d.act==='export')exportXlsx(); else if(d.act==='pin')pinDlg(); else if(d.act==='logout'){try{sessionStorage.removeItem('u')}catch(e){}location.reload()}
-  else if(d.move)moveEmp(d.move); else if(d.edit)editEmp(d.edit); else if(d.del)delEmp(t); else if(d.resign)resignEmp(d.resign); else if(d.focal)focalDlg(d.focal); else if(d.restore)restoreEmp(t);
+  else if(d.move)moveEmp(d.move); else if(d.edit)editEmp(d.edit); else if(d.del)delEmp(t); else if(d.resign)resignEmp(d.resign); else if(d.focal)focalDlg(d.focal); else if(d.ldel)delLeave(t); else if(d.act==='home')renderHome(); else if(d.act==='leave')renderLeave(); else if(d.act==='login')renderLock(); else if(d.restore)restoreEmp(t);
   else if(d.copy)navigator.clipboard?.writeText(d.copy).then(()=>toast('تم النسخ'),()=>toast('حدّد الرقم وانسخه يدوياً'));
   else if(d.emp)showEmp(d.emp)});
 document.addEventListener('input',ev=>{const el=ev.target;
   if(el.id?.startsWith('f-')){const k=el.id.slice(2);S.f[k]=el.type==='checkbox'?el.checked:el.value;vDb();if(k==='q'){const q=$('#f-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}}
   if(el.id==='e-point'){const i=pointInfo(el.value.trim());if(i)for(const k of ['psup','region','area']){const x=el.form.querySelector('#e-'+k);if(x)x.value=i[k]}}});
+document.addEventListener('change',ev=>{const el=ev.target;if(el.dataset&&el.dataset.lstatus)S.db.doc('leave/'+el.dataset.lstatus).update({status:el.value}).then(()=>toast('حُدّثت حالة الطلب'),e=>toast('لم تُحفظ: '+e.message))});
 dlg.addEventListener('click',ev=>{if(ev.target===dlg)dlg.close()});
 </script>
 </body>
