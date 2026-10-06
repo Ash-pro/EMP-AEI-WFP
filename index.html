@@ -285,7 +285,7 @@ function showEmp(id){const e=S.emps.get(id);if(!e)return;const is=issues(e);
    ${kv('القسم',e.dept)}${kv('الفئة الوظيفية',e.cat)}${kv('المشرف المباشر',e.sup)}${kv('مشرف النقطة',e.psup)}${kv('النطاق الجغرافي',e.region)}${kv('منطقة النقطة',e.area)}${e.note?kv('ملاحظة الدوام',e.note):''}
    ${kv('تاريخ الميلاد',fd(e.dob),1)}${kv('الحالة الاجتماعية',e.marital)}${kv('الجامعة',e.uni)}${kv('الدرجة العلمية',e.degree)}${kv('التخصص',e.major)}${kv('تاريخ الشهادة',fd(e.grad),1)}
    ${kv('طريقة تلقي الراتب',e.pay)}<div><dt>الأيبان / رقم المحفظة</dt><dd class="num">${h(e.iban||'—')} ${e.iban?`<button class="btn sm" data-copy="${h(e.iban)}" type="button">نسخ</button>`:''}</dd></div></dl></div>
-   <div class="df adm"><div><button class="btn pri" data-edit="${h(id)}">تعديل البيانات</button><button class="btn" data-move="${h(id)}">نقل إلى نقطة أخرى</button></div><button class="btn" data-focal="${h(id)}">${e.focal?'إلغاء الفوكال':'تعيين فوكال'}</button></div><div><button class="btn danger" data-resign="${h(id)}">استقالة موظف</button></div></div>`;
+   <div class="df adm"><div><button class="btn pri" data-edit="${h(id)}">تعديل البيانات</button><button class="btn" data-move="${h(id)}">نقل إلى نقطة أخرى</button><button class="btn" data-focal="${h(id)}">${e.focal?'إلغاء الفوكال':'تعيين فوكال'}</button></div><div><button class="btn danger" data-resign="${h(id)}">استقالة موظف</button></div></div>`;
   open()}
 function open(){if(!dlg.open)dlg.showModal();dlg.scrollTop=0}
 function inp(k,l,v,o={}){return `<label${o.wide?' class="wide"':''}>${l}<input id="e-${k}" name="${k}" value="${h(v??'')}" ${o.type?`type="${o.type}"`:''} ${o.list?`list="${o.list}"`:''} ${o.req?'required':''} ${o.ltr?'dir="ltr"':''} ${o.ro?'readonly':''}></label>`}
