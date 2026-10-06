@@ -358,22 +358,24 @@ function showEmp(id){const e=S.emps.get(id);if(!e)return;const is=issues(e);
 function open(){if(!dlg.open)dlg.showModal();dlg.scrollTop=0}
 function inp(k,l,v,o={}){return `<label${o.wide?' class="wide"':''}>${l}<input id="e-${k}" name="${k}" value="${h(v??'')}" ${o.type?`type="${o.type}"`:''} ${o.list?`list="${o.list}"`:''} ${o.req?'required':''} ${o.ltr?'dir="ltr"':''} ${o.ro?'readonly':''}></label>`}
 function sel(k,l,arr,v){if(v&&!arr.includes(v))arr=[...arr,v];return `<label>${l}<select id="e-${k}" name="${k}">${opts(arr,v,'—')}</select></label>`}
+const supList=()=>[...new Set([...uniq('psup'),...uniq('sup')])].sort((a,b)=>a.localeCompare(b,'ar'));
+function selx(k,l,arr,v){if(v&&!arr.includes(v))arr=[...arr,v];return `<label>${l}<select id="e-${k}" name="${k}" data-newable="1">${opts(arr,v,'—')}<option value="__new__">＋ إضافة قيمة جديدة…</option></select></label>`}
 const lists=()=>`<datalist id="l-point">${opts(uniq('point'))}</datalist><datalist id="l-sup">${opts([...new Set([...uniq('psup'),...uniq('sup')])])}</datalist><datalist id="l-region">${opts(uniq('region'))}</datalist><datalist id="l-area">${opts(uniq('area'))}</datalist><datalist id="l-uni">${opts(uniq('uni'))}</datalist>`;
 function editEmp(id){const e=id?S.emps.get(id):{pay:'بنك فلسطين'};
   dlg.innerHTML=`<form id="empf" data-id="${h(id||'')}">`+head(id?'تعديل: '+h(e.name):'إضافة موظف جديد')+`<div class="db">${lists()}<div id="ferr"></div>
    <fieldset><legend>البيانات الأساسية</legend>${inp('name','الاسم الرباعي',e.name,{req:1,wide:1})}${inp('id','رقم الهوية (9 أرقام)',e.id,{req:1,ltr:1,ro:!!id})}${inp('mobile','رقم الجوال',mob(e.mobile),{ltr:1})}
     ${inp('dob','تاريخ الميلاد',e.dob,{type:'date'})}${sel('marital','الحالة الاجتماعية',MARITAL,e.marital)}</fieldset>
    <fieldset><legend>الدوام</legend>${inp('point','النقطة (اختر أو اكتب نقطة جديدة)',e.point,{list:'l-point',req:1})}${sel('track','المسار',TRACKS,e.track)}${sel('dept','القسم',DEPTS,e.dept)}${sel('cat','الفئة الوظيفية',CATS,e.cat)}
-    ${inp('psup','مشرف النقطة',e.psup,{list:'l-sup'})}${inp('sup','المشرف المباشر',e.sup,{list:'l-sup'})}${inp('region','النطاق الجغرافي',e.region,{list:'l-region'})}${inp('area','منطقة النقطة',e.area,{list:'l-area'})}
+    ${selx('psup','مشرف النقطة',supList(),e.psup)}${selx('sup','المشرف المباشر',supList(),e.sup)}${selx('region','النطاق الجغرافي',uniq('region'),e.region)}${selx('area','منطقة النقطة',uniq('area'),e.area)}
     ${inp('note','ملاحظة الدوام (اختياري)',e.note)}<label class="chk" style="align-self:end"><input id="e-focal" name="focal" type="checkbox"${e.focal?' checked':''}> فوكال بوينت في النقطة</label></fieldset>
-   <fieldset><legend>المؤهل العلمي</legend>${inp('uni','الجامعة',e.uni,{list:'l-uni'})}${inp('degree','الدرجة العلمية',e.degree)}${inp('grad','تاريخ الحصول على الشهادة',e.grad,{type:'date'})}${inp('major','التخصص',e.major,{wide:1})}</fieldset>
+   <fieldset><legend>المؤهل العلمي</legend>${selx('uni','الجامعة',uniq('uni'),e.uni)}${inp('degree','الدرجة العلمية',e.degree)}${inp('grad','تاريخ الحصول على الشهادة',e.grad,{type:'date'})}${inp('major','التخصص',e.major,{wide:1})}</fieldset>
    <fieldset><legend>الراتب</legend>${sel('pay','طريقة تلقي الراتب',PAYS,e.pay)}${inp('iban','الأيبان / رقم المحفظة',e.iban,{ltr:1})}</fieldset></div>
    <div class="df"><div><button class="btn pri">${id?'حفظ التعديلات':'إضافة الموظف'}</button><button class="btn" type="button" data-act="close">إلغاء</button></div>
    ${id?`<div><button class="btn danger" type="button" data-del="${h(id)}">حذف الموظف</button></div>`:''}</div></form>`;
   open()}
 function moveEmp(id){const e=S.emps.get(id);if(!e)return;
   dlg.innerHTML=`<form id="movef" data-id="${h(id)}">`+head('نقل: '+h(e.name))+`<div class="db">${lists()}<div class="muted">الحالي: ${h(e.point)} · ${h(e.track)} · مشرف النقطة ${h(e.psup)} · ${h(e.region)} / ${h(e.area)}</div>
-   <fieldset>${inp('point','النقطة الجديدة',e.point,{list:'l-point',req:1})}${sel('track','المسار',TRACKS,e.track)}${inp('psup','مشرف النقطة',e.psup,{list:'l-sup'})}${inp('sup','المشرف المباشر',e.sup,{list:'l-sup'})}${inp('region','النطاق الجغرافي',e.region,{list:'l-region'})}${inp('area','منطقة النقطة',e.area,{list:'l-area'})}</fieldset>
+   <fieldset>${inp('point','النقطة الجديدة',e.point,{list:'l-point',req:1})}${sel('track','المسار',TRACKS,e.track)}${selx('psup','مشرف النقطة',supList(),e.psup)}${selx('sup','المشرف المباشر',supList(),e.sup)}${selx('region','النطاق الجغرافي',uniq('region'),e.region)}${selx('area','منطقة النقطة',uniq('area'),e.area)}</fieldset>
    <div class="muted" style="font-size:13px">عند اختيار نقطة موجودة يُعبّأ مشرفها ونطاقها ومنطقتها تلقائياً، ويمكنك تعديلها قبل الحفظ.</div></div>
    <div class="df"><div><button class="btn pri">تأكيد النقل</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;
   open()}
@@ -460,7 +462,8 @@ document.addEventListener('input',ev=>{const el=ev.target;
   if(el.id?.startsWith('f-')){const k=el.id.slice(2);S.f[k]=el.type==='checkbox'?el.checked:el.value;vDb();if(k==='q'){const q=$('#f-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}}
   if(el.id==='g-month'){S.month=el.value;applyMonth();render();return}
   if(el.id==='e-point'){const i=pointInfo(el.value.trim());if(i)for(const k of ['psup','region','area']){const x=el.form.querySelector('#e-'+k);if(x)x.value=i[k]}}});
-document.addEventListener('change',ev=>{const el=ev.target;if(el.dataset&&el.dataset.lstatus)S.db.doc('leave/'+el.dataset.lstatus).update({status:el.value}).then(()=>toast('حُدّثت حالة الطلب'),e=>toast('لم تُحفظ: '+e.message))});
+document.addEventListener('change',ev=>{const el=ev.target;
+  if(el.dataset&&el.dataset.newable&&el.value==='__new__'){const i=document.createElement('input');i.id=el.id;i.name=el.name;i.placeholder='اكتب القيمة الجديدة';el.replaceWith(i);i.focus();return}if(el.dataset&&el.dataset.lstatus)S.db.doc('leave/'+el.dataset.lstatus).update({status:el.value}).then(()=>toast('حُدّثت حالة الطلب'),e=>toast('لم تُحفظ: '+e.message))});
 dlg.addEventListener('click',ev=>{if(ev.target===dlg)dlg.close()});
 </script>
 </body>
