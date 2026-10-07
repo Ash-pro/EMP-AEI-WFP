@@ -219,6 +219,7 @@ body.arch [data-act=add],body.arch [data-edit],body.arch [data-move],body.arch [
 
 .st{display:inline-flex;align-items:center;gap:6px;padding:2px 11px;border-radius:99px;font-size:12.5px;font-weight:700;white-space:nowrap}.st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .st-new{background:var(--warn-soft);color:var(--warn)}.st-ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}.st-no{background:var(--bad-soft);color:var(--bad)}
+div.wide{grid-column:1/-1}
 .chip.lt-0{background:var(--t-prev-bg);color:var(--t-prev)}.chip.lt-1{background:var(--t-cure-bg);color:var(--t-cure)}.chip.lt-2{background:var(--t-adm-bg);color:var(--t-adm)}
 .lvt td.nm small{display:block;font-weight:400;font-size:12px}.ib.okb:hover{color:var(--ok);border-color:var(--ok)}
 [data-ch]{display:none!important}
@@ -743,7 +744,7 @@ function showRes(id){const e=S.res.get(id);if(!e)return;const kv=(l,v,c)=>`<div>
 function editRes(id){const e=S.res.get(id);if(!e)return;
   dlg.innerHTML=`<form id="redf" data-rid="${h(id)}">`+head('تعديل استقالة: '+h(e.name))+`<div class="db">${lists()}<div id="ferr"></div>
    <fieldset><legend>الاستقالة</legend>${inp('resignDate','تاريخ الاستقالة',e.resignDate,{type:'date',req:1})}<label class="wide">ملاحظات<textarea id="e-resignNote" name="resignNote">${h(e.resignNote||'')}</textarea></label></fieldset>
-   <fieldset><legend>بيانات البديل (اختياري)</legend>${inp('repName','اسم البديل',e.repName)}${inp('repId','رقم هوية البديل',e.repId,{ltr:1})}${inp('repMobile','رقم جوال البديل',e.repMobile?mob(e.repMobile):'',{ltr:1})}${inp('repPoint','اسم النقطة',e.repPoint||'',{list:'l-point'})}</fieldset>
+   <fieldset><legend>بيانات البديل (اختياري)</legend>${repPicker(id,e.repPoint||e.point)}${inp('repName','اسم البديل',e.repName)}${inp('repId','رقم هوية البديل',e.repId,{ltr:1})}${inp('repMobile','رقم جوال البديل',e.repMobile?mob(e.repMobile):'',{ltr:1})}${inp('repPoint','اسم النقطة',e.repPoint||'',{list:'l-point'})}</fieldset>
    <fieldset><legend>بيانات الموظف</legend>${inp('name','الاسم الرباعي',e.name,{req:1,wide:1})}${inp('mobile','رقم الجوال',mob(e.mobile),{ltr:1})}${sel('pay','طريقة تلقي الراتب',PAYS,e.pay)}${inp('iban','الأيبان / رقم المحفظة',e.iban,{ltr:1})}</fieldset></div>
    <div class="df"><div><button class="btn pri">حفظ التعديلات</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open()}
 async function saveResEdit(f){const rid=f.dataset.rid,e=S.res.get(rid),o=formData(f);o.repId=o.repId.replace(/\D/g,'');o.repMobile=mob(o.repMobile).replace(/^0/,'');o.mobile=mob(o.mobile).replace(/^0/,'');o.iban=o.iban.replace(/[\s‎‏']/g,'');
@@ -795,11 +796,16 @@ function moveEmp(id){const e=S.emps.get(id);if(!e)return;
    <div class="muted" style="font-size:13px">عند اختيار نقطة موجودة يُعبّأ مشرفها ونطاقها ومنطقتها تلقائياً، ويمكنك تعديلها قبل الحفظ.</div></div>
    <div class="df"><div><button class="btn pri">تأكيد النقل</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;
   open()}
+function repPicker(selfId,pt){const emps=[...S.emps.values()].filter(e=>e.id!==selfId).sort((a,b)=>a.name.localeCompare(b.name,'ar')),regs=[...S.regs.values()].filter(x=>x.status==='جديد');
+  return `<label class="wide">اختيار البديل من قاعدة البيانات أو من طلبات التسجيل الجديدة<input id="e-repPick" data-pt="${h(pt||'')}" list="l-rep" autocomplete="off" placeholder="اكتب الاسم أو رقم الهوية ثم اختر من القائمة…"></label><datalist id="l-rep">${regs.map(x=>`<option value="${h(x.name)} · ${h(x.id)} · طلب تسجيل جديد">`).join('')}${emps.map(e=>`<option value="${h(e.name)} · ${h(e.id)} · ${h(e.point||'')}">`).join('')}</datalist><div class="muted wide" id="repSrc" style="font-size:12.5px">الاختيار يعبّئ الحقول التالية تلقائياً، ويمكنك تعديلها أو كتابتها يدوياً.</div>`}
+function repPick(el){const m=el.value.match(/· (\d{9}) ·/);if(!m)return;const id=m[1],rg=[...S.regs.values()].find(x=>x.id===id&&x.status==='جديد'),e=S.emps.get(id),x=e||rg;if(!x)return;const f=el.form,set=(k,v)=>{const i=f.querySelector('#e-'+k);if(i)i.value=v||''};
+  set('repName',x.name);set('repId',id);set('repMobile',mob(x.mobile));set('repPoint',el.dataset.pt||x.point);
+  const src=f.querySelector('#repSrc');if(src)src.innerHTML=e?`المصدر: <b>قاعدة البيانات</b> · يعمل حالياً في ${h(e.point||'—')}. بعد الحفظ انقله إلى النقطة من «نقل إلى نقطة أخرى» في بياناته.`:`المصدر: <b>طلب تسجيل جديد</b> · ${h(rg.point||'')} · ${h(rg.cat||'')}. بعد الحفظ اقبل طلبه من «طلبات التسجيل» ليدخل قاعدة البيانات.`;el.value=''}
 function resignEmp(id,pre,rq){const e=S.emps.get(id);if(!e)return;pre=pre||{};
   dlg.innerHTML=`<form id="resf" data-id="${h(id)}" data-rq="${h(rq||'')}">`+head('استقالة موظف')+`<div class="db">${lists()}<div id="ferr"></div>
    <div class="note bad">تأكيد استقالة <b>${h(e.name)}</b> (${h(assign(e))}). سيُنقل من قاعدة البيانات إلى صفحة الاستقالات مع كافة بياناته.</div>
    <fieldset>${inp('resignDate','تاريخ الاستقالة',pre.date||today(),{type:'date',req:1})}<label class="wide">ملاحظات<textarea id="e-resignNote" name="resignNote">${h(pre.note?'بطلب من الموظف: '+pre.note:'')}</textarea></label></fieldset>
-   <fieldset><legend>بيانات البديل (اختياري)</legend>${inp('repName','اسم البديل','')}${inp('repId','رقم هوية البديل','',{ltr:1})}${inp('repMobile','رقم جوال البديل','',{ltr:1})}${inp('repPoint','اسم النقطة',e.point,{list:'l-point'})}</fieldset>
+   <fieldset><legend>بيانات البديل (اختياري)</legend>${repPicker(id,e.point)}${inp('repName','اسم البديل','')}${inp('repId','رقم هوية البديل','',{ltr:1})}${inp('repMobile','رقم جوال البديل','',{ltr:1})}${inp('repPoint','اسم النقطة',e.point,{list:'l-point'})}</fieldset>
    <label class="chk"><input id="e-sure" name="sure" type="checkbox" required> أؤكد استقالة هذا الموظف</label></div>
    <div class="df"><div><button class="btn pri">تأكيد الاستقالة</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;
   open()}
@@ -948,6 +954,7 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[da
 document.addEventListener('input',ev=>{const el=ev.target;
   if(el.id?.startsWith('f-')){const k=el.id.slice(2);S.f[k]=el.type==='checkbox'?el.checked:el.value;vDb();if(k==='q'){const q=$('#f-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}}
   if(el.id&&el.id.startsWith('pf-')){const k=el.id.slice(3);S.pf[k]=el.value;vPts();if(k==='q'){const q=$('#pf-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}return}
+  if(el.id==='e-repPick'){repPick(el);return}
   if(el.id==='rf-q'||el.id==='rf-m'){S.rf[el.id.slice(3)]=el.value;vRes();if(el.id==='rf-q'){const q=$('#rf-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}return}
   if(el.id==='g-month'){S.rf=null;S.month=el.value;applyMonth();render();return}
   if(el.id==='e-point'){const i=pointInfo(el.value.trim());if(i)for(const k of ['psup','region','area']){const x=el.form.querySelector('#e-'+k);if(x)x.value=i[k]}}});
