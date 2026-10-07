@@ -412,8 +412,8 @@ function planText(doc,d,p){if(dayIdx(d)===0||dayIdx(d)===6)return 'إجازة ر
 const planUrl=(m,t)=>location.href.split('#')[0]+'#plan='+m+'.'+t;
 function planTables(doc,m,edit){const ppl=doc.people||[],td=today();
   return planWeeks(m).map((w,wi)=>{const cur=td>=w[0]&&td<=addDays(w[0],6);
-   return `<section class="pw${cur?' cur':''}"><header><h3>الأسبوع ${wi+1}${cur?' · الأسبوع الحالي':''}</h3><span class="num muted">${fd(w[1])} – ${fd(w[5])}</span>${edit?`<button class="btn sm" data-pcopy="${w[0]}">نسخ خطة الأسبوع السابق</button>`:''}</header>
-   <div class="tw"><table class="plt"><thead><tr><th>الاسم</th>${w.map((d,i)=>`<th${d===td?' class="tdy"':''}>${edit&&i?`<button class="hbtn" data-phol="${d}" title="جعل هذا اليوم إجازة عامة أو إلغاؤها">${DN[i]}</button>`:DN[i]}<div class="num dsub">${d.slice(8)}/${d.slice(5,7)}</div></th>`).join('')}</tr></thead><tbody>${
+   return `<section class="pw${cur?' cur':''}"><header><h3>الأسبوع ${wi+1}${cur?' · الأسبوع الحالي':''}</h3><span class="num muted">${fd(w[1])} – ${fd(w[5])}</span>${edit===true?`<button class="btn sm" data-pcopy="${w[0]}">نسخ خطة الأسبوع السابق</button>`:''}</header>
+   <div class="tw"><table class="plt"><thead><tr><th>الاسم</th>${w.map((d,i)=>`<th${d===td?' class="tdy"':''}>${edit===true&&i?`<button class="hbtn" data-phol="${d}" title="جعل هذا اليوم إجازة عامة أو إلغاؤها">${DN[i]}</button>`:DN[i]}<div class="num dsub">${d.slice(8)}/${d.slice(5,7)}</div></th>`).join('')}</tr></thead><tbody>${
    ppl.map(p=>`<tr style="cursor:default"><td class="nm">${h(p)}</td>${w.map((d,i)=>{const fixed=!i||!!(doc.hol&&doc.hol[d]),c=doc.cells&&doc.cells[d]&&doc.cells[d][p],txt=planText(doc,d,p);
      return `<td class="pc${fixed||c&&c.off?' off':''}${d===td?' tdy':''}"${edit&&!fixed?` data-pcell="${d}|${h(p)}"`:''}>${h(txt)||(edit&&!fixed?'<span class="muted">＋</span>':'')}</td>`}).join('')}</tr>`).join('')||'<tr><td colspan="7" class="empty">لا توجد أسماء في الخطة.</td></tr>'}</tbody></table></div></section>`}).join('')}
 function vPlan(){const sum=$('.sum');if(sum)sum.hidden=true;const m=S.pm||(S.pm=curMonth()),doc=planDoc(m),ed=isAdmin(),link=doc.token&&doc.on!==false?planUrl(m,doc.token):'';
@@ -424,14 +424,15 @@ function vPlan(){const sum=$('.sum');if(sum)sum.hidden=true;const m=S.pm||(S.pm=
    ${planTables(doc,m,ed)}`}
 async function savePlan(m,doc){const d={token:doc.token||'',on:doc.on!==false,people:doc.people,cells:doc.cells,hol:doc.hol};await rpc('aei_set',{p:PIN,c:'plan',i:m,d});S.plans.set(m,d);await refresh('plan');if(S.tab==='plan')render()}
 const pErr=e=>toast('لم يُحفظ: '+(e.message||e));
-function planCell(key){const i=key.indexOf('|'),d=key.slice(0,i),p=key.slice(i+1),doc=planDoc(S.pm),c=(doc.cells[d]||{})[p]||{pts:[],note:'',off:false},pts=[...new Set([...S.live.values()].map(e=>e.point).filter(x=>x&&x!=='إداري'))].sort((a,b)=>a.localeCompare(b,'ar'));
+function planCell(key){const i=key.indexOf('|'),d=key.slice(0,i),p=key.slice(i+1),doc=S.pub?S.pub.doc:planDoc(S.pm),c=((doc.cells||{})[d]||{})[p]||{pts:[],note:'',off:false},pts=[...new Set((S.pub?(LISTS&&LISTS.points||[]):[...S.live.values()].map(e=>e.point)).filter(x=>x&&x!=='إداري'))].sort((a,b)=>a.localeCompare(b,'ar'));
   const all2=[...new Set([...pts,...PX,...(c.pts||[])])];
   dlg.innerHTML=`<form id="pcf" data-key="${h(key)}">`+head(h(p)+' · '+DN[dayIdx(d)]+' '+fd(d))+`<div class="db"><label class="chk"><input id="e-off" name="off" type="checkbox"${c.off?' checked':''}> إجازة لهذا الشخص في هذا اليوم</label>
    <fieldset><legend>النقاط (يمكن اختيار أكثر من نقطة)</legend>${all2.map((x,k)=>`<label class="chk"><input id="e-pt${k}" data-pp="${h(x)}" type="checkbox"${(c.pts||[]).includes(x)?' checked':''}> ${h(x)}</label>`).join('')}</fieldset>
    <fieldset>${inp('note','ملاحظة (اختياري)، مثل: تجميع داتا',c.note,{wide:1})}</fieldset></div>
    <div class="df"><div><button class="btn pri">حفظ</button><button class="btn" type="button" data-act="close">إلغاء</button></div><div><button class="btn danger" type="button" data-act="pclear">تفريغ الخانة</button></div></div></form>`;open()}
-async function savePC(f,clear){const key=f.dataset.key,i=key.indexOf('|'),d=key.slice(0,i),p=key.slice(i+1),doc=planDoc(S.pm);
+async function savePC(f,clear){const key=f.dataset.key,i=key.indexOf('|'),d=key.slice(0,i),p=key.slice(i+1),doc=S.pub?null:planDoc(S.pm);
   const c={pts:[...f.querySelectorAll('input[data-pp]:checked')].map(x=>x.dataset.pp),note:f.querySelector('#e-note').value.trim(),off:f.querySelector('#e-off').checked};
+  if(S.pub){const b=f.querySelector('.btn.pri');b.disabled=true;try{const r=await rpc('aei_plan_public_set',{m:S.pub.m,t:S.pub.t,d,p,c:clear?{}:c});dlg.close();if(r)S.pub.show(r);toast('تم الحفظ')}catch(e){b.disabled=false;toast('تعذّر الحفظ: '+(e.message||''))}return}
   doc.cells[d]=doc.cells[d]||{};if(clear||(!c.pts.length&&!c.note&&!c.off))delete doc.cells[d][p];else doc.cells[d][p]=c;if(!Object.keys(doc.cells[d]).length)delete doc.cells[d];
   try{dlg.close();await savePlan(S.pm,doc)}catch(e){pErr(e)}}
 function planHol(d){const doc=planDoc(S.pm),cur=doc.hol[d];
@@ -454,10 +455,11 @@ function planExport(){if(!window.XLSX)return toast('تعذّر تحميل مكت
   for(const w of planWeeks(m)){aoa.push(['الاسم',...w.map((d,i)=>DN[i]+' '+d.slice(8)+'/'+d.slice(5,7)),'الأسبوع']);for(const p of doc.people)aoa.push([p,...w.map(d=>planText(doc,d,p)),fd(w[1])+' - '+fd(w[5])]);aoa.push([])}
   const ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=[{wch:26},...Array(6).fill({wch:24}),{wch:24}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'الخطة الأسبوعية');wb.Workbook={Views:[{RTL:true}]};
   try{const u=URL.createObjectURL(new Blob([XLSX.write(wb,{type:'array',bookType:'xlsx'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),a=document.createElement('a');a.href=u;a.download=`الخطة الأسبوعية ${m.slice(5)}.${m.slice(0,4)}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);toast('تم تنزيل الخطة')}catch(e){toast('تعذّر التصدير: '+(e.message||e))}}
-async function publicPlan(m,t){document.body.classList.add('ro');
+async function publicPlan(m,t){document.body.classList.add('ro');S.pub={m,t,doc:null};rpc('aei_public_lists',{}).then(l=>LISTS=l).catch(()=>{});
+  const show=S.pub.show=d=>{S.pub.doc={people:[],cells:{},hol:{},...d};S.pm=m;app.innerHTML=`<div class="pubh"><div>جمعية أرض الإنسان · مشروع الغذاء العالمي WFP</div><h1>الجدول الأسبوعي لدوام المشرفين · ${MN[+m.slice(5)-1]} ${m.slice(0,4)}</h1><div>اضغط على خانتك في اليوم المطلوب لإدخال نقاط دوامك · آخر تحديث للصفحة <span class="num">${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span></div></div>${planTables(S.pub.doc,m,'pub')}`};
   const load=async first=>{try{const d=await rpc('aei_plan_public',{m,t});
     if(!d){app.innerHTML='<div class="page"><div class="okbox"><h2 style="margin:0">الرابط غير مفعّل</h2><div class="muted">هذا الرابط أُوقف أو جُدّد. اطلب الرابط الجديد من الإدارة.</div></div></div>';return}
-    S.pm=m;app.innerHTML=`<div class="pubh"><div>جمعية أرض الإنسان · مشروع الغذاء العالمي WFP</div><h1>الجدول الأسبوعي لدوام المشرفين · ${MN[+m.slice(5)-1]} ${m.slice(0,4)}</h1><div>للعرض فقط · آخر تحديث للصفحة <span class="num">${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span></div></div>${planTables({people:[],cells:{},hol:{},...d},m,false)}`}
+    if(first||!dlg.open)show(d)}
    catch(e){if(first)app.innerHTML=`<div class="page"><div class="okbox"><div class="note bad">تعذّر تحميل الخطة: ${h(e.message||'')}</div></div></div>`}};
   await load(true);setInterval(()=>{if(!document.hidden)load(false)},60000)}
 /* ---------- point data ---------- */
