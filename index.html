@@ -182,6 +182,18 @@ button.kpi{font:inherit;color:inherit;text-align:start;cursor:pointer;width:100%
 .hint{font-size:13px;color:var(--muted);margin-block:8px 6px;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center}
 .hint b{color:var(--fg);font-variant-numeric:tabular-nums}
 td.rn,th.rn{width:1%;color:var(--muted);font-family:var(--mono);font-size:.85em;text-align:center}
+.pbar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-block:16px 10px}
+.pbar .acts{align-items:center}.pbar b{font-size:16px;min-width:110px;text-align:center}
+.plink{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;font-size:13px}
+.plink input{flex:1;min-width:180px;font-family:var(--mono);font-size:12.5px}
+.pw{margin-top:16px}.pw>header{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-bottom:6px}.pw h3{margin:0;font-size:15px}
+.pw.cur .tw{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand)}.pw.cur h3{color:var(--brand)}
+.plt th,.plt td{text-align:center;white-space:normal;min-width:96px}.plt td.nm,.plt th:first-child{text-align:start;white-space:nowrap}
+.plt td.pc[data-pcell]{cursor:pointer}.plt td.pc[data-pcell]:hover{background:var(--brand-soft)}
+.plt td.off{color:var(--muted);background:var(--sunk)}.plt .tdy{background:var(--brand-soft)}.plt th.tdy{color:var(--brand)}
+.dsub{font-weight:400;font-size:11.5px}
+.hbtn{font:inherit;color:inherit;background:none;border:0;border-bottom:1px dashed currentColor;padding:0;cursor:pointer}
+.pubh{padding-block:22px 4px}.pubh h1{margin:0;font-size:22px}.pubh div{color:var(--muted);font-size:13.5px}
 .mon{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
 .mon select{width:auto;font-weight:600;color:var(--fg)}
 body.arch [data-act=add],body.arch [data-edit],body.arch [data-move],body.arch [data-resign],body.arch [data-focal],body.arch [data-restore]{display:none!important}
@@ -206,7 +218,7 @@ const F=[ // key, label, excel header
  ['num','#'],['id','رقم الهوية'],['focal','الفوكال بوينت في النقطة'],['assign','دوام جديد'],['name','الاسم الرباعي'],['mobile','رقم الجوال'],['dept','القسم'],['cat','الفئة الوظيفية'],
  ['sup','المشرف المباشر'],['psup','مشرف النقطة'],['region','النطاق الجغرافي'],['area','منطقة النقطة'],['dob','تاريخ الميلاد'],['marital','الحالة الاجتماعية'],['uni','الجامعة'],
  ['degree','الدرجة العلمية'],['major','التخصص'],['grad','تاريخ الحصول على الشهادة'],['pay','طريقة تلقي الراتب'],['iban','الأيبان / رقم المحفظة']];
-const S={db:null,dl:null,emps:new Map(),res:new Map(),leaves:new Map(),live:new Map(),snaps:new Map(),month:null,points:new Map(),pf:{q:'',region:'',sup:'',type:''},tab:'db',ready:false,pinHash:null,tries:0,lockUntil:0,f:{q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false}};
+const S={db:null,dl:null,emps:new Map(),res:new Map(),leaves:new Map(),live:new Map(),snaps:new Map(),month:null,points:new Map(),plans:new Map(),pm:null,pf:{q:'',region:'',sup:'',type:''},tab:'db',ready:false,pinHash:null,tries:0,lockUntil:0,f:{q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false}};
 let unsub=null;
 const IC={view:'<svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
  edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
@@ -270,6 +282,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.ready&&
 const isAdmin=()=>S.role==='admin';
 (async()=>{
   if(!/^https:\/\//.test(CONFIG.SUPABASE_URL)||CONFIG.SUPABASE_KEY.length<20){app.innerHTML='<div class="empty">لم يُضبط الاتصال بقاعدة البيانات بعد. ضع رابط المشروع والمفتاح في أعلى ملف index.html.</div>';return}
+  const pub=location.hash.match(/^#plan=(\d{4}-\d\d)\.([A-Za-z0-9]+)$/);if(pub)return publicPlan(pub[1],pub[2]);
   S.db=DB;const saved=ss.get();
   if(saved){try{const r=await rpc('aei_login',{p:saved});if(r){PIN=saved;S.role=r;return start()}}catch(e){}}
   renderHome()})();
@@ -313,6 +326,7 @@ function start(){document.body.classList.toggle('ro',!isAdmin());S.tab=isAdmin()
   app.innerHTML='<div class="empty">جاري تحميل بيانات الموظفين…</div>';
   unsub=S.db.collection('emp').limit(1000).onSnapshot(snap=>{S.live=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));S.ready=true;applyMonth();render()},
     e=>{app.innerHTML=`<div class="empty">تعذّر تحميل البيانات: ${h(e.message||e.code)}</div>`});
+  S.db.collection('plan').limit(1000).onSnapshot(snap=>{S.plans=new Map(snap.docs.map(d=>[d.id,d.data()]));if(S.ready&&!dlg.open)render()},()=>{});
   S.db.collection('point').limit(1000).onSnapshot(snap=>{S.points=new Map(snap.docs.map(d=>[d.id,d.data()]));if(S.ready)render()},()=>{});
   S.db.collection('snap').limit(1000).onSnapshot(snap=>{S.snaps=new Map(snap.docs.map(d=>[d.id,d.data().emp||[]]));if(S.ready){applyMonth();render()}},()=>{});
   S.db.collection('leave').limit(1000).onSnapshot(snap=>{S.leaves=new Map(snap.docs.map(d=>[d.id,{...d.data(),docId:d.id}]));if(S.ready)render()},()=>{});
@@ -328,13 +342,13 @@ function render(){const n=S.emps.size, bad=all().filter(e=>issues(e).length).len
   const keep=document.activeElement?.id, pos=document.activeElement?.selectionStart;
   app.innerHTML=`<header class="top"><div class="bar"><div><h1>سجل موظفي AEI – WFP</h1><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي</div></div>
    <div class="acts"><label class="mon">الشهر<select id="g-month" aria-label="الشهر">${[...monthList(),'all'].map(m=>`<option value="${m}"${m===selMonth()?' selected':''}>${mLabel(m)}</option>`).join('')}</select></label><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm" data-act="pin">تغيير الرمز</button><button class="btn" data-act="logout">تسجيل الخروج</button></div></div>
-   <div class="tabs" role="tablist">${[['home','الرئيسية'],['db','قاعدة البيانات'],['points','حسب النقاط'],['pts','بيانات النقاط'],['sups','حسب المشرفين'],['leave','الإجازات'],['res','الاستقالات'],['log','سجل التعديلات']].filter(t=>isAdmin()||(t[0]!=='res'&&t[0]!=='log'&&t[0]!=='home')).map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}</button>`).join('')}</div></header>
+   <div class="tabs" role="tablist">${[['home','الرئيسية'],['db','قاعدة البيانات'],['points','حسب النقاط'],['pts','بيانات النقاط'],['sups','حسب المشرفين'],['plan','الخطة الأسبوعية'],['leave','الإجازات'],['res','الاستقالات'],['log','سجل التعديلات']].filter(t=>isAdmin()||(t[0]!=='res'&&t[0]!=='log'&&t[0]!=='home')).map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}</button>`).join('')}</div></header>
    <div class="sum"><span><b>${n}</b> موظف</span>${TRACKS.map(t=>{const c=all().filter(e=>e.track===t).length;return c?`<span>${chip(t)} <b>${c}</b></span>`:''}).join('')}
    <span><b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة</span>${mRes().length?`<span><b>${mRes().length}</b> استقالة</span>`:''}${mLeaves().length?`<span><b>${mLeaves().length}</b> إجازة</span>`:''}${[...S.leaves.values()].some(x=>x.status==='جديد')?`<span><b>${[...S.leaves.values()].filter(x=>x.status==='جديد').length}</b> طلب إجازة جديد</span>`:''}${bad?`<span style="color:var(--warn)"><b>${bad}</b> بحاجة لمراجعة</span>`:''}</div>
    ${isArch()?`<div class="note">أرشيف ${mLabel(selMonth())}: بيانات الموظفين كما كانت في نهاية ذلك الشهر، للعرض والتصدير فقط. للتعديل ارجع إلى الشهر الحالي.</div>`:''}
    <main id="view"></main>`;
-  if(!n&&S.tab!=='res'&&S.tab!=='log'&&S.tab!=='leave'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
-  ({home:vHome,db:vDb,points:vPoints,pts:vPts,sups:vSups,leave:vLeave,res:vRes,log:vLog})[S.tab]();
+  if(!n&&S.tab!=='res'&&S.tab!=='log'&&S.tab!=='leave'&&S.tab!=='plan'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
+  ({home:vHome,plan:vPlan,db:vDb,points:vPoints,pts:vPts,sups:vSups,leave:vLeave,res:vRes,log:vLog})[S.tab]();
   if(keep){const el=document.getElementById(keep);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(e){}}}}
 function vDb(){const f=S.f,rows=filtered();
   $('#view').innerHTML=`<div class="filters">
@@ -379,10 +393,73 @@ function vHome(){const sum=$('.sum');if(sum)sum.hidden=true;
    ${card('حسب المشرفين','كل مشرف ونقاطه وموظفوه.',sups.map(x=>`<div class="hbar"><span>${h(x)}</span><i style="width:${Math.round(cnt('psup',x)/maxS*100)}%"></i><em><b class="num">${cnt('psup',x)}</b> موظف · ${new Set(es.filter(e=>e.psup===x).map(e=>e.point)).size} نقطة</em></div>`).join(''),'sups')}
    ${card('الإجازات','طلبات الإجازة الواردة من نموذج الصفحة الرئيسية وحالتها.',(arch?row('إجازات '+mLabel(selMonth()),mLeaves().length):row('مجازون اليوم',onToday.length)+row('إجازات خلال 7 أيام',week.length))+row('طلبات جديدة',fresh.length)+lv.sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,3).map(x=>`<div class="row" style="font-size:13px"><span>${h(x.name)}</span><span class="muted"><span class="num">${fd(x.start)}</span> ← <span class="num">${fd(x.end)}</span> · ${h(x.status)}</span></div>`).join(''),'leave')}
    ${card('الاستقالات','المستقيلون مع تاريخ الاستقالة والملاحظات وبيانات البديل.',row('استقالات '+mLabel(selMonth()),mRes().length)+row('إجمالي المسجّل',S.res.size)+(lastRes?`<div class="row" style="font-size:13px"><span>آخر استقالة: ${h(lastRes.name)}</span><span class="num muted">${fd(lastRes.resignDate)}</span></div>`:''),'res')}
+   ${(()=>{const td=today(),doc=planDoc(planMonthOf(td)),ppl=doc.people||[];return card('الخطة الأسبوعية','توزيع المشرفين على النقاط لكل يوم، مع رابط عرض شهري عام.',ppl.length?`<div class="row muted" style="font-size:13px"><span>دوام اليوم <span class="num">${fd(td)}</span></span></div>`+ppl.map(x=>row(h(x),h(planText(doc,td,x)||'—'))).join(''):'<div class="muted" style="font-size:13px">لم تُدخل خطة هذا الأسبوع بعد.</div>','plan')})()}
    ${card('سجل التعديلات','كل إضافة أو تعديل أو نقل أو استقالة، بالتاريخ والقيمة السابقة والجديدة.','<div id="h-log" class="muted" style="font-size:13px">جاري التحميل…</div>','log')}
    </div>`;
   S.db.collection('log').orderBy('ts','desc').limit(200).get().then(sn=>{const el=$('#h-log');if(!el)return;const ds=sn.docs.slice(0,3);
     el.innerHTML=ds.length?ds.map(d=>{const x=d.data();return `<div class="row"><span><b style="color:var(--fg)">${h(x.type)}</b> ${h(x.name)}</span><span class="num">${h(new Date(x.ts).toLocaleDateString('en-GB'))}</span></div>`}).join(''):'لا توجد تعديلات مسجلة بعد.'},()=>{const el=$('#h-log');if(el)el.textContent='تعذّر تحميل السجل.'})}
+/* ---------- weekly plan ---------- */
+const DN=['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'],PX=['المقر','مكتب خانيونس','ميداني'];
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),pdate=x=>{const [y,m,d]=x.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(x,n)=>{const d=pdate(x);d.setDate(d.getDate()+n);return iso(d)},dayIdx=x=>(pdate(x).getDay()+1)%7;
+function planWeeks(m){const [y,mo]=m.split('-').map(Number),out=[];let d=new Date(y,mo-1,1);while(d.getDay()!==0)d.setDate(d.getDate()+1);
+  while(d.getMonth()===mo-1){const sat=addDays(iso(d),-1);out.push([0,1,2,3,4,5].map(i=>addDays(sat,i)));d.setDate(d.getDate()+7)}return out}
+const planMonthOf=x=>{const di=dayIdx(x);return di===6?addDays(x,2).slice(0,7):addDays(x,1-di).slice(0,7)};
+function defaultPeople(){const es=[...S.live.values()],sups=[...new Set(es.map(e=>e.psup).filter(x=>x&&x!=='إداري'))].sort((a,b)=>a.localeCompare(b,'ar')),fl=n=>{const w=nrm(n).split(' ');return w[0]+'|'+w[w.length-1]};
+  return [...sups,...es.filter(e=>e.point==='إداري'&&!sups.some(x=>fl(x)===fl(e.name))).map(e=>e.name)]}
+function planDoc(m){const d=S.plans.get(m);return{token:'',on:true,...(d||{}),people:d&&d.people?[...d.people]:defaultPeople(),cells:JSON.parse(JSON.stringify(d&&d.cells||{})),hol:{...(d&&d.hol||{})}}}
+function planText(doc,d,p){if(dayIdx(d)===0||dayIdx(d)===6)return 'إجازة رسمية';if(doc.hol&&doc.hol[d])return doc.hol[d];const c=doc.cells&&doc.cells[d]&&doc.cells[d][p];return !c?'':c.off?'إجازة':(c.pts||[]).join(' + ')+(c.note?` (${c.note})`:'')}
+const planUrl=(m,t)=>location.href.split('#')[0]+'#plan='+m+'.'+t;
+function planTables(doc,m,edit){const ppl=doc.people||[],td=today();
+  return planWeeks(m).map((w,wi)=>{const cur=td>=w[0]&&td<=addDays(w[0],6);
+   return `<section class="pw${cur?' cur':''}"><header><h3>الأسبوع ${wi+1}${cur?' · الأسبوع الحالي':''}</h3><span class="num muted">${fd(w[1])} – ${fd(w[5])}</span>${edit?`<button class="btn sm" data-pcopy="${w[0]}">نسخ خطة الأسبوع السابق</button>`:''}</header>
+   <div class="tw"><table class="plt"><thead><tr><th>الاسم</th>${w.map((d,i)=>`<th${d===td?' class="tdy"':''}>${edit&&i?`<button class="hbtn" data-phol="${d}" title="جعل هذا اليوم إجازة عامة أو إلغاؤها">${DN[i]}</button>`:DN[i]}<div class="num dsub">${d.slice(8)}/${d.slice(5,7)}</div></th>`).join('')}</tr></thead><tbody>${
+   ppl.map(p=>`<tr style="cursor:default"><td class="nm">${h(p)}</td>${w.map((d,i)=>{const fixed=!i||!!(doc.hol&&doc.hol[d]),c=doc.cells&&doc.cells[d]&&doc.cells[d][p],txt=planText(doc,d,p);
+     return `<td class="pc${fixed||c&&c.off?' off':''}${d===td?' tdy':''}"${edit&&!fixed?` data-pcell="${d}|${h(p)}"`:''}>${h(txt)||(edit&&!fixed?'<span class="muted">＋</span>':'')}</td>`}).join('')}</tr>`).join('')||'<tr><td colspan="7" class="empty">لا توجد أسماء في الخطة.</td></tr>'}</tbody></table></div></section>`}).join('')}
+function vPlan(){const sum=$('.sum');if(sum)sum.hidden=true;const m=S.pm||(S.pm=curMonth()),doc=planDoc(m),ed=isAdmin(),link=doc.token&&doc.on!==false?planUrl(m,doc.token):'';
+  $('#view').innerHTML=`<div class="pbar"><div class="acts"><button class="btn sm" data-pm="-1">الشهر السابق</button><b>${MN[+m.slice(5)-1]} ${m.slice(0,4)}</b><button class="btn sm" data-pm="1">الشهر التالي</button></div>
+   <div class="acts">${ed?'<button class="btn sm" data-act="ppeople">إدارة الأسماء</button>':''}<button class="btn sm" data-act="pexport">تصدير الخطة إلى Excel</button></div></div>
+   ${ed?`<div class="plink">${link?`<span>رابط العرض العام لهذا الشهر</span><input id="plink" readonly value="${h(link)}" dir="ltr" aria-label="رابط العرض العام"><button class="btn sm pri" data-copy="${h(link)}">نسخ الرابط</button><button class="btn sm" data-act="plnew">تجديد الرابط</button><button class="btn sm danger" data-act="ploff">إيقاف الرابط</button>`:'<span>لا يوجد رابط عرض عام مفعّل لهذا الشهر.</span><button class="btn sm pri" data-act="plnew">إنشاء رابط الشهر</button>'}</div>
+   <div class="muted" style="font-size:13px;margin-top:8px">اضغط على أي خانة لتحديد النقاط أو الإجازة، وعلى اسم اليوم لجعله إجازة عامة. السبت والجمعة إجازة تلقائياً.</div>`:''}
+   ${planTables(doc,m,ed)}`}
+async function savePlan(m,doc){const d={token:doc.token||'',on:doc.on!==false,people:doc.people,cells:doc.cells,hol:doc.hol};await rpc('aei_set',{p:PIN,c:'plan',i:m,d});S.plans.set(m,d);await refresh('plan');if(S.tab==='plan')render()}
+const pErr=e=>toast('لم يُحفظ: '+(e.message||e));
+function planCell(key){const i=key.indexOf('|'),d=key.slice(0,i),p=key.slice(i+1),doc=planDoc(S.pm),c=(doc.cells[d]||{})[p]||{pts:[],note:'',off:false},pts=[...new Set([...S.live.values()].map(e=>e.point).filter(x=>x&&x!=='إداري'))].sort((a,b)=>a.localeCompare(b,'ar'));
+  const all2=[...new Set([...pts,...PX,...(c.pts||[])])];
+  dlg.innerHTML=`<form id="pcf" data-key="${h(key)}">`+head(h(p)+' · '+DN[dayIdx(d)]+' '+fd(d))+`<div class="db"><label class="chk"><input id="e-off" name="off" type="checkbox"${c.off?' checked':''}> إجازة لهذا الشخص في هذا اليوم</label>
+   <fieldset><legend>النقاط (يمكن اختيار أكثر من نقطة)</legend>${all2.map((x,k)=>`<label class="chk"><input id="e-pt${k}" data-pp="${h(x)}" type="checkbox"${(c.pts||[]).includes(x)?' checked':''}> ${h(x)}</label>`).join('')}</fieldset>
+   <fieldset>${inp('note','ملاحظة (اختياري)، مثل: تجميع داتا',c.note,{wide:1})}</fieldset></div>
+   <div class="df"><div><button class="btn pri">حفظ</button><button class="btn" type="button" data-act="close">إلغاء</button></div><div><button class="btn danger" type="button" data-act="pclear">تفريغ الخانة</button></div></div></form>`;open()}
+async function savePC(f,clear){const key=f.dataset.key,i=key.indexOf('|'),d=key.slice(0,i),p=key.slice(i+1),doc=planDoc(S.pm);
+  const c={pts:[...f.querySelectorAll('input[data-pp]:checked')].map(x=>x.dataset.pp),note:f.querySelector('#e-note').value.trim(),off:f.querySelector('#e-off').checked};
+  doc.cells[d]=doc.cells[d]||{};if(clear||(!c.pts.length&&!c.note&&!c.off))delete doc.cells[d][p];else doc.cells[d][p]=c;if(!Object.keys(doc.cells[d]).length)delete doc.cells[d];
+  try{dlg.close();await savePlan(S.pm,doc)}catch(e){pErr(e)}}
+function planHol(d){const doc=planDoc(S.pm),cur=doc.hol[d];
+  dlg.innerHTML=`<form id="phf" data-d="${d}">`+head(DN[dayIdx(d)]+' '+fd(d))+`<div class="db">${cur?`<div>هذا اليوم مسجّل إجازة عامة: <b>${h(cur)}</b>. إلغاء الإجازة يعيد خانات الدوام كما كانت.</div>`:`<div>جعل هذا اليوم إجازة عامة لكل الأسماء في الخطة.</div><fieldset>${inp('label','وصف الإجازة','إجازة رسمية',{req:1,wide:1})}</fieldset>`}</div>
+   <div class="df"><div><button class="btn pri">${cur?'إلغاء الإجازة':'اعتماد الإجازة'}</button><button class="btn" type="button" data-act="close">تراجع</button></div></div></form>`;open()}
+async function saveHol(f){const d=f.dataset.d,doc=planDoc(S.pm);if(doc.hol[d])delete doc.hol[d];else doc.hol[d]=f.querySelector('#e-label').value.trim()||'إجازة رسمية';try{dlg.close();await savePlan(S.pm,doc)}catch(e){pErr(e)}}
+async function planCopy(btn){if(!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='تأكيد النسخ (يستبدل خانات هذا الأسبوع)';return}
+  const sat=btn.dataset.pcopy,doc=planDoc(S.pm),src=planDoc(planMonthOf(addDays(sat,-6)));let n=0;
+  for(let i=1;i<=5;i++){const d=addDays(sat,i),sd=addDays(d,-7);if(src.cells[sd]){doc.cells[d]=JSON.parse(JSON.stringify(src.cells[sd]));n++}else delete doc.cells[d]}
+  if(!n)return toast('الأسبوع السابق فارغ، لا يوجد ما يُنسخ');try{await savePlan(S.pm,doc);toast('نُسخت خطة الأسبوع السابق')}catch(e){pErr(e)}}
+function planPeople(){const doc=planDoc(S.pm);
+  dlg.innerHTML=`<form id="ppf">`+head('أسماء الخطة لشهر '+MN[+S.pm.slice(5)-1])+`<div class="db"><div class="muted" style="font-size:13px">اسم في كل سطر، وبنفس الترتيب الذي سيظهر في الجداول. حذف اسم لا يحذف خاناته المحفوظة.</div><label>الأسماء<textarea id="e-people" name="people" style="min-height:190px">${h(doc.people.join('\n'))}</textarea></label></div>
+   <div class="df"><div><button class="btn pri">حفظ</button><button class="btn" type="button" data-act="close">إلغاء</button></div><div><button class="btn" type="button" data-act="preset">إعادة القائمة الافتراضية</button></div></div></form>`;open()}
+async function savePeople(f){const doc=planDoc(S.pm);doc.people=[...new Set(f.querySelector('#e-people').value.split('\n').map(x=>x.trim()).filter(Boolean))];try{dlg.close();await savePlan(S.pm,doc)}catch(e){pErr(e)}}
+async function planLink(btn,off){const doc=planDoc(S.pm);
+  if((off||doc.token&&doc.on!==false)&&!btn.dataset.sure){btn.dataset.sure=1;btn.textContent=off?'تأكيد الإيقاف':'تأكيد التجديد (يتعطل الرابط القديم)';return}
+  if(off)doc.on=false;else{const a=new Uint8Array(18);crypto.getRandomValues(a);doc.token=[...a].map(x=>(x%36).toString(36)).join('');doc.on=true}
+  try{await savePlan(S.pm,doc);toast(off?'أُوقف الرابط':'الرابط جاهز للنسخ')}catch(e){pErr(e)}}
+function planExport(){if(!window.XLSX)return toast('تعذّر تحميل مكتبة التصدير. تحقق من الاتصال.');const m=S.pm,doc=planDoc(m),aoa=[['الجدول الأسبوعي لدوام المشرفين · '+MN[+m.slice(5)-1]+' '+m.slice(0,4)],[]];
+  for(const w of planWeeks(m)){aoa.push(['الاسم',...w.map((d,i)=>DN[i]+' '+d.slice(8)+'/'+d.slice(5,7)),'الأسبوع']);for(const p of doc.people)aoa.push([p,...w.map(d=>planText(doc,d,p)),fd(w[1])+' - '+fd(w[5])]);aoa.push([])}
+  const ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=[{wch:26},...Array(6).fill({wch:24}),{wch:24}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'الخطة الأسبوعية');wb.Workbook={Views:[{RTL:true}]};
+  try{const u=URL.createObjectURL(new Blob([XLSX.write(wb,{type:'array',bookType:'xlsx'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),a=document.createElement('a');a.href=u;a.download=`الخطة الأسبوعية ${m.slice(5)}.${m.slice(0,4)}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);toast('تم تنزيل الخطة')}catch(e){toast('تعذّر التصدير: '+(e.message||e))}}
+async function publicPlan(m,t){document.body.classList.add('ro');
+  const load=async first=>{try{const d=await rpc('aei_plan_public',{m,t});
+    if(!d){app.innerHTML='<div class="page"><div class="okbox"><h2 style="margin:0">الرابط غير مفعّل</h2><div class="muted">هذا الرابط أُوقف أو جُدّد. اطلب الرابط الجديد من الإدارة.</div></div></div>';return}
+    S.pm=m;app.innerHTML=`<div class="pubh"><div>جمعية أرض الإنسان · مشروع الغذاء العالمي WFP</div><h1>الجدول الأسبوعي لدوام المشرفين · ${MN[+m.slice(5)-1]} ${m.slice(0,4)}</h1><div>للعرض فقط · آخر تحديث للصفحة <span class="num">${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span></div></div>${planTables({people:[],cells:{},hol:{},...d},m,false)}`}
+   catch(e){if(first)app.innerHTML=`<div class="page"><div class="okbox"><div class="note bad">تعذّر تحميل الخطة: ${h(e.message||'')}</div></div></div>`}};
+  await load(true);setInterval(()=>{if(!document.hidden)load(false)},60000)}
 /* ---------- point data ---------- */
 const PT=['وقائي','كاش','علاجي'];
 function pointRows(){const names=new Set([...uniq('point'),...S.points.keys()]);names.delete('إداري');
@@ -589,9 +666,13 @@ const numAll=()=>document.querySelectorAll('#app table,#dlg table').forEach(numT
 new MutationObserver(numAll).observe(document.getElementById('app'),{childList:true,subtree:true});
 new MutationObserver(numAll).observe(document.getElementById('dlg'),{childList:true,subtree:true});
 /* ---------- events ---------- */
-document.addEventListener('submit',ev=>{ev.preventDefault();const f=ev.target;({lockf:submitLock,empf:()=>saveEmp(f),movef:()=>saveMove(f),resf:()=>saveResign(f),focf:()=>saveFocal(f),leavef:()=>saveLeave(f),ptf:()=>savePoint(f),pinf:()=>savePin(f)})[f.getAttribute('id')]?.()});
-document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[data-go],[data-act],[data-move],[data-edit],[data-del],[data-resign],[data-focal],[data-ldel],[data-ptedit],[data-pt],[data-restore],[data-copy],[data-emp]');if(!t)return;const d=t.dataset;
+document.addEventListener('submit',ev=>{ev.preventDefault();const f=ev.target;({lockf:submitLock,empf:()=>saveEmp(f),movef:()=>saveMove(f),resf:()=>saveResign(f),focf:()=>saveFocal(f),leavef:()=>saveLeave(f),pcf:()=>savePC(f),phf:()=>saveHol(f),ppf:()=>savePeople(f),ptf:()=>savePoint(f),pinf:()=>savePin(f)})[f.getAttribute('id')]?.()});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[data-go],[data-pcell],[data-phol],[data-pcopy],[data-pm],[data-act],[data-move],[data-edit],[data-del],[data-resign],[data-focal],[data-ldel],[data-ptedit],[data-pt],[data-restore],[data-copy],[data-emp]');if(!t)return;const d=t.dataset;
   if(d.tab){S.tab=d.tab;render()}
+  else if(d.pcell)planCell(d.pcell); else if(d.phol)planHol(d.phol); else if(d.pcopy)planCopy(t);
+  else if(d.pm){const [y,mo]=S.pm.split('-').map(Number),x=new Date(y,mo-1+(+d.pm),1);S.pm=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0');render()}
+  else if(d.act==='ppeople')planPeople(); else if(d.act==='pexport')planExport(); else if(d.act==='plnew')planLink(t,false); else if(d.act==='ploff')planLink(t,true);
+  else if(d.act==='pclear')savePC(t.closest('form'),true); else if(d.act==='preset'){$('#e-people').value=defaultPeople().join('\n')}
   else if(d.go){S.tab=d.go;if(d.gof==='bad')S.f={q:'',region:'',psup:'',point:'',track:'',cat:'',bad:true};if(d.gof==='nofocal'||d.gof==='nocoord')S.pf={q:'',region:'',sup:'',type:''};render();window.scrollTo(0,0)}
   else if(d.act==='mismatch')showMismatch();
   else if(d.act==='close')dlg.close(); else if(d.act==='add')editEmp(); else if(d.act==='export')exportXlsx(); else if(d.act==='pin')pinDlg(); else if(d.act==='logout'){try{sessionStorage.removeItem('u')}catch(e){}location.reload()}
