@@ -220,6 +220,7 @@ body.arch [data-act=add],body.arch [data-edit],body.arch [data-move],body.arch [
 .st{display:inline-flex;align-items:center;gap:6px;padding:2px 11px;border-radius:99px;font-size:12.5px;font-weight:700;white-space:nowrap}.st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .st-new{background:var(--warn-soft);color:var(--warn)}.st-ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}.st-no{background:var(--bad-soft);color:var(--bad)}
 div.wide{grid-column:1/-1}
+.eclist{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:var(--r);padding:4px 10px;display:grid}.eclist .chk{padding:6px 0;white-space:normal;border-bottom:1px solid var(--line);cursor:pointer}.eclist .chk:last-child{border:0}.eclist small{margin-inline-start:auto;white-space:nowrap}
 .df{z-index:3}.dh{z-index:3}
 .esum{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--sunk);border-radius:var(--r);font-size:13.5px}
 .esec{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}.esec h3{margin:0 0 10px;font-size:12.5px;font-weight:700;color:var(--brand);letter-spacing:.02em}
@@ -354,8 +355,9 @@ const inMonthRes=e=>{const m=selMonth();return m==='all'||(e.resignDate||'').sli
 const inMonthTs=ts=>{const m=selMonth();if(m==='all')return true;const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')===m};
 const mLeaves=()=>[...S.leaves.values()].filter(inMonthLeave), mRes=()=>[...S.res.values()].filter(inMonthRes);
 const uniq=k=>[...new Set(all().map(e=>e[k]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
+const openPts=()=>[...S.points.entries()].filter(([k,v])=>!v.closed).map(([k])=>k),allPoints=()=>[...new Set([...uniq('point'),...openPts()])].sort((a,b)=>a.localeCompare(b,'ar'));
 function pointInfo(p){const c={};for(const e of all())if(e.point===p){const k=[e.psup,e.region,e.area].join('|');c[k]=(c[k]||0)+1}
-  const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];if(!top)return null;const [psup,region,area]=top[0].split('|');return{psup,region,area}}
+  const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];if(!top){const m=S.points.get(p);return m&&(m.psup||m.region||m.area)?{psup:m.psup||'',region:m.region||'',area:m.area||''}:null}const [psup,region,area]=top[0].split('|');return{psup,region,area}}
 const chip=t=>`<span class="chip ${TCLS[t]||''}">${h(t||'—')}</span>`;
 const opts=(arr,sel,blank)=>(blank!==undefined?`<option value="">${h(blank)}</option>`:'')+arr.map(v=>`<option${v===sel?' selected':''}>${h(v)}</option>`).join('');
 
@@ -688,7 +690,7 @@ async function publicPlan(m,t){document.body.classList.add('ro');S.pub={m,t,doc:
   await load(true);setInterval(()=>{if(!document.hidden)load(false)},60000)}
 /* ---------- point data ---------- */
 const PT=['وقائي','كاش','علاجي'];
-function pointRows(){const names=new Set([...uniq('point'),...S.points.keys()]);names.delete('إداري');
+function pointRows(){const names=new Set([...uniq('point'),...openPts()]);names.delete('إداري');
   return [...names].sort((a,b)=>a.localeCompare(b,'ar')).map(p=>{const es=all().filter(e=>e.point===p),m=S.points.get(p)||{},i=pointInfo(p)||{},fo=es.filter(e=>e.focal);
     const types=m.types&&m.types.length?m.types:PT.filter(t=>es.some(e=>e.track===t));
     const parts=['وقائي','كاش','علاجي','أمن'].filter(t=>es.some(e=>e.track===t)||types.includes(t)).map(t=>{const te=es.filter(e=>e.track===t);return{track:t,count:te.length,sups:[...new Set(te.map(e=>e.psup).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar')),focals:t==='أمن'?te.slice().sort((a,b)=>a.name.localeCompare(b.name,'ar')):te.filter(e=>e.focal),sec:t==='أمن'}});
@@ -705,7 +707,7 @@ function vPts(){const f=S.pf,rows0=pointRows(),qs=nrm(f.q).split(' ').filter(Boo
    <select id="pf-region" aria-label="المحافظة">${opts([...new Set(rows0.map(r=>r.region).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar')),f.region,'كل المحافظات')}</select>
    <select id="pf-sup" aria-label="المشرف">${opts([...new Set(rows0.flatMap(r=>r.sups))].sort((a,b)=>a.localeCompare(b,'ar')),f.sup,'كل المشرفين')}</select>
    <select id="pf-type" aria-label="طبيعة العمل">${opts(PT,f.type,'كل أنواع العمل')}</select></div>
-   <div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:8px"><span class="hint" style="margin:0"><span>المعروض <b>${rows.length}</b> من <b>${rows0.length}</b> نقطة</span><span><b>${rows.reduce((a,r)=>a+r.count,0)}</b> موظف</span><span>فوكال <b>${rows.reduce((a,r)=>a+r.people.filter(e=>e.track!=='أمن').length,0)}</b></span><span>أمن <b>${rows.reduce((a,r)=>a+r.people.filter(e=>e.track==='أمن').length,0)}</b></span><span>اضغط على أي نقطة لعرض تفاصيلها</span></span><button class="btn sm" data-act="ptexport">تصدير النقاط المعروضة إلى Excel</button></div>
+   <div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:8px"><span class="hint" style="margin:0"><span>المعروض <b>${rows.length}</b> من <b>${rows0.length}</b> نقطة</span><span><b>${rows.reduce((a,r)=>a+r.count,0)}</b> موظف</span><span>فوكال <b>${rows.reduce((a,r)=>a+r.people.filter(e=>e.track!=='أمن').length,0)}</b></span><span>أمن <b>${rows.reduce((a,r)=>a+r.people.filter(e=>e.track==='أمن').length,0)}</b></span><span>اضغط على أي نقطة لعرض تفاصيلها</span></span><span class="acts"><button class="btn sm pri adm" data-act="ptadd">إضافة نقطة</button><button class="btn sm" data-act="ptexport">تصدير النقاط المعروضة إلى Excel</button></span></div>
    <div class="tw"><table class="ptt"><thead><tr><th>اسم النقطة</th><th>المحافظة</th><th>عنوان النقطة</th><th>إحداثي X</th><th>إحداثي Y</th><th>طبيعة العمل</th><th>الصفة</th><th>الاسم</th><th>رقم التواصل</th><th>المشرف</th><th>إجراءات</th></tr></thead><tbody>${
    rows.map(r=>{const ps=r.people.length?r.people:[null],n=ps.length;return ps.map((e,i)=>`<tr data-pt="${h(r.name)}"${i?'':' class="g1"'}>${i?'':`<td class="nm" rowspan="${n}">${h(r.name)}<div class="muted" style="font-weight:400;font-size:12.5px">${r.count} موظف${r.total!=null&&r.total!==r.count?' من '+r.total:''}</div></td><td rowspan="${n}">${h(r.region||'—')}</td><td rowspan="${n}" style="white-space:normal;min-width:150px;max-width:240px">${h(r.addr||'—')}</td><td class="num" rowspan="${n}">${h(r.x||'—')}</td><td class="num" rowspan="${n}">${h(r.y||'—')}</td><td rowspan="${n}">${r.types.map(chip).join(' ')||'—'}</td>`}
     ${pCells(e)}${i?'':`<td rowspan="${n}"><div class="ibs"><button class="ib" data-pt="${h(r.name)}" title="عرض تفاصيل النقطة" aria-label="عرض تفاصيل النقطة">${IC.view}</button><button class="ib adm" data-ptedit="${h(r.name)}" title="تعديل بيانات النقطة" aria-label="تعديل بيانات النقطة">${IC.edit}</button></div></td>`}</tr>`).join('')}).join('')
@@ -718,7 +720,45 @@ function showPoint(name){const r=pointRows().find(x=>x.name===name);if(!r)return
    ${sec('الموقع',kv('المحافظة',h(r.region||'—'))+kv('منطقة النقطة',h(r.area||'—'))+kv('إحداثي X',`<span class="num">${h(r.x||'—')}</span>`)+kv('إحداثي Y',`<span class="num">${h(r.y||'—')}</span>`)+kv('عنوان النقطة',`${h(r.addr||'—')}${u?` · <a href="${u}" target="_blank" rel="noopener">فتح على الخريطة</a>`:''}`,1))}
    ${sec('الطاقم',TRACKS.filter(t=>cnt(t)).map(t=>kv(chip(t),`<span class="num">${cnt(t)}</span>`)).join('')+kv('المشرفون',r.sups.map(x=>{const m=es.filter(e=>e.psup===x);return `${h(x)} <span class="num">(${m.length})</span>${m.length<=2&&r.sups.length>1?': '+m.map(who).join('، '):''}`}).join('<br>')||'—',1))}
    <section class="esec"><h3>الفوكال بوينت والأمن</h3><div class="tw"><table><thead><tr><th>الصفة</th><th>الاسم</th><th>رقم التواصل</th><th>المشرف</th></tr></thead><tbody>${(r.people.length?r.people:[null]).map(e=>`<tr style="cursor:default">${pCells(e)}</tr>`).join('')}</tbody></table></div></section></div>
-   <div class="df adm"><div><button class="btn pri" data-ptedit="${h(r.name)}">تعديل بيانات النقطة</button></div></div>`;open()}
+   <div class="df adm"><div><button class="btn pri" data-ptedit="${h(r.name)}">تعديل بيانات النقطة</button><button class="btn" data-ptassign="${h(r.name)}">إسناد موظفين للنقطة</button></div><div><button class="btn danger" data-ptclose="${h(r.name)}">إغلاق النقطة</button></div></div>`;open()}
+function empChecks(exclPoint){const es=[...S.emps.values()].filter(e=>e.point!==exclPoint).sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+  return `<label class="wide">بحث في الموظفين<input id="ec-q" type="search" autocomplete="off" placeholder="اكتب الاسم أو النقطة الحالية…"></label><div class="wide muted" id="ec-n" style="font-size:12.5px">لم يُحدَّد أحد</div><div class="wide eclist">${es.map(e=>`<label class="chk" data-s="${h(nrm(e.name+' '+e.point+' '+e.id))}"><input type="checkbox" data-ec="${h(e.id)}"> <span>${h(e.name)}</span><small class="muted">${h(e.point||'')} · ${h(e.track||'')}</small></label>`).join('')}</div>`}
+const ecIds=f=>[...f.querySelectorAll('input[data-ec]:checked')].map(x=>x.dataset.ec);
+async function moveMany(ids,point,info,extra){for(const id of ids){await rpc('aei_update',{p:PIN,c:'emp',i:id,d:{point,psup:info.psup||'',region:info.region||'',area:info.area||'',...(extra||{})}})}}
+function addPoint(){dlg.innerHTML=`<form id="ptnf">`+head('إضافة نقطة جديدة')+`<div class="db"><div id="ferr"></div>
+   <fieldset><legend>بيانات النقطة</legend>${inp('name','اسم النقطة','',{req:1})}${selx('region','المحافظة',uniq('region').filter(x=>x!=='إداري'),'',1)}${selx('area','منطقة النقطة',uniq('area').filter(x=>x!=='إداري'),'')}${selx('psup','مشرف النقطة',uniq('psup').filter(x=>x!=='إداري'),'',1)}${inp('addr','عنوان النقطة (الشارع، أقرب معلم…)','',{wide:1})}${inp('x','إحداثي X','',{ltr:1})}${inp('y','إحداثي Y','',{ltr:1})}</fieldset>
+   <fieldset><legend>طبيعة عمل النقطة</legend>${PT.map((t,i)=>`<label class="chk"><input id="e-ty${i}" name="ty${i}" type="checkbox"> ${t}</label>`).join('')}</fieldset>
+   <fieldset><legend>إسناد موظفين للنقطة (اختياري)</legend>${empChecks('')}<div class="wide muted" style="font-size:12.5px">الموظف المحدَّد يُنقل من نقطته الحالية إلى النقطة الجديدة ويأخذ مشرفها ومحافظتها ومنطقتها.</div></fieldset></div>
+   <div class="df"><div><button class="btn pri">إضافة النقطة</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open()}
+async function saveNewPoint(f){const o=formData(f),name=o.name.replace(/\s+/g,' ').trim(),num=v=>v===''||/^-?\d+(\.\d+)?$/.test(v),ids=ecIds(f);
+  if(name.length<2)return ferr('أدخل اسم النقطة.'); if(name==='إداري'||pointRows().some(r=>nrm(r.name)===nrm(name)))return ferr('توجد نقطة بهذا الاسم.');
+  if(!o.region)return ferr('اختر المحافظة.'); if(!o.psup)return ferr('اختر مشرف النقطة.'); if(!num(o.x)||!num(o.y))return ferr('الإحداثيات يجب أن تكون أرقاماً، مثل 34.4668.');
+  const d={addr:o.addr||'',x:o.x,y:o.y,types:PT.filter((t,i)=>o['ty'+i]),region:o.region,area:o.area||'',psup:o.psup,closed:false},btn=f.querySelector('.pri');btn.disabled=true;btn.textContent='جاري الحفظ…';
+  try{await rpc('aei_set',{p:PIN,c:'point',i:name,d});await moveMany(ids,name,d,{focal:false});await refresh('point');await refresh('emp');
+    log('إضافة نقطة',{id:'',name},`${d.region} · المشرف: ${d.psup}${ids.length?' · أُسند '+ids.length+' موظف: '+ids.map(i=>(S.emps.get(i)||{}).name).join('، '):''}`);dlg.close();toast(`أُضيفت النقطة${ids.length?' وأُسند لها '+ids.length+' موظف':''}`)}
+  catch(e){btn.disabled=false;btn.textContent='إضافة النقطة';ferr('لم تُحفظ: '+e.message)}}
+function assignPoint(name){const i=pointInfo(name);dlg.innerHTML=`<form id="ptaf" data-pn="${h(name)}">`+head('إسناد موظفين إلى نقطة '+h(name))+`<div class="db"><div id="ferr"></div>
+   <div class="muted">الموظف المحدَّد يُنقل من نقطته الحالية إلى هذه النقطة${i?` ويأخذ مشرفها (${h(i.psup||'—')}) ومحافظتها ومنطقتها`:''}. مساره وفئته يبقيان كما هما، وتُلغى عنه صفة الفوكال في نقطته السابقة.</div>
+   <fieldset>${empChecks(name)}</fieldset></div>
+   <div class="df"><div><button class="btn pri">إسناد المحدَّدين</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open()}
+async function saveAssign(f){const name=f.dataset.pn,ids=ecIds(f),i=pointInfo(name)||{};if(!ids.length)return ferr('حدّد موظفاً واحداً على الأقل.');
+  const btn=f.querySelector('.pri'),names=ids.map(x=>`${(S.emps.get(x)||{}).name} (من ${(S.emps.get(x)||{}).point||'—'})`);btn.disabled=true;btn.textContent='جاري النقل…';
+  try{await moveMany(ids,name,i,{focal:false});await refresh('emp');log('إسناد لنقطة',{id:'',name},names.join('، '));dlg.close();toast(`أُسند ${ids.length} موظف إلى ${name}`)}
+  catch(e){btn.disabled=false;btn.textContent='إسناد المحدَّدين';ferr('لم يُحفظ: '+e.message)}}
+function closePoint(name){const es=[...S.emps.values()].filter(e=>e.point===name).sort((a,b)=>TRACKS.indexOf(a.track)-TRACKS.indexOf(b.track)||a.name.localeCompare(b.name,'ar')),dests=allPoints().filter(p=>p!==name&&p!=='إداري');
+  dlg.innerHTML=`<form id="ptcf" data-pn="${h(name)}">`+head('إغلاق نقطة '+h(name))+`<div class="db"><div id="ferr"></div>
+   <div class="note bad">إغلاق النقطة يزيلها من قوائم النقاط. ${es.length?`يجب توزيع موظفيها (${es.length}) على نقاط أخرى أولاً.`:'لا يوجد فيها موظفون.'}</div>
+   ${es.length?`<fieldset><label class="wide">نقل الجميع إلى نقطة واحدة (اختياري)<select id="pc-all">${opts(dests,'','— اختر لتعبئة الكل —')}</select></label></fieldset>
+   <div class="tw"><table><thead><tr><th>الموظف</th><th>المسار</th><th>النقطة الجديدة</th></tr></thead><tbody>${es.map(e=>`<tr style="cursor:default"><td class="nm">${h(e.name)}${e.focal?'<span class="fp">فوكال</span>':''}</td><td>${chip(e.track)}</td><td><select data-pcd="${h(e.id)}" aria-label="النقطة الجديدة لـ ${h(e.name)}" style="min-width:170px">${opts(dests,'','— اختر —')}</select></td></tr>`).join('')}</tbody></table></div>
+   <div class="muted" style="font-size:12.5px">كل موظف يأخذ مشرف ومحافظة ومنطقة نقطته الجديدة، وتُلغى صفة الفوكال عمّن كان فوكال هنا.</div>`:''}
+   <label class="chk" style="white-space:normal"><input id="e-sure" name="sure" type="checkbox" required> أؤكد إغلاق نقطة ${h(name)}</label></div>
+   <div class="df"><div><button class="btn danger">إغلاق النقطة</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open()}
+async function saveClosePoint(f){const name=f.dataset.pn,sels=[...f.querySelectorAll('select[data-pcd]')];if(!f.querySelector('#e-sure').checked)return ferr('ضع علامة التأكيد أولاً.');
+  if(sels.some(x=>!x.value))return ferr('اختر نقطة جديدة لكل موظف.');const btn=f.querySelector('.btn.danger');btn.disabled=true;btn.textContent='جاري الإغلاق…';
+  try{const moved=[];for(const x of sels){const e=S.emps.get(x.dataset.pcd);await moveMany([x.dataset.pcd],x.value,pointInfo(x.value)||{},{focal:false});moved.push(`${e.name} ← ${x.value}`)}
+    await rpc('aei_set',{p:PIN,c:'point',i:name,d:{...(S.points.get(name)||{}),closed:true,closedAt:today()}});await refresh('emp');await refresh('point');
+    log('إغلاق نقطة',{id:'',name},moved.join(' | ')||'بدون موظفين');dlg.close();toast(`أُغلقت نقطة ${name}${moved.length?' ووُزّع '+moved.length+' موظف':''}`)}
+  catch(e){btn.disabled=false;btn.textContent='إغلاق النقطة';ferr('لم يكتمل: '+e.message+'. راجع قاعدة البيانات، فقد يكون بعض الموظفين نُقلوا.')}}
 function editPoint(name){const r=pointRows().find(x=>x.name===name);if(!r)return;
   dlg.innerHTML=`<form id="ptf" data-id="${h(name)}">`+head('بيانات نقطة '+h(name))+`<div class="db"><div id="ferr"></div>
    <fieldset><legend>العنوان</legend>${inp('addr','عنوان النقطة (الشارع، أقرب معلم…)',r.addr,{wide:1})}</fieldset>
@@ -728,7 +768,7 @@ function editPoint(name){const r=pointRows().find(x=>x.name===name);if(!r)return
    <div class="df"><div><button class="btn pri">حفظ</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open()}
 async function savePoint(f){const name=f.dataset.id,o=formData(f),num=v=>v===''||/^-?\d+(\.\d+)?$/.test(v);
   if(!num(o.x)||!num(o.y))return ferr('الإحداثيات يجب أن تكون أرقاماً، مثل 34.4668.');
-  const d={addr:o.addr||'',x:o.x,y:o.y,types:PT.filter((t,i)=>o['ty'+i])},btn=f.querySelector('.pri');btn.disabled=true;
+  const d={...(S.points.get(name)||{}),closed:false,addr:o.addr||'',x:o.x,y:o.y,types:PT.filter((t,i)=>o['ty'+i])},btn=f.querySelector('.pri');btn.disabled=true;
   try{await rpc('aei_set',{p:PIN,c:'point',i:name,d});await refresh('point');log('تعديل نقطة',{id:'',name},`العنوان: ${d.addr||'—'} | X: ${d.x||'—'} | Y: ${d.y||'—'} | ${d.types.join('، ')||'—'}`);dlg.close();toast('حُفظت بيانات النقطة')}
   catch(e){btn.disabled=false;ferr('لم تُحفظ: '+e.message)}}
 function vSups(){
@@ -791,12 +831,12 @@ function inp(k,l,v,o={}){return `<label${o.wide?' class="wide"':''}>${l}<input i
 function sel(k,l,arr,v){if(v&&!arr.includes(v))arr=[...arr,v];return `<label>${l}<select id="e-${k}" name="${k}">${opts(arr,v,'—')}</select></label>`}
 const supList=()=>[...new Set([...uniq('psup'),...uniq('sup')])].sort((a,b)=>a.localeCompare(b,'ar'));
 function selx(k,l,arr,v,req){if(v&&!arr.includes(v))arr=[...arr,v];return `<label>${l}<select id="e-${k}" name="${k}" data-newable="1"${req?' required':''}>${opts(arr,v,'—')}<option value="__new__">＋ إضافة قيمة جديدة…</option></select></label>`}
-const lists=()=>`<datalist id="l-point">${opts(uniq('point'))}</datalist><datalist id="l-sup">${opts([...new Set([...uniq('psup'),...uniq('sup')])])}</datalist><datalist id="l-region">${opts(uniq('region'))}</datalist><datalist id="l-area">${opts(uniq('area'))}</datalist><datalist id="l-uni">${opts(uniq('uni'))}</datalist>`;
+const lists=()=>`<datalist id="l-point">${opts(allPoints())}</datalist><datalist id="l-sup">${opts([...new Set([...uniq('psup'),...uniq('sup')])])}</datalist><datalist id="l-region">${opts(uniq('region'))}</datalist><datalist id="l-area">${opts(uniq('area'))}</datalist><datalist id="l-uni">${opts(uniq('uni'))}</datalist>`;
 function editEmp(id,pre,rid){const e=id?S.emps.get(id):(pre||{pay:'بنك فلسطين'});
   dlg.innerHTML=`<form id="empf" data-id="${h(id||'')}" data-reg="${h(rid||'')}">`+head(id?'تعديل: '+h(e.name):rid?'مراجعة طلب تسجيل: '+h(e.name):'إضافة موظف جديد')+`<div class="db">${lists()}<div id="ferr"></div>
    <fieldset><legend>البيانات الأساسية</legend>${inp('name','الاسم الرباعي',e.name,{req:1,wide:1})}${inp('id','رقم الهوية (9 أرقام)',e.id,{req:1,ltr:1,ro:!!id})}${inp('mobile','رقم الجوال',mob(e.mobile),{ltr:1})}
     ${inp('dob','تاريخ الميلاد',e.dob,{type:'date'})}${sel('marital','الحالة الاجتماعية',MARITAL,e.marital)}</fieldset>
-   <fieldset><legend>الدوام</legend>${selx('point','النقطة',uniq('point'),e.point,1)}${sel('track','المسار',TRACKS,e.track)}${sel('dept','القسم',DEPTS,e.dept)}${sel('cat','الفئة الوظيفية',CATS,e.cat)}
+   <fieldset><legend>الدوام</legend>${selx('point','النقطة',allPoints(),e.point,1)}${sel('track','المسار',TRACKS,e.track)}${sel('dept','القسم',DEPTS,e.dept)}${sel('cat','الفئة الوظيفية',CATS,e.cat)}
     ${selx('psup','مشرف النقطة',supList(),e.psup)}${selx('sup','المشرف المباشر',supList(),e.sup)}${selx('region','النطاق الجغرافي',uniq('region'),e.region)}${selx('area','منطقة النقطة',uniq('area'),e.area)}
     ${inp('note','ملاحظة الدوام (اختياري)',e.note)}<label class="chk" style="align-self:end"><input id="e-focal" name="focal" type="checkbox"${e.focal?' checked':''}> فوكال بوينت في النقطة</label></fieldset>
    <fieldset><legend>المؤهل العلمي</legend>${selx('uni','الجامعة',uniq('uni'),e.uni)}${selx('degree','الدرجة العلمية',[...new Set(['ثانوية عامة','دبلوم','بكالوريوس','ماجستير','دكتوراه',...uniq('degree')])],e.degree)}${inp('grad','تاريخ الحصول على الشهادة',e.grad,{type:'date'})}${inp('major','التخصص',e.major,{wide:1})}</fieldset>
@@ -806,7 +846,7 @@ function editEmp(id,pre,rid){const e=id?S.emps.get(id):(pre||{pay:'بنك فلس
   open()}
 function moveEmp(id){const e=S.emps.get(id);if(!e)return;
   dlg.innerHTML=`<form id="movef" data-id="${h(id)}">`+head('نقل: '+h(e.name))+`<div class="db">${lists()}<div class="muted">الحالي: ${h(e.point)} · ${h(e.track)} · مشرف النقطة ${h(e.psup)} · ${h(e.region)} / ${h(e.area)}</div>
-   <fieldset>${selx('point','النقطة الجديدة',uniq('point'),e.point,1)}${sel('track','المسار',TRACKS,e.track)}${selx('psup','مشرف النقطة',supList(),e.psup)}${selx('sup','المشرف المباشر',supList(),e.sup)}${selx('region','النطاق الجغرافي',uniq('region'),e.region)}${selx('area','منطقة النقطة',uniq('area'),e.area)}</fieldset>
+   <fieldset>${selx('point','النقطة الجديدة',allPoints(),e.point,1)}${sel('track','المسار',TRACKS,e.track)}${selx('psup','مشرف النقطة',supList(),e.psup)}${selx('sup','المشرف المباشر',supList(),e.sup)}${selx('region','النطاق الجغرافي',uniq('region'),e.region)}${selx('area','منطقة النقطة',uniq('area'),e.area)}</fieldset>
    <div class="muted" style="font-size:13px">عند اختيار نقطة موجودة يُعبّأ مشرفها ونطاقها ومنطقتها تلقائياً، ويمكنك تعديلها قبل الحفظ.</div></div>
    <div class="df"><div><button class="btn pri">تأكيد النقل</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;
   open()}
@@ -952,8 +992,8 @@ const numAll=()=>document.querySelectorAll('#app table,#dlg table').forEach(numT
 new MutationObserver(numAll).observe(document.getElementById('app'),{childList:true,subtree:true});
 new MutationObserver(numAll).observe(document.getElementById('dlg'),{childList:true,subtree:true});
 /* ---------- events ---------- */
-document.addEventListener('submit',ev=>{ev.preventDefault();const f=ev.target;({lockf:submitLock,empf:()=>saveEmp(f),movef:()=>saveMove(f),resf:()=>saveResign(f),focf:()=>saveFocal(f),leavef:()=>saveLeave(f),ledf:()=>saveLeaveEdit(f),redf:()=>saveResEdit(f),rsgf:()=>saveResignReq(f),regf:()=>saveReg(f),selfvf:()=>selfVerify(f),selff:()=>selfSubmit(f),urejf:()=>saveUReject(f),rrejf:()=>saveReject(f),pcf:()=>savePC(f),phf:()=>saveHol(f),ppf:()=>savePeople(f),ptf:()=>savePoint(f),pinf:()=>savePin(f)})[f.getAttribute('id')]?.()});
-document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[data-go],[data-pcell],[data-link],[data-phol],[data-pcopy],[data-pm],[data-act],[data-move],[data-edit],[data-del],[data-resign],[data-focal],[data-ldel],[data-ledit],[data-rview],[data-redit],[data-rback],[data-qacc],[data-qrej],[data-qdel],[data-lset],[data-lview],[data-racc],[data-uacc],[data-urej],[data-udel],[data-rrej],[data-rdel],[data-ptedit],[data-pt],[data-restore],[data-copy],[data-emp]');if(!t)return;const d=t.dataset;if(d.link)return copyLink(t);
+document.addEventListener('submit',ev=>{ev.preventDefault();const f=ev.target;({lockf:submitLock,empf:()=>saveEmp(f),movef:()=>saveMove(f),resf:()=>saveResign(f),focf:()=>saveFocal(f),leavef:()=>saveLeave(f),ledf:()=>saveLeaveEdit(f),ptnf:()=>saveNewPoint(f),ptaf:()=>saveAssign(f),ptcf:()=>saveClosePoint(f),redf:()=>saveResEdit(f),rsgf:()=>saveResignReq(f),regf:()=>saveReg(f),selfvf:()=>selfVerify(f),selff:()=>selfSubmit(f),urejf:()=>saveUReject(f),rrejf:()=>saveReject(f),pcf:()=>savePC(f),phf:()=>saveHol(f),ppf:()=>savePeople(f),ptf:()=>savePoint(f),pinf:()=>savePin(f)})[f.getAttribute('id')]?.()});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[data-go],[data-pcell],[data-link],[data-phol],[data-pcopy],[data-pm],[data-act],[data-move],[data-edit],[data-del],[data-resign],[data-focal],[data-ldel],[data-ledit],[data-ptassign],[data-ptclose],[data-rview],[data-redit],[data-rback],[data-qacc],[data-qrej],[data-qdel],[data-lset],[data-lview],[data-racc],[data-uacc],[data-urej],[data-udel],[data-rrej],[data-rdel],[data-ptedit],[data-pt],[data-restore],[data-copy],[data-emp]');if(!t)return;const d=t.dataset;if(d.link)return copyLink(t);
   if(d.tab){S.tab=d.tab;render()}
   else if(d.pcell)planCell(d.pcell); else if(d.phol)planHol(d.phol); else if(d.pcopy)planCopy(t);
   else if(d.pm){const [y,mo]=S.pm.split('-').map(Number),x=new Date(y,mo-1+(+d.pm),1);S.pm=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0');render()}
@@ -962,12 +1002,15 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[da
   else if(d.go){S.tab=d.go;if(d.gof==='bad')S.f={q:'',region:'',psup:'',point:'',track:'',cat:'',bad:true};if(d.gof==='nofocal'||d.gof==='nocoord')S.pf={q:'',region:'',sup:'',type:''};render();window.scrollTo(0,0)}
   else if(d.act==='mismatch')showMismatch();
   else if(d.act==='close')dlg.close(); else if(d.act==='add')editEmp(); else if(d.act==='export')exportXlsx(); else if(d.act==='pin')pinDlg(); else if(d.act==='logout'){try{sessionStorage.removeItem('u')}catch(e){}location.reload()}
-  else if(d.move)moveEmp(d.move); else if(d.edit)editEmp(d.edit); else if(d.del)delEmp(t); else if(d.resign)resignEmp(d.resign); else if(d.focal)focalDlg(d.focal); else if(d.ldel)delLeave(t); else if(d.ledit)editLeave(d.ledit); else if(d.redit)editRes(d.redit); else if(d.rback)showRes(d.rback); else if(d.rview)showRes(d.rview); else if(d.qacc)rreqAccept(d.qacc); else if(d.qrej)rreqReject(t); else if(d.qdel)rreqDel(t); else if(d.act==='resign')go('resign'); else if(d.lset)setLeave(d.lset); else if(d.lview)showLeave(d.lview); else if(d.racc)regAccept(d.racc); else if(d.uacc)updAccept(t); else if(d.urej)updReject(d.urej); else if(d.udel)delUpd(t); else if(d.act==='self')go('edit'); else if(d.rrej)regReject(d.rrej); else if(d.rdel)delReg(t); else if(d.act==='reg')go('register'); else if(d.ptedit)editPoint(d.ptedit); else if(d.pt)showPoint(d.pt); else if(d.act==='ptexport')exportPts(); else if(d.act==='home'){setPath('');renderHome()} else if(d.act==='leave')go('leave'); else if(d.act==='login')go('login'); else if(d.restore)restoreEmp(t);
+  else if(d.move)moveEmp(d.move); else if(d.edit)editEmp(d.edit); else if(d.del)delEmp(t); else if(d.resign)resignEmp(d.resign); else if(d.focal)focalDlg(d.focal); else if(d.ldel)delLeave(t); else if(d.ledit)editLeave(d.ledit); else if(d.ptassign)assignPoint(d.ptassign); else if(d.ptclose)closePoint(d.ptclose); else if(d.act==='ptadd')addPoint(); else if(d.redit)editRes(d.redit); else if(d.rback)showRes(d.rback); else if(d.rview)showRes(d.rview); else if(d.qacc)rreqAccept(d.qacc); else if(d.qrej)rreqReject(t); else if(d.qdel)rreqDel(t); else if(d.act==='resign')go('resign'); else if(d.lset)setLeave(d.lset); else if(d.lview)showLeave(d.lview); else if(d.racc)regAccept(d.racc); else if(d.uacc)updAccept(t); else if(d.urej)updReject(d.urej); else if(d.udel)delUpd(t); else if(d.act==='self')go('edit'); else if(d.rrej)regReject(d.rrej); else if(d.rdel)delReg(t); else if(d.act==='reg')go('register'); else if(d.ptedit)editPoint(d.ptedit); else if(d.pt)showPoint(d.pt); else if(d.act==='ptexport')exportPts(); else if(d.act==='home'){setPath('');renderHome()} else if(d.act==='leave')go('leave'); else if(d.act==='login')go('login'); else if(d.restore)restoreEmp(t);
   else if(d.copy)navigator.clipboard?.writeText(d.copy).then(()=>toast('تم النسخ'),()=>toast('حدّد الرقم وانسخه يدوياً'));
   else if(d.emp)showEmp(d.emp)});
 document.addEventListener('input',ev=>{const el=ev.target;
   if(el.id?.startsWith('f-')){const k=el.id.slice(2);S.f[k]=el.type==='checkbox'?el.checked:el.value;vDb();if(k==='q'){const q=$('#f-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}}
   if(el.id&&el.id.startsWith('pf-')){const k=el.id.slice(3);S.pf[k]=el.value;vPts();if(k==='q'){const q=$('#pf-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}return}
+  if(el.id==='ec-q'){const q=nrm(el.value).split(' ').filter(Boolean);el.form.querySelectorAll('.eclist label').forEach(l=>{l.hidden=!l.querySelector('input').checked&&!q.every(w=>l.dataset.s.includes(w))});return}
+  if(el.dataset&&el.dataset.ec!==undefined){const n=ecIds(el.form).length,c=el.form.querySelector('#ec-n');if(c)c.textContent=n?`المحدَّدون: ${n}`:'لم يُحدَّد أحد';return}
+  if(el.id==='pc-all'){el.form.querySelectorAll('select[data-pcd]').forEach(x=>x.value=el.value);return}
   if(el.id==='e-repPick'){repPick(el);return}
   if(el.id==='rf-q'||el.id==='rf-m'){S.rf[el.id.slice(3)]=el.value;vRes();if(el.id==='rf-q'){const q=$('#rf-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}return}
   if(el.id==='g-month'){S.rf=null;S.month=el.value;applyMonth();render();return}
