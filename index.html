@@ -175,6 +175,9 @@ textarea{font:inherit;color:inherit;background:var(--surface);border:1px solid v
 .hbar{display:grid;grid-template-columns:minmax(90px,auto) 1fr auto;gap:8px;align-items:center;font-size:14px}
 .hbar i{display:block;height:8px;border-radius:4px;background:var(--brand);min-width:2px}
 .hbar em{font-style:normal;color:var(--muted);font-size:12.5px;white-space:nowrap}
+.hint{font-size:13px;color:var(--muted);margin-block:8px 6px;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center}
+.hint b{color:var(--fg);font-variant-numeric:tabular-nums}
+td.rn,th.rn{width:1%;color:var(--muted);font-family:var(--mono);font-size:.85em;text-align:center}
 .mon{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
 .mon select{width:auto;font-weight:600;color:var(--fg)}
 body.arch [data-act=add],body.arch [data-edit],body.arch [data-move],body.arch [data-resign],body.arch [data-focal],body.arch [data-restore]{display:none!important}
@@ -292,7 +295,7 @@ async function saveLeave(f){const o=formData(f);o.id=o.id.replace(/\D/g,'');
   catch(e){btn.disabled=false;btn.textContent='إرسال الطلب';ferr(e.message)}}
 const ldays=o=>Math.round((new Date(o.end)-new Date(o.start))/864e5)+1, LSTAT=['جديد','موافق عليه','مرفوض'];
 function vLeave(){const rs=mLeaves().sort((a,b)=>(b.ts||0)-(a.ts||0));
-  $('#view').innerHTML=rs.length?`<div class="muted" style="font-size:13px;margin-block:8px 6px">${rs.length} طلب · ${rs.filter(x=>x.status==='جديد').length} جديد</div><div class="tw"><table><thead><tr><th>الاسم</th><th>رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسمى الوظيفي</th><th>من</th><th>إلى</th><th>الأيام</th><th>المشرف</th><th>ملاحظات</th><th>تاريخ الطلب</th><th>الحالة</th><th class="adm"></th></tr></thead><tbody>${
+  $('#view').innerHTML=rs.length?`<div class="hint"><span>المعروض <b>${rs.length}</b> من <b>${S.leaves.size}</b> طلب</span>${LSTAT.map(t=>`<span>${t} <b>${rs.filter(x=>x.status===t).length}</b></span>`).join('')}<span>مجموع الأيام <b>${rs.reduce((a,x)=>a+ldays(x),0)}</b></span></div><div class="tw"><table><thead><tr><th>الاسم</th><th>رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسمى الوظيفي</th><th>من</th><th>إلى</th><th>الأيام</th><th>المشرف</th><th>ملاحظات</th><th>تاريخ الطلب</th><th>الحالة</th><th class="adm"></th></tr></thead><tbody>${
    rs.map(x=>`<tr style="cursor:default"><td class="nm">${h(x.name)}${S.emps.has(x.id)?'':'<span class="flag" title="رقم الهوية غير موجود في قاعدة البيانات">!</span>'}</td><td class="num">${h(x.id)}</td><td class="num">${h(mob(x.mobile))}</td><td>${h(x.point)}</td><td>${h(x.title)}</td><td class="num">${h(fd(x.start))}</td><td class="num">${h(fd(x.end))}</td><td class="num">${ldays(x)}</td><td>${h(x.sup)}</td><td style="white-space:normal;min-width:160px">${h(x.notes||'—')}</td><td class="num">${h(new Date(x.ts).toLocaleDateString('en-GB'))}</td>
     <td>${isAdmin()?`<select data-lstatus="${h(x.docId)}" aria-label="حالة الطلب" style="min-width:110px">${opts(LSTAT,x.status)}</select>`:h(x.status)}</td><td class="adm"><button class="btn sm danger" data-ldel="${h(x.docId)}">حذف</button></td></tr>`).join('')}</tbody></table></div>`
    :`<div class="empty">لا توجد طلبات إجازة في ${mLabel(selMonth())}. الطلبات المرسلة من نموذج الصفحة الرئيسية تظهر هنا حسب شهر الإجازة.</div>`}
@@ -338,7 +341,7 @@ function vDb(){const f=S.f,rows=filtered();
    <select id="f-track" aria-label="المسار">${opts(TRACKS,f.track,'كل المسارات')}</select>
    <select id="f-cat" aria-label="الفئة">${opts([...uniq('cat'),'فوكال بوينت'],f.cat,'كل الفئات')}</select>
    <label class="chk"><input id="f-bad" type="checkbox"${f.bad?' checked':''}> بحاجة لمراجعة فقط</label></div>
-   <div class="muted" style="font-size:13px;margin-bottom:6px">${rows.length} نتيجة · اضغط على أي صف لعرض التفاصيل</div>
+   <div class="hint"><span>المعروض <b>${rows.length}</b> من <b>${all().length}</b> موظف</span>${TRACKS.map(t=>{const c=rows.filter(e=>e.track===t).length;return c?`<span>${chip(t)} <b>${c}</b></span>`:''}).join('')}<span>فوكال <b>${rows.filter(e=>e.focal).length}</b></span><span>اضغط على أي صف لعرض التفاصيل</span></div>
    <div class="tw"><table><thead><tr><th>الاسم الرباعي</th><th>رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسار</th><th>الفئة</th><th>مشرف النقطة</th><th>النطاق</th><th>المنطقة</th><th>طريقة الدفع</th><th>إجراءات</th></tr></thead>
    <tbody>${rows.map(e=>`<tr data-emp="${h(e.id)}"><td class="nm">${h(e.name)}${e.focal?'<span class="fp">فوكال</span>':''}${issues(e).length?'<span class="flag" title="بحاجة لمراجعة">!</span>':''}</td>
     <td class="num">${h(e.id)}</td><td class="num">${h(mob(e.mobile))}</td><td>${h(e.point)}</td><td>${chip(e.track)}</td><td>${h(e.cat)}</td><td>${h(e.psup)}</td><td>${h(e.region)}</td><td>${h(e.area)}</td><td>${h(e.pay)}</td><td>${ibs(e)}</td></tr>`).join('')
@@ -360,7 +363,7 @@ function vHome(){const sum=$('.sum');if(sum)sum.hidden=true;
   const sups=uniq('psup').filter(x=>x!=='إداري'),bad=es.filter(e=>issues(e).length).length,noF=pr.filter(r=>!r.focals.length).length,noC=pr.filter(r=>!r.x||!r.y).length,mis=supMismatch().length,arch=isArch();
   const kpi=(v,l,hot)=>`<div class="kpi${hot&&v?' hot':''}"><b>${v}</b><span>${l}</span></div>`;
   const att=[[fresh.length,'طلب إجازة جديد بانتظار الرد','leave','','فتح الإجازات'],[bad,'موظف بياناته بحاجة لمراجعة (أيبان أو رقم خاطئ أو حقل ناقص)','db','bad','عرضهم'],[noF,'نقطة بدون فوكال بوينت','pts','nofocal','فتح بيانات النقاط'],[noC,'نقطة بدون إحداثيات','pts','nocoord','فتح بيانات النقاط']].filter(a=>a[0]);
-  const row=(l,v)=>`<div class="row"><span>${l}</span><span class="num">${v}</span></div>`,cnt=(k,v)=>es.filter(e=>e[k]===v).length;
+  const row=(l,v)=>`<div class="row"><span>${l}</span><span${typeof v==='number'?' class="num"':' style="font-weight:600;font-variant-numeric:tabular-nums"'}>${v}</span></div>`,cnt=(k,v)=>es.filter(e=>e[k]===v).length;
   const card=(t,desc,body,go,label)=>`<section class="hc"><h2>${t}</h2><p>${desc}</p><div class="rows">${body}</div><button class="btn" data-go="${go}">${label||'فتح القسم'}</button></section>`;
   const maxS=Math.max(1,...sups.map(x=>cnt('psup',x))),lastRes=mRes().sort((a,b)=>(b.resignDate||'').localeCompare(a.resignDate||''))[0];
   $('#view').innerHTML=`<div class="kpis">${kpi(es.length,'موظف')}${kpi(pr.length,'نقطة')}${kpi(sups.length,'مشرف')}${arch?kpi(mLeaves().length,'إجازة في الشهر'):kpi(onToday.length,'مجاز اليوم')}${kpi(fresh.length,'طلب إجازة جديد',1)}${kpi(mRes().length,'استقالة في الشهر')}</div>
@@ -395,7 +398,7 @@ function vPts(){const f=S.pf,rows0=pointRows(),qs=nrm(f.q).split(' ').filter(Boo
    <select id="pf-region" aria-label="المحافظة">${opts([...new Set(rows0.map(r=>r.region).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar')),f.region,'كل المحافظات')}</select>
    <select id="pf-sup" aria-label="المشرف">${opts([...new Set(rows0.flatMap(r=>r.sups))].sort((a,b)=>a.localeCompare(b,'ar')),f.sup,'كل المشرفين')}</select>
    <select id="pf-type" aria-label="طبيعة العمل">${opts(PT,f.type,'كل أنواع العمل')}</select></div>
-   <div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:8px"><span class="muted" style="font-size:13px">${rows.length} نقطة · ${rows.reduce((a,r)=>a+r.count,0)} موظف · اضغط على أي نقطة لعرض تفاصيلها</span><button class="btn sm" data-act="ptexport">تصدير النقاط المعروضة إلى Excel</button></div>
+   <div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:8px"><span class="hint" style="margin:0"><span>المعروض <b>${rows.length}</b> من <b>${rows0.length}</b> نقطة</span><span><b>${rows.reduce((a,r)=>a+r.count,0)}</b> موظف</span><span>فوكال <b>${rows.reduce((a,r)=>a+r.people.filter(e=>e.track!=='أمن').length,0)}</b></span><span>أمن <b>${rows.reduce((a,r)=>a+r.people.filter(e=>e.track==='أمن').length,0)}</b></span><span>اضغط على أي نقطة لعرض تفاصيلها</span></span><button class="btn sm" data-act="ptexport">تصدير النقاط المعروضة إلى Excel</button></div>
    <div class="tw"><table class="ptt"><thead><tr><th>اسم النقطة</th><th>المحافظة</th><th>إحداثي X</th><th>إحداثي Y</th><th>طبيعة العمل</th><th>الصفة</th><th>الاسم</th><th>رقم التواصل</th><th>المشرف</th><th class="adm"></th></tr></thead><tbody>${
    rows.map(r=>{const ps=r.people.length?r.people:[null],n=ps.length;return ps.map((e,i)=>`<tr data-pt="${h(r.name)}"${i?'':' class="g1"'}>${i?'':`<td class="nm" rowspan="${n}">${h(r.name)}<div class="muted" style="font-weight:400;font-size:12.5px">${r.count} موظف${r.total!=null&&r.total!==r.count?' من '+r.total:''}</div></td><td rowspan="${n}">${h(r.region||'—')}</td><td class="num" rowspan="${n}">${h(r.x||'—')}</td><td class="num" rowspan="${n}">${h(r.y||'—')}</td><td rowspan="${n}">${r.types.map(chip).join(' ')||'—'}</td>`}
     ${pCells(e)}${i?'':`<td class="adm" rowspan="${n}"><div class="ibs"><button class="ib" data-ptedit="${h(r.name)}" title="تعديل بيانات النقطة" aria-label="تعديل بيانات النقطة">${IC.edit}</button></div></td>`}</tr>`).join('')}).join('')
@@ -424,7 +427,7 @@ function vSups(){
    <div class="tw"><table><thead><tr><th>الاسم</th><th>المسار</th><th>الفئة</th><th>الجوال</th><th>المشرف المباشر</th><th></th></tr></thead><tbody>${pts.map(p=>{const pe=es.filter(e=>e.point===p).sort((a,b)=>TRACKS.indexOf(a.track)-TRACKS.indexOf(b.track));
     return `<tr class="grp"><td colspan="6">${h(p)} · ${h(pe[0].region)} / ${h(pe[0].area)} · ${pe.length}</td></tr>`+pe.map(e=>`<tr data-emp="${h(e.id)}"><td class="nm">${h(e.name)}${e.focal?'<span class="fp">فوكال</span>':''}</td><td>${chip(e.track)}</td><td>${h(e.cat)}</td><td class="num">${h(mob(e.mobile))}</td><td>${h(e.sup)}</td><td><button class="btn sm adm" data-move="${h(e.id)}">نقل</button></td></tr>`).join('')}).join('')}</tbody></table></div></section>`}).join('')}
 function vRes(){const rs=mRes().sort((a,b)=>(b.resignDate||'').localeCompare(a.resignDate||''));
-  $('#view').innerHTML=rs.length?`<div class="tw" style="margin-top:8px"><table><thead><tr><th>الاسم الرباعي</th><th>رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسار</th><th>تاريخ الاستقالة</th><th>ملاحظات</th><th>البديل</th><th></th></tr></thead><tbody>${
+  $('#view').innerHTML=rs.length?`<div class="hint"><span>المعروض <b>${rs.length}</b> من <b>${S.res.size}</b> استقالة</span><span>لها بديل مسجّل <b>${rs.filter(e=>e.repName||e.repId).length}</b></span></div><div class="tw"><table><thead><tr><th>الاسم الرباعي</th><th>رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسار</th><th>تاريخ الاستقالة</th><th>ملاحظات</th><th>البديل</th><th></th></tr></thead><tbody>${
    rs.map(e=>`<tr style="cursor:default"><td class="nm">${h(e.name)}</td><td class="num">${h(e.id)}</td><td class="num">${h(mob(e.mobile))}</td><td>${h(e.point)}</td><td>${chip(e.track)}</td><td class="num">${h(fd(e.resignDate))}</td><td style="white-space:normal;min-width:180px">${h(e.resignNote||'—')}</td>
     <td style="white-space:normal;min-width:180px">${e.repName||e.repId||e.repMobile||e.repPoint?`${h(e.repName||'—')}<br><span class="num">${h(e.repId||'')}</span> <span class="num">${h(mob(e.repMobile))}</span><br><small class="muted">${h(e.repPoint||'')}</small>`:'—'}</td>
     <td><button class="btn sm" data-restore="${h(e.id)}">إرجاع للعمل</button></td></tr>`).join('')}</tbody></table></div>`
@@ -549,6 +552,18 @@ async function exportXlsx(){if(!window.XLSX)return toast('تعذّر تحميل 
   try{const u=URL.createObjectURL(new Blob([XLSX.write(wb,{type:'array',bookType:'xlsx'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);toast('تم تنزيل الملف')}catch(e){toast('تعذّر التصدير: '+(e.message||e))}}
 function filteredAllSorted(){const f=S.f;S.f={q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false};const r=filtered();S.f=f;return r}
 
+/* ---------- automatic row numbers and count hints for every table ---------- */
+function numTable(t){if(t.dataset.num)return;t.dataset.num=1;const hr=t.tHead&&t.tHead.rows[0];if(!hr)return;
+  const th=document.createElement('th');th.textContent='#';th.className='rn';hr.insertBefore(th,hr.firstChild);let n=0;const grouped=t.classList.contains('ptt');
+  for(const tr of t.tBodies[0]?t.tBodies[0].rows:[]){const c0=tr.cells[0];
+    if(tr.cells.length===1&&c0.colSpan>1||tr.classList.contains('grp')){c0.colSpan+=1;continue}
+    if(grouped&&!tr.classList.contains('g1'))continue;
+    const td=document.createElement('td');td.className='rn';td.textContent=++n;if(grouped)td.rowSpan=c0.rowSpan||1;tr.insertBefore(td,c0)}
+  const box=t.closest('.tw'),prev=box&&box.previousElementSibling;
+  if(box&&n&&!(prev&&(prev.classList.contains('hint')||prev.querySelector('.hint')))){const hdiv=document.createElement('div');hdiv.className='hint';hdiv.innerHTML=`<span>عدد السجلات <b>${n}</b></span>`;if(box.parentElement.classList.contains('sv')||box.parentElement.classList.contains('db'))hdiv.style.paddingInline=box.parentElement.classList.contains('sv')?'14px':'0';box.parentElement.insertBefore(hdiv,box)}}
+const numAll=()=>document.querySelectorAll('#app table,#dlg table').forEach(numTable);
+new MutationObserver(numAll).observe(document.getElementById('app'),{childList:true,subtree:true});
+new MutationObserver(numAll).observe(document.getElementById('dlg'),{childList:true,subtree:true});
 /* ---------- events ---------- */
 document.addEventListener('submit',ev=>{ev.preventDefault();const f=ev.target;({lockf:submitLock,empf:()=>saveEmp(f),movef:()=>saveMove(f),resf:()=>saveResign(f),focf:()=>saveFocal(f),leavef:()=>saveLeave(f),ptf:()=>savePoint(f),pinf:()=>savePin(f)})[f.getAttribute('id')]?.()});
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[data-go],[data-act],[data-move],[data-edit],[data-del],[data-resign],[data-focal],[data-ldel],[data-ptedit],[data-pt],[data-restore],[data-copy],[data-emp]');if(!t)return;const d=t.dataset;
