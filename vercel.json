@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/(register|leave|edit|login)", "destination": "/index.html" }
+    { "source": "/(register|leave|edit|resign|login)", "destination": "/index.html" }
   ]
 }
