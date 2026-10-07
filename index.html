@@ -218,7 +218,7 @@ const F=[ // key, label, excel header
  ['num','#'],['id','رقم الهوية'],['focal','الفوكال بوينت في النقطة'],['assign','دوام جديد'],['name','الاسم الرباعي'],['mobile','رقم الجوال'],['dept','القسم'],['cat','الفئة الوظيفية'],
  ['sup','المشرف المباشر'],['psup','مشرف النقطة'],['region','النطاق الجغرافي'],['area','منطقة النقطة'],['dob','تاريخ الميلاد'],['marital','الحالة الاجتماعية'],['uni','الجامعة'],
  ['degree','الدرجة العلمية'],['major','التخصص'],['grad','تاريخ الحصول على الشهادة'],['pay','طريقة تلقي الراتب'],['iban','الأيبان / رقم المحفظة']];
-const S={db:null,dl:null,emps:new Map(),res:new Map(),leaves:new Map(),live:new Map(),snaps:new Map(),month:null,points:new Map(),plans:new Map(),pm:null,pf:{q:'',region:'',sup:'',type:''},tab:'db',ready:false,pinHash:null,tries:0,lockUntil:0,f:{q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false}};
+const S={db:null,dl:null,emps:new Map(),res:new Map(),leaves:new Map(),regs:new Map(),live:new Map(),snaps:new Map(),month:null,points:new Map(),plans:new Map(),pm:null,pf:{q:'',region:'',sup:'',type:''},tab:'db',ready:false,pinHash:null,tries:0,lockUntil:0,f:{q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false}};
 let unsub=null;
 const IC={view:'<svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
  edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
@@ -290,6 +290,7 @@ function renderHome(){document.body.classList.remove('ro');
   app.innerHTML=`<div class="home"><div class="hero"><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي WFP</div><h1>سجل موظفي AEI – WFP</h1>
    <p>منصة داخلية لطاقم المشروع: بيانات الموظفين موزعة حسب النقاط والمشرفين، ونموذج إلكتروني لتقديم طلبات الإجازة ومتابعتها.</p></div>
    <div class="hgrid"><section class="hcard"><h2>طلب إجازة</h2><p>للموظفين والمتطوعين والأمن. عبّئ النموذج وسيصل طلبك إلى الإدارة ومشرفك مباشرة، بدون رمز دخول.</p><button class="btn pri" data-act="leave">تقديم طلب إجازة</button></section>
+   <section class="hcard"><h2>تسجيل موظف جديد</h2><p>للملتحقين الجدد بالمشروع. عبّئ بياناتك وستراجعها الإدارة قبل اعتمادك في النظام.</p><button class="btn pri" data-act="reg">تسجيل موظف جديد</button></section>
    <section class="hcard"><h2>دخول النظام</h2><p>للمشرفين والإدارة. عرض بيانات الموظفين والنقاط وطلبات الإجازة باستخدام رمز PIN.</p><button class="btn" data-act="login">دخول برمز PIN</button></section></div>
    <ul class="hfeat"><li><b>قاعدة بيانات موحدة</b>بحث وفلترة حسب النطاق والنقطة والمشرف</li><li><b>عرض حسب النقاط والمشرفين</b>طاقم كل نقطة والفوكال بوينت</li><li><b>الإجازات والاستقالات</b>سجل واحد يُصدَّر إلى Excel</li></ul></div>`}
 let LISTS=null;
@@ -300,6 +301,40 @@ async function renderLeave(){app.innerHTML='<div class="empty">جاري تحمي
     ${sel('point','اسم النقطة',LISTS.points||[],'')}${sel('title','المسمى الوظيفي',(LISTS.cats&&LISTS.cats.length?LISTS.cats:CATS),'')}${sel('sup','اسم المشرف',LISTS.sups||[],'')}</fieldset>
    <fieldset><legend>مدة الإجازة</legend>${inp('start','بداية الإجازة','',{type:'date',req:1})}${inp('end','نهاية الإجازة','',{type:'date',req:1})}<label class="wide">ملاحظات<textarea id="e-notes" name="notes" maxlength="1000"></textarea></label></fieldset></div>
    <div class="df"><div><button class="btn pri">إرسال الطلب</button><button class="btn" type="button" data-act="home">إلغاء</button></div></div></form></div>`}
+const DEGS=['ثانوية عامة','دبلوم','بكالوريوس','ماجستير','دكتوراه'],RSTAT=['جديد','مقبول','مرفوض'];
+async function renderReg(){app.innerHTML='<div class="empty">جاري تحميل النموذج…</div>';
+  try{LISTS=LISTS||await rpc('aei_public_lists',{})}catch(e){app.innerHTML=`<div class="page"><div class="okbox"><div class="note bad">تعذّر تحميل النموذج: ${h(e.message)}</div><button class="btn" data-act="home">رجوع</button></div></div>`;return}
+  app.innerHTML=`<div class="page"><form id="regf"><div class="dh"><h2>تسجيل موظف جديد</h2><button class="btn sm" type="button" data-act="home">رجوع</button></div><div class="db"><div id="ferr"></div>
+   <fieldset><legend>البيانات الأساسية</legend>${inp('name','الاسم الرباعي','',{req:1,wide:1})}${inp('id','رقم الهوية (9 أرقام)','',{req:1,ltr:1})}${inp('mobile','رقم الجوال','',{req:1,ltr:1})}${inp('dob','تاريخ الميلاد','',{type:'date'})}${sel('marital','الحالة الاجتماعية',MARITAL,'')}</fieldset>
+   <fieldset><legend>الدوام</legend>${sel('point','اسم النقطة',LISTS.points||[],'')}${sel('cat','المسمى الوظيفي',(LISTS.cats&&LISTS.cats.length?LISTS.cats:CATS),'')}${sel('sup','اسم المشرف',LISTS.sups||[],'')}</fieldset>
+   <fieldset><legend>المؤهل العلمي</legend>${inp('uni','الجامعة','')}${sel('degree','الدرجة العلمية',DEGS,'')}${inp('grad','تاريخ الحصول على الشهادة','',{type:'date'})}${inp('major','التخصص','',{wide:1})}</fieldset>
+   <fieldset><legend>الراتب</legend>${sel('pay','طريقة تلقي الراتب',PAYS,'')}${inp('iban','الأيبان / رقم المحفظة','',{ltr:1})}<label class="wide">ملاحظات<textarea id="e-notes" name="notes" maxlength="1000"></textarea></label></fieldset></div>
+   <div class="df"><div><button class="btn pri">إرسال الطلب</button><button class="btn" type="button" data-act="home">إلغاء</button></div></div></form></div>`}
+async function saveReg(f){const o=formData(f);o.id=o.id.replace(/\D/g,'');o.iban=o.iban.replace(/[\s‎‏']/g,'');
+  if(o.name.split(/\s+/).length<3)return ferr('أدخل الاسم الرباعي كاملاً.');
+  if(!/^\d{9}$/.test(o.id))return ferr('رقم الهوية يجب أن يكون 9 أرقام.');
+  if(!/^05[69]\d{7}$/.test(mob(o.mobile)))return ferr('رقم الجوال غير صحيح.');
+  if(!o.point)return ferr('اختر اسم النقطة.'); if(!o.cat)return ferr('اختر المسمى الوظيفي.'); if(!o.sup)return ferr('اختر اسم المشرف.');
+  const btn=f.querySelector('.pri');btn.disabled=true;btn.textContent='جاري الإرسال…';
+  try{await rpc('aei_reg_submit',{d:o});
+    app.innerHTML=`<div class="page"><div class="okbox"><h2 style="margin:0">تم إرسال طلب التسجيل</h2><div>${h(o.name)} · <span class="num">${h(o.id)}</span></div><div class="muted">طلبك الآن قيد مراجعة الإدارة، وسيُعتمد في النظام بعد التحقق من البيانات. راجع مشرفك لمعرفة النتيجة.</div><div class="acts"><button class="btn pri" data-act="home">الصفحة الرئيسية</button></div></div></div>`}
+  catch(e){btn.disabled=false;btn.textContent='إرسال الطلب';ferr(e.message)}}
+const newRegs=()=>[...S.regs.values()].filter(x=>x.status==='جديد');
+function vReg(){const sum=$('.sum');if(sum)sum.hidden=true;const rs=[...S.regs.values()].sort((a,b)=>(a.status==='جديد'?0:1)-(b.status==='جديد'?0:1)||(b.ts||0)-(a.ts||0));
+  $('#view').innerHTML=rs.length?`<div class="hint">${RSTAT.map(t=>`<span>${t} <b>${rs.filter(x=>x.status===t).length}</b></span>`).join('')}</div><div class="tw"><table><thead><tr><th>الاسم</th><th>رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسمى الوظيفي</th><th>المشرف</th><th>المؤهل</th><th>طريقة الراتب</th><th>الأيبان / المحفظة</th><th>ملاحظات</th><th>تاريخ الطلب</th><th>الحالة</th><th></th></tr></thead><tbody>${
+   rs.map(x=>{const dup=S.emps.has(x.id)&&x.status==='جديد';return `<tr style="cursor:default"><td class="nm">${h(x.name)}${dup?'<span class="flag" title="رقم الهوية موجود مسبقاً في قاعدة البيانات">!</span>':''}</td><td class="num">${h(x.id)}</td><td class="num">${h(mob(x.mobile))}</td><td>${h(x.point)}</td><td>${h(x.cat)}</td><td>${h(x.sup)}</td><td>${h([x.degree,x.major].filter(Boolean).join(' · ')||'—')}</td><td>${h(x.pay||'—')}</td><td class="num">${h(x.iban||'—')}</td><td style="white-space:normal;min-width:140px">${h(x.notes||'—')}${x.reason?`<div class="muted">سبب الرفض: ${h(x.reason)}</div>`:''}</td><td class="num">${h(new Date(x.ts).toLocaleDateString('en-GB'))}</td><td>${h(x.status)}</td>
+    <td><div class="acts">${x.status==='جديد'?`<button class="btn sm pri" data-racc="${h(x.docId)}">مراجعة وقبول</button><button class="btn sm" data-rrej="${h(x.docId)}">رفض</button>`:''}<button class="btn sm danger" data-rdel="${h(x.docId)}">حذف</button></div></td></tr>`}).join('')}</tbody></table></div>`
+   :'<div class="empty">لا توجد طلبات تسجيل. الطلبات المرسلة من «تسجيل موظف جديد» في الصفحة الرئيسية تظهر هنا.</div>'}
+function regAccept(rid){const x=S.regs.get(rid);if(!x)return;
+  if(S.emps.has(x.id)){toast('رقم الهوية مسجل مسبقاً باسم '+S.emps.get(x.id).name);return}
+  const peer=[...S.live.values()].find(e=>e.point===x.point&&e.cat===x.cat)||[...S.live.values()].find(e=>e.point===x.point)||{};
+  editEmp(null,{name:x.name,id:x.id,mobile:x.mobile,dob:x.dob,marital:x.marital,point:x.point,cat:x.cat,psup:peer.psup||x.sup,sup:x.sup,track:peer.track,dept:peer.dept,region:peer.region,area:peer.area,uni:x.uni,degree:x.degree,major:x.major,grad:x.grad,pay:x.pay||'بنك فلسطين',iban:x.iban},rid)}
+function regReject(rid){const x=S.regs.get(rid);if(!x)return;
+  dlg.innerHTML=`<form id="rrejf" data-rid="${h(rid)}">`+head('رفض طلب: '+h(x.name))+`<div class="db"><fieldset>${inp('reason','سبب الرفض (اختياري)','',{wide:1})}</fieldset></div><div class="df"><div><button class="btn danger">تأكيد الرفض</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open()}
+async function saveReject(f){const rid=f.dataset.rid,x=S.regs.get(rid),reason=f.querySelector('#e-reason').value.trim();
+  try{await S.db.doc('reg/'+rid).update({status:'مرفوض',reason});log('رفض تسجيل',{id:x.id,name:x.name},reason);dlg.close();toast('رُفض الطلب');await refresh('reg')}catch(e){toast('تعذّر الحفظ: '+e.message)}}
+async function delReg(btn){if(!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='تأكيد الحذف';return}
+  try{await S.db.doc('reg/'+btn.dataset.rdel).delete();toast('حُذف الطلب');await refresh('reg')}catch(e){toast('لم يُحذف: '+e.message)}}
 async function saveLeave(f){const o=formData(f);o.id=o.id.replace(/\D/g,'');
   if(o.name.split(/\s+/).length<3)return ferr('أدخل الاسم الرباعي كاملاً.');
   if(!/^\d{9}$/.test(o.id))return ferr('رقم الهوية يجب أن يكون 9 أرقام.');
@@ -330,6 +365,7 @@ function start(){document.body.classList.toggle('ro',!isAdmin());S.tab=isAdmin()
   S.db.collection('point').limit(1000).onSnapshot(snap=>{S.points=new Map(snap.docs.map(d=>[d.id,d.data()]));if(S.ready)render()},()=>{});
   S.db.collection('snap').limit(1000).onSnapshot(snap=>{S.snaps=new Map(snap.docs.map(d=>[d.id,d.data().emp||[]]));if(S.ready){applyMonth();render()}},()=>{});
   S.db.collection('leave').limit(1000).onSnapshot(snap=>{S.leaves=new Map(snap.docs.map(d=>[d.id,{...d.data(),docId:d.id}]));if(S.ready)render()},()=>{});
+  if(isAdmin())S.db.collection('reg').limit(1000).onSnapshot(snap=>{S.regs=new Map(snap.docs.map(d=>[d.id,{...d.data(),docId:d.id}]));if(S.ready&&!dlg.open)render()},()=>{});
   if(isAdmin())S.db.collection('resigned').limit(1000).onSnapshot(snap=>{S.res=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));if(S.ready)render()},()=>{})}
 
 /* ---------- views ---------- */
@@ -342,13 +378,13 @@ function render(){const n=S.emps.size, bad=all().filter(e=>issues(e).length).len
   const keep=document.activeElement?.id, pos=document.activeElement?.selectionStart;
   app.innerHTML=`<header class="top"><div class="bar"><div><h1>سجل موظفي AEI – WFP</h1><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي</div></div>
    <div class="acts"><label class="mon">الشهر<select id="g-month" aria-label="الشهر">${[...monthList(),'all'].map(m=>`<option value="${m}"${m===selMonth()?' selected':''}>${mLabel(m)}</option>`).join('')}</select></label><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm" data-act="pin">تغيير الرمز</button><button class="btn" data-act="logout">تسجيل الخروج</button></div></div>
-   <div class="tabs" role="tablist">${[['home','الرئيسية'],['db','قاعدة البيانات'],['points','حسب النقاط'],['pts','بيانات النقاط'],['sups','حسب المشرفين'],['plan','الخطة الأسبوعية'],['leave','الإجازات'],['res','الاستقالات'],['log','سجل التعديلات']].filter(t=>isAdmin()||(t[0]!=='res'&&t[0]!=='log'&&t[0]!=='home')).map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}</button>`).join('')}</div></header>
+   <div class="tabs" role="tablist">${[['home','الرئيسية'],['db','قاعدة البيانات'],['points','حسب النقاط'],['pts','بيانات النقاط'],['sups','حسب المشرفين'],['plan','الخطة الأسبوعية'],['leave','الإجازات'],['reg','طلبات التسجيل'+(newRegs().length?' ('+newRegs().length+')':'')],['res','الاستقالات'],['log','سجل التعديلات']].filter(t=>isAdmin()||(t[0]!=='res'&&t[0]!=='log'&&t[0]!=='home'&&t[0]!=='reg')).map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}</button>`).join('')}</div></header>
    <div class="sum"><span><b>${n}</b> موظف</span>${TRACKS.map(t=>{const c=all().filter(e=>e.track===t).length;return c?`<span>${chip(t)} <b>${c}</b></span>`:''}).join('')}
    <span><b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة</span>${mRes().length?`<span><b>${mRes().length}</b> استقالة</span>`:''}${mLeaves().length?`<span><b>${mLeaves().length}</b> إجازة</span>`:''}${[...S.leaves.values()].some(x=>x.status==='جديد')?`<span><b>${[...S.leaves.values()].filter(x=>x.status==='جديد').length}</b> طلب إجازة جديد</span>`:''}${bad?`<span style="color:var(--warn)"><b>${bad}</b> بحاجة لمراجعة</span>`:''}</div>
    ${isArch()?`<div class="note">أرشيف ${mLabel(selMonth())}: بيانات الموظفين كما كانت في نهاية ذلك الشهر، للعرض والتصدير فقط. للتعديل ارجع إلى الشهر الحالي.</div>`:''}
    <main id="view"></main>`;
-  if(!n&&S.tab!=='res'&&S.tab!=='log'&&S.tab!=='leave'&&S.tab!=='plan'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
-  ({home:vHome,plan:vPlan,db:vDb,points:vPoints,pts:vPts,sups:vSups,leave:vLeave,res:vRes,log:vLog})[S.tab]();
+  if(!n&&S.tab!=='res'&&S.tab!=='log'&&S.tab!=='leave'&&S.tab!=='plan'&&S.tab!=='reg'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
+  ({home:vHome,plan:vPlan,db:vDb,points:vPoints,pts:vPts,sups:vSups,leave:vLeave,reg:vReg,res:vRes,log:vLog})[S.tab]();
   if(keep){const el=document.getElementById(keep);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(e){}}}}
 function vDb(){const f=S.f,rows=filtered();
   $('#view').innerHTML=`<div class="filters">
@@ -380,7 +416,7 @@ function vHome(){const sum=$('.sum');if(sum)sum.hidden=true;
   const live=x=>x.status!=='مرفوض',onToday=lv.filter(x=>live(x)&&x.start<=td&&x.end>=td),week=lv.filter(x=>live(x)&&x.start<=wk&&x.end>=td),fresh=lv.filter(x=>x.status==='جديد');
   const sups=uniq('psup').filter(x=>x!=='إداري'),bad=es.filter(e=>issues(e).length).length,noF=pr.filter(r=>!r.focals.length).length,noC=pr.filter(r=>!r.x||!r.y).length,mis=supMismatch().length,arch=isArch();
   const kpi=(v,l,go,hot)=>`<button class="kpi${hot&&v?' hot':''}" data-go="${go}" title="فتح ${l}"><b>${v}</b><span>${l}</span></button>`;
-  const att=[[fresh.length,'طلب إجازة جديد بانتظار الرد','leave','','فتح الإجازات'],[bad,'موظف بياناته بحاجة لمراجعة (أيبان أو رقم خاطئ أو حقل ناقص)','db','bad','عرضهم'],[noF,'نقطة بدون فوكال بوينت','pts','nofocal','فتح بيانات النقاط'],[noC,'نقطة بدون إحداثيات','pts','nocoord','فتح بيانات النقاط']].filter(a=>a[0]);
+  const att=[[newRegs().length,'طلب تسجيل موظف جديد بانتظار المراجعة','reg','','فتح طلبات التسجيل'],[fresh.length,'طلب إجازة جديد بانتظار الرد','leave','','فتح الإجازات'],[bad,'موظف بياناته بحاجة لمراجعة (أيبان أو رقم خاطئ أو حقل ناقص)','db','bad','عرضهم'],[noF,'نقطة بدون فوكال بوينت','pts','nofocal','فتح بيانات النقاط'],[noC,'نقطة بدون إحداثيات','pts','nocoord','فتح بيانات النقاط']].filter(a=>a[0]);
   const row=(l,v)=>`<div class="row"><span>${l}</span><span${typeof v==='number'?' class="num"':' style="font-weight:600;font-variant-numeric:tabular-nums"'}>${v}</span></div>`,cnt=(k,v)=>es.filter(e=>e[k]===v).length;
   const card=(t,desc,body,go,label)=>`<section class="hc"><h2>${t}</h2><p>${desc}</p><div class="rows">${body}</div><button class="btn" data-go="${go}">${label||'فتح القسم'}</button></section>`;
   const maxS=Math.max(1,...sups.map(x=>cnt('psup',x))),lastRes=mRes().sort((a,b)=>(b.resignDate||'').localeCompare(a.resignDate||''))[0];
@@ -538,8 +574,8 @@ function sel(k,l,arr,v){if(v&&!arr.includes(v))arr=[...arr,v];return `<label>${l
 const supList=()=>[...new Set([...uniq('psup'),...uniq('sup')])].sort((a,b)=>a.localeCompare(b,'ar'));
 function selx(k,l,arr,v,req){if(v&&!arr.includes(v))arr=[...arr,v];return `<label>${l}<select id="e-${k}" name="${k}" data-newable="1"${req?' required':''}>${opts(arr,v,'—')}<option value="__new__">＋ إضافة قيمة جديدة…</option></select></label>`}
 const lists=()=>`<datalist id="l-point">${opts(uniq('point'))}</datalist><datalist id="l-sup">${opts([...new Set([...uniq('psup'),...uniq('sup')])])}</datalist><datalist id="l-region">${opts(uniq('region'))}</datalist><datalist id="l-area">${opts(uniq('area'))}</datalist><datalist id="l-uni">${opts(uniq('uni'))}</datalist>`;
-function editEmp(id){const e=id?S.emps.get(id):{pay:'بنك فلسطين'};
-  dlg.innerHTML=`<form id="empf" data-id="${h(id||'')}">`+head(id?'تعديل: '+h(e.name):'إضافة موظف جديد')+`<div class="db">${lists()}<div id="ferr"></div>
+function editEmp(id,pre,rid){const e=id?S.emps.get(id):(pre||{pay:'بنك فلسطين'});
+  dlg.innerHTML=`<form id="empf" data-id="${h(id||'')}" data-reg="${h(rid||'')}">`+head(id?'تعديل: '+h(e.name):rid?'مراجعة طلب تسجيل: '+h(e.name):'إضافة موظف جديد')+`<div class="db">${lists()}<div id="ferr"></div>
    <fieldset><legend>البيانات الأساسية</legend>${inp('name','الاسم الرباعي',e.name,{req:1,wide:1})}${inp('id','رقم الهوية (9 أرقام)',e.id,{req:1,ltr:1,ro:!!id})}${inp('mobile','رقم الجوال',mob(e.mobile),{ltr:1})}
     ${inp('dob','تاريخ الميلاد',e.dob,{type:'date'})}${sel('marital','الحالة الاجتماعية',MARITAL,e.marital)}</fieldset>
    <fieldset><legend>الدوام</legend>${selx('point','النقطة',uniq('point'),e.point,1)}${sel('track','المسار',TRACKS,e.track)}${sel('dept','القسم',DEPTS,e.dept)}${sel('cat','الفئة الوظيفية',CATS,e.cat)}
@@ -547,7 +583,7 @@ function editEmp(id){const e=id?S.emps.get(id):{pay:'بنك فلسطين'};
     ${inp('note','ملاحظة الدوام (اختياري)',e.note)}<label class="chk" style="align-self:end"><input id="e-focal" name="focal" type="checkbox"${e.focal?' checked':''}> فوكال بوينت في النقطة</label></fieldset>
    <fieldset><legend>المؤهل العلمي</legend>${selx('uni','الجامعة',uniq('uni'),e.uni)}${selx('degree','الدرجة العلمية',[...new Set(['ثانوية عامة','دبلوم','بكالوريوس','ماجستير','دكتوراه',...uniq('degree')])],e.degree)}${inp('grad','تاريخ الحصول على الشهادة',e.grad,{type:'date'})}${inp('major','التخصص',e.major,{wide:1})}</fieldset>
    <fieldset><legend>الراتب</legend>${sel('pay','طريقة تلقي الراتب',PAYS,e.pay)}${inp('iban','الأيبان / رقم المحفظة',e.iban,{ltr:1})}</fieldset></div>
-   <div class="df"><div><button class="btn pri">${id?'حفظ التعديلات':'إضافة الموظف'}</button><button class="btn" type="button" data-act="close">إلغاء</button></div>
+   <div class="df"><div><button class="btn pri">${id?'حفظ التعديلات':rid?'قبول وإضافة للنظام':'إضافة الموظف'}</button><button class="btn" type="button" data-act="close">إلغاء</button></div>
    ${id?`<div><button class="btn danger" type="button" data-del="${h(id)}">حذف الموظف</button></div>`:''}</div></form>`;
   open()}
 function moveEmp(id){const e=S.emps.get(id);if(!e)return;
@@ -602,7 +638,8 @@ async function saveEmp(f){const id0=f.dataset.id,o=formData(f),old=id0?S.emps.ge
   try{await S.db.doc('emp/'+id).set(doc);
     if(old){const ch=F.filter(([k])=>k!=='assign'&&k!=='id').concat([['point','النقطة'],['track','المسار'],['note','ملاحظة']]).filter(([k])=>String(old[k]??'')!==String(doc[k]??'')).map(([k,l])=>`${l}: ${old[k]||'—'} ← ${doc[k]===true?'نعم':doc[k]||'—'}`);
       if(ch.length)log('تعديل',{id,name:doc.name},ch.join(' | '))}
-    else log('إضافة',{id,name:doc.name},assign(doc));
+    else log('إضافة',{id,name:doc.name},assign(doc)+(f.dataset.reg?' · من طلب تسجيل':''));
+    if(f.dataset.reg){try{await S.db.doc('reg/'+f.dataset.reg).update({status:'مقبول'});await refresh('reg')}catch(e){toast('أُضيف الموظف لكن تعذّر تحديث حالة الطلب')}}
     dlg.close();toast(old?'حُفظت التعديلات':'أُضيف الموظف')}
   catch(e){btn.disabled=false;ferr('لم يُحفظ: '+(e.message||e.code))}}
 async function saveMove(f){const id=f.dataset.id,o=formData(f),e=S.emps.get(id);const btn=f.querySelector('.pri');btn.disabled=true;
@@ -668,8 +705,8 @@ const numAll=()=>document.querySelectorAll('#app table,#dlg table').forEach(numT
 new MutationObserver(numAll).observe(document.getElementById('app'),{childList:true,subtree:true});
 new MutationObserver(numAll).observe(document.getElementById('dlg'),{childList:true,subtree:true});
 /* ---------- events ---------- */
-document.addEventListener('submit',ev=>{ev.preventDefault();const f=ev.target;({lockf:submitLock,empf:()=>saveEmp(f),movef:()=>saveMove(f),resf:()=>saveResign(f),focf:()=>saveFocal(f),leavef:()=>saveLeave(f),pcf:()=>savePC(f),phf:()=>saveHol(f),ppf:()=>savePeople(f),ptf:()=>savePoint(f),pinf:()=>savePin(f)})[f.getAttribute('id')]?.()});
-document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[data-go],[data-pcell],[data-phol],[data-pcopy],[data-pm],[data-act],[data-move],[data-edit],[data-del],[data-resign],[data-focal],[data-ldel],[data-ptedit],[data-pt],[data-restore],[data-copy],[data-emp]');if(!t)return;const d=t.dataset;
+document.addEventListener('submit',ev=>{ev.preventDefault();const f=ev.target;({lockf:submitLock,empf:()=>saveEmp(f),movef:()=>saveMove(f),resf:()=>saveResign(f),focf:()=>saveFocal(f),leavef:()=>saveLeave(f),regf:()=>saveReg(f),rrejf:()=>saveReject(f),pcf:()=>savePC(f),phf:()=>saveHol(f),ppf:()=>savePeople(f),ptf:()=>savePoint(f),pinf:()=>savePin(f)})[f.getAttribute('id')]?.()});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[data-go],[data-pcell],[data-phol],[data-pcopy],[data-pm],[data-act],[data-move],[data-edit],[data-del],[data-resign],[data-focal],[data-ldel],[data-racc],[data-rrej],[data-rdel],[data-ptedit],[data-pt],[data-restore],[data-copy],[data-emp]');if(!t)return;const d=t.dataset;
   if(d.tab){S.tab=d.tab;render()}
   else if(d.pcell)planCell(d.pcell); else if(d.phol)planHol(d.phol); else if(d.pcopy)planCopy(t);
   else if(d.pm){const [y,mo]=S.pm.split('-').map(Number),x=new Date(y,mo-1+(+d.pm),1);S.pm=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0');render()}
@@ -678,7 +715,7 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[da
   else if(d.go){S.tab=d.go;if(d.gof==='bad')S.f={q:'',region:'',psup:'',point:'',track:'',cat:'',bad:true};if(d.gof==='nofocal'||d.gof==='nocoord')S.pf={q:'',region:'',sup:'',type:''};render();window.scrollTo(0,0)}
   else if(d.act==='mismatch')showMismatch();
   else if(d.act==='close')dlg.close(); else if(d.act==='add')editEmp(); else if(d.act==='export')exportXlsx(); else if(d.act==='pin')pinDlg(); else if(d.act==='logout'){try{sessionStorage.removeItem('u')}catch(e){}location.reload()}
-  else if(d.move)moveEmp(d.move); else if(d.edit)editEmp(d.edit); else if(d.del)delEmp(t); else if(d.resign)resignEmp(d.resign); else if(d.focal)focalDlg(d.focal); else if(d.ldel)delLeave(t); else if(d.ptedit)editPoint(d.ptedit); else if(d.pt)showPoint(d.pt); else if(d.act==='ptexport')exportPts(); else if(d.act==='home')renderHome(); else if(d.act==='leave')renderLeave(); else if(d.act==='login')renderLock(); else if(d.restore)restoreEmp(t);
+  else if(d.move)moveEmp(d.move); else if(d.edit)editEmp(d.edit); else if(d.del)delEmp(t); else if(d.resign)resignEmp(d.resign); else if(d.focal)focalDlg(d.focal); else if(d.ldel)delLeave(t); else if(d.racc)regAccept(d.racc); else if(d.rrej)regReject(d.rrej); else if(d.rdel)delReg(t); else if(d.act==='reg')renderReg(); else if(d.ptedit)editPoint(d.ptedit); else if(d.pt)showPoint(d.pt); else if(d.act==='ptexport')exportPts(); else if(d.act==='home')renderHome(); else if(d.act==='leave')renderLeave(); else if(d.act==='login')renderLock(); else if(d.restore)restoreEmp(t);
   else if(d.copy)navigator.clipboard?.writeText(d.copy).then(()=>toast('تم النسخ'),()=>toast('حدّد الرقم وانسخه يدوياً'));
   else if(d.emp)showEmp(d.emp)});
 document.addEventListener('input',ev=>{const el=ev.target;
