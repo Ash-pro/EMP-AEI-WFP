@@ -220,6 +220,13 @@ body.arch [data-act=add],body.arch [data-edit],body.arch [data-move],body.arch [
 .st{display:inline-flex;align-items:center;gap:6px;padding:2px 11px;border-radius:99px;font-size:12.5px;font-weight:700;white-space:nowrap}.st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .st-new{background:var(--warn-soft);color:var(--warn)}.st-ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}.st-no{background:var(--bad-soft);color:var(--bad)}
 div.wide{grid-column:1/-1}
+.esum{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--sunk);border-radius:var(--r);font-size:13.5px}
+.esec{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}.esec h3{margin:0 0 10px;font-size:12.5px;font-weight:700;color:var(--brand);letter-spacing:.02em}
+.esec .kv{margin:0;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 16px}.esec .kv dd{font-weight:600}.esec .kv .wide{grid-column:1/-1}.esec .kv .wide2{grid-column:span 3}
+.ibn{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.ibn .num{overflow-wrap:anywhere;direction:ltr}
+#dlg:has(.esec){width:min(860px,calc(100% - 24px))}
+@media(max-width:760px){.esec .kv{grid-template-columns:repeat(2,minmax(0,1fr))}.esec .kv .wide2{grid-column:1/-1}}
+@media(max-width:420px){.esec .kv{grid-template-columns:1fr}}
 .chip.lt-0{background:var(--t-prev-bg);color:var(--t-prev)}.chip.lt-1{background:var(--t-cure-bg);color:var(--t-cure)}.chip.lt-2{background:var(--t-adm-bg);color:var(--t-adm)}
 .lvt td.nm small{display:block;font-weight:400;font-size:12px}.ib.okb:hover{color:var(--ok);border-color:var(--ok)}
 [data-ch]{display:none!important}
@@ -762,11 +769,14 @@ async function vLog(){const v=$('#view');v.innerHTML='<div class="empty">جار�
 const head=t=>`<div class="dh"><h2>${t}</h2><button class="btn sm" data-act="close" type="button">إغلاق</button></div>`;
 function showEmp(id){const e=S.emps.get(id);if(!e)return;const is=issues(e);
   const kv=(l,v,num)=>`<div><dt>${l}</dt><dd${num?' class="num"':''}>${h(v||'—')}</dd></div>`;
-  dlg.innerHTML=head(h(e.name))+`<div class="db">${is.length?`<div class="note">${is.map(h).join(' · ')}</div>`:''}
-   <dl class="kv" style="margin:0">${kv('رقم الهوية',e.id,1)}${kv('رقم الجوال',mob(e.mobile),1)}${kv('النقطة',e.point)}<div><dt>المسار</dt><dd>${chip(e.track)} ${e.focal?'<span class="fp">فوكال بوينت</span>':''}</dd></div>
-   ${kv('القسم',e.dept)}${kv('الفئة الوظيفية',e.cat)}${kv('المشرف المباشر',e.sup)}${kv('مشرف النقطة',e.psup)}${kv('النطاق الجغرافي',e.region)}${kv('منطقة النقطة',e.area)}${e.note?kv('ملاحظة الدوام',e.note):''}
-   ${kv('تاريخ الميلاد',fd(e.dob),1)}${kv('الحالة الاجتماعية',e.marital)}${kv('الجامعة',e.uni)}${kv('الدرجة العلمية',e.degree)}${kv('التخصص',e.major)}${kv('تاريخ الشهادة',fd(e.grad),1)}
-   ${kv('طريقة تلقي الراتب',e.pay)}<div><dt>الأيبان / رقم المحفظة</dt><dd class="num">${h(e.iban||'—')} ${e.iban?`<button class="btn sm" data-copy="${h(e.iban)}" type="button">نسخ</button>`:''}</dd></div></dl></div>
+  const sec=(t,body)=>`<section class="esec"><h3>${t}</h3><dl class="kv">${body}</dl></section>`,wide=(l,v)=>`<div class="wide"><dt>${l}</dt><dd>${h(v||'—')}</dd></div>`;
+  dlg.innerHTML=head(h(e.name))+`<div class="db">
+   <div class="esum"><div class="acts" style="align-items:center">${chip(e.track)}${e.cat?`<span class="chip">${h(e.cat)}</span>`:''}${e.focal?'<span class="fp" style="margin:0">فوكال بوينت</span>':''}</div><div class="muted">${h(e.point||'—')}${e.psup&&e.psup!==e.point?' · مشرف النقطة: '+h(e.psup):''}</div></div>
+   ${is.length?`<div class="note">${is.map(h).join(' · ')}</div>`:''}
+   ${sec('البيانات الأساسية',kv('رقم الهوية',e.id,1)+kv('رقم الجوال',mob(e.mobile),1)+kv('تاريخ الميلاد',fd(e.dob),1)+kv('الحالة الاجتماعية',e.marital))}
+   ${sec('الدوام',kv('النقطة',e.point)+kv('القسم',e.dept)+kv('الفئة الوظيفية',e.cat)+kv('مشرف النقطة',e.psup)+kv('المشرف المباشر',e.sup)+kv('النطاق الجغرافي',e.region)+kv('منطقة النقطة',e.area)+(e.note?wide('ملاحظة الدوام',e.note):''))}
+   ${sec('المؤهل العلمي',kv('الجامعة',e.uni)+kv('الدرجة العلمية',e.degree)+kv('تاريخ الشهادة',fd(e.grad),1)+wide('التخصص',e.major))}
+   ${sec('الراتب',kv('طريقة تلقي الراتب',e.pay)+`<div class="wide2"><dt>الأيبان / رقم المحفظة</dt><dd class="ibn"><span class="num">${h(e.iban||'—')}</span>${e.iban?`<button class="btn sm" data-copy="${h(e.iban)}" type="button">نسخ</button>`:''}</dd></div>`)}</div>
    <div class="df"><div><button class="btn pri adm" data-edit="${h(id)}">تعديل البيانات</button><button class="btn adm" data-move="${h(id)}">نقل إلى نقطة أخرى</button><button class="btn" data-focal="${h(id)}">${e.focal?'إلغاء الفوكال':'تعيين فوكال'}</button></div><div class="adm"><button class="btn danger" data-resign="${h(id)}">استقالة موظف</button></div></div>`;
   open()}
 function open(){if(!dlg.open)dlg.showModal();dlg.scrollTop=0}
