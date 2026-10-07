@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/(register|leave|edit|login)", "destination": "/index.html" }
+  ]
+}

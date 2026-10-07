@@ -152,6 +152,7 @@ textarea{font:inherit;color:inherit;background:var(--surface);border:1px solid v
 .hcard:hover{border-color:var(--brand)}
 .hcard h2{margin:0;font-size:18px;line-height:1.4}.hcard p{margin:0;color:var(--muted);font-size:14px;line-height:1.8}
 .hcard .btn{margin-top:auto;width:100%;justify-content:center;text-align:center;min-height:42px}.hcard p+.btn{margin-top:auto}
+.lnk{font:inherit;font-size:12.5px;color:var(--muted);background:none;border:0;padding:4px 0 0;cursor:pointer;text-align:center}.lnk:hover{color:var(--brand);text-decoration:underline}
 .hfeat{margin:0;padding:0 24px;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 16px;font-size:13px;line-height:1.7;color:var(--muted)}
 .hfeat li{padding-inline-end:24px}.hfeat b{color:var(--fg);display:block;font-size:14px;margin-bottom:2px}
 .chg{display:grid;gap:2px;font-size:13px;white-space:normal;min-width:260px}.chg s{color:var(--muted)}
@@ -342,19 +343,27 @@ const DB={doc(path){const [c,i]=path.split('/');return{set:d=>rpc('aei_set',{p:P
 setInterval(()=>{if(!document.hidden&&!dlg.open&&S.ready)Object.keys(subs).forEach(c=>refresh(c).catch(()=>{}))},30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.ready&&!dlg.open)Object.keys(subs).forEach(c=>refresh(c).catch(()=>{}))});
 const isAdmin=()=>S.role==='admin';
+const ROUTES={register:()=>renderReg(),leave:()=>renderLeave(),edit:()=>renderSelf(),login:()=>renderLock()},WEB=/^https?:$/.test(location.protocol);
+function routeName(){const p=location.pathname.replace(/\/+$/,'').split('/').pop(),hsh=location.hash.slice(1);return ROUTES[hsh]?hsh:WEB&&ROUTES[p]?p:''}
+function routeUrl(n){return WEB?location.origin+'/'+n:location.href.split('#')[0]+'#'+n}
+function setPath(n){try{if(WEB)history.pushState(null,'','/'+n);else history.pushState(null,'',n?'#'+n:location.pathname)}catch(e){}}
+function go(n){setPath(n);ROUTES[n]();scrollTo(0,0)}
+addEventListener('popstate',()=>{if(S.ready||S.pub)return;const n=routeName();n?ROUTES[n]():renderHome()});
 (async()=>{
   if(!/^https:\/\//.test(CONFIG.SUPABASE_URL)||CONFIG.SUPABASE_KEY.length<20){app.innerHTML='<div class="empty">لم يُضبط الاتصال بقاعدة البيانات بعد. ضع رابط المشروع والمفتاح في أعلى ملف index.html.</div>';return}
   const pub=location.hash.match(/^#plan=(\d{4}-\d\d)\.([A-Za-z0-9]+)$/);if(pub)return publicPlan(pub[1],pub[2]);
-  S.db=DB;const saved=ss.get();
-  if(saved){try{const r=await rpc('aei_login',{p:saved});if(r){PIN=saved;S.role=r;return start()}}catch(e){}}
-  renderHome()})();
+  S.db=DB;const saved=ss.get(),rt=routeName();
+  await null;if(rt&&rt!=='login')return ROUTES[rt]();
+  if(saved){try{const r=await rpc('aei_login',{p:saved});if(r){PIN=saved;S.role=r;setPath('');return start()}}catch(e){}}
+  rt==='login'?renderLock():renderHome()})();
+async function copyLink(btn){const u=routeUrl(btn.dataset.link);try{await navigator.clipboard.writeText(u)}catch(e){const i=document.createElement('input');i.value=u;document.body.append(i);i.select();document.execCommand('copy');i.remove()}toast('نُسخ الرابط: '+u)}
 function renderHome(){document.body.classList.remove('ro');
   app.innerHTML=`<div class="home"><div class="hero"><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي WFP</div><h1>سجل موظفي AEI – WFP</h1>
    <p>منصة داخلية لطاقم المشروع: بيانات الموظفين موزعة حسب النقاط والمشرفين، مع نماذج إلكترونية لتسجيل الموظفين الجدد وتقديم طلبات الإجازة.</p></div>
-   <div class="hgrid"><section class="hcard"><h2>طلب إجازة</h2><p>للموظفين والمتطوعين والأمن. عبّئ النموذج وسيصل طلبك إلى الإدارة ومشرفك مباشرة، بدون رمز دخول.</p><button class="btn pri" data-act="leave">تقديم طلب إجازة</button></section>
-   <section class="hcard"><h2>تسجيل موظف جديد</h2><p>للملتحقين الجدد بالمشروع. عبّئ بياناتك وستراجعها الإدارة قبل اعتمادك في النظام.</p><button class="btn pri" data-act="reg">تسجيل موظف جديد</button></section>
-   <section class="hcard"><h2>تعديل بيانات الموظف</h2><p>للموظفين والمتطوعين والأمن. تحقّق من هويتك ثم عدّل بياناتك، ويُعتمد التعديل بعد موافقة الإدارة.</p><button class="btn pri" data-act="self">تعديل بياناتي</button></section>
-   <section class="hcard"><h2>دخول النظام</h2><p>للمشرفين والإدارة. عرض بيانات الموظفين والنقاط وطلبات الإجازة باستخدام رمز PIN.</p><button class="btn" data-act="login">دخول برمز PIN</button></section></div>
+   <div class="hgrid"><section class="hcard"><h2>طلب إجازة</h2><p>للموظفين والمتطوعين والأمن. عبّئ النموذج وسيصل طلبك إلى الإدارة ومشرفك مباشرة، بدون رمز دخول.</p><button class="btn pri" data-act="leave">تقديم طلب إجازة</button><button class="lnk" type="button" data-link="leave">نسخ رابط الصفحة</button></section>
+   <section class="hcard"><h2>تسجيل موظف جديد</h2><p>للملتحقين الجدد بالمشروع. عبّئ بياناتك وستراجعها الإدارة قبل اعتمادك في النظام.</p><button class="btn pri" data-act="reg">تسجيل موظف جديد</button><button class="lnk" type="button" data-link="register">نسخ رابط الصفحة</button></section>
+   <section class="hcard"><h2>تعديل بيانات الموظف</h2><p>للموظفين والمتطوعين والأمن. تحقّق من هويتك ثم عدّل بياناتك، ويُعتمد التعديل بعد موافقة الإدارة.</p><button class="btn pri" data-act="self">تعديل بياناتي</button><button class="lnk" type="button" data-link="edit">نسخ رابط الصفحة</button></section>
+   <section class="hcard"><h2>دخول النظام</h2><p>للمشرفين والإدارة. عرض بيانات الموظفين والنقاط وطلبات الإجازة باستخدام رمز PIN.</p><button class="btn" data-act="login">دخول برمز PIN</button><button class="lnk" type="button" data-link="login">نسخ رابط الصفحة</button></section></div>
    <ul class="hfeat"><li><b>قاعدة بيانات موحدة</b>بحث وفلترة حسب النطاق والنقطة والمشرف</li><li><b>عرض حسب النقاط والمشرفين</b>طاقم كل نقطة والفوكال بوينت</li><li><b>الإجازات والاستقالات</b>سجل واحد يُصدَّر إلى Excel</li></ul></div>`}
 let LISTS=null;
 async function renderLeave(){app.innerHTML='<div class="empty">جاري تحميل النموذج…</div>';
@@ -809,7 +818,7 @@ new MutationObserver(numAll).observe(document.getElementById('app'),{childList:t
 new MutationObserver(numAll).observe(document.getElementById('dlg'),{childList:true,subtree:true});
 /* ---------- events ---------- */
 document.addEventListener('submit',ev=>{ev.preventDefault();const f=ev.target;({lockf:submitLock,empf:()=>saveEmp(f),movef:()=>saveMove(f),resf:()=>saveResign(f),focf:()=>saveFocal(f),leavef:()=>saveLeave(f),regf:()=>saveReg(f),selfvf:()=>selfVerify(f),selff:()=>selfSubmit(f),urejf:()=>saveUReject(f),rrejf:()=>saveReject(f),pcf:()=>savePC(f),phf:()=>saveHol(f),ppf:()=>savePeople(f),ptf:()=>savePoint(f),pinf:()=>savePin(f)})[f.getAttribute('id')]?.()});
-document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[data-go],[data-pcell],[data-phol],[data-pcopy],[data-pm],[data-act],[data-move],[data-edit],[data-del],[data-resign],[data-focal],[data-ldel],[data-racc],[data-uacc],[data-urej],[data-udel],[data-rrej],[data-rdel],[data-ptedit],[data-pt],[data-restore],[data-copy],[data-emp]');if(!t)return;const d=t.dataset;
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[data-go],[data-pcell],[data-link],[data-phol],[data-pcopy],[data-pm],[data-act],[data-move],[data-edit],[data-del],[data-resign],[data-focal],[data-ldel],[data-racc],[data-uacc],[data-urej],[data-udel],[data-rrej],[data-rdel],[data-ptedit],[data-pt],[data-restore],[data-copy],[data-emp]');if(!t)return;const d=t.dataset;if(d.link)return copyLink(t);
   if(d.tab){S.tab=d.tab;render()}
   else if(d.pcell)planCell(d.pcell); else if(d.phol)planHol(d.phol); else if(d.pcopy)planCopy(t);
   else if(d.pm){const [y,mo]=S.pm.split('-').map(Number),x=new Date(y,mo-1+(+d.pm),1);S.pm=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0');render()}
@@ -818,7 +827,7 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tab],[da
   else if(d.go){S.tab=d.go;if(d.gof==='bad')S.f={q:'',region:'',psup:'',point:'',track:'',cat:'',bad:true};if(d.gof==='nofocal'||d.gof==='nocoord')S.pf={q:'',region:'',sup:'',type:''};render();window.scrollTo(0,0)}
   else if(d.act==='mismatch')showMismatch();
   else if(d.act==='close')dlg.close(); else if(d.act==='add')editEmp(); else if(d.act==='export')exportXlsx(); else if(d.act==='pin')pinDlg(); else if(d.act==='logout'){try{sessionStorage.removeItem('u')}catch(e){}location.reload()}
-  else if(d.move)moveEmp(d.move); else if(d.edit)editEmp(d.edit); else if(d.del)delEmp(t); else if(d.resign)resignEmp(d.resign); else if(d.focal)focalDlg(d.focal); else if(d.ldel)delLeave(t); else if(d.racc)regAccept(d.racc); else if(d.uacc)updAccept(t); else if(d.urej)updReject(d.urej); else if(d.udel)delUpd(t); else if(d.act==='self')renderSelf(); else if(d.rrej)regReject(d.rrej); else if(d.rdel)delReg(t); else if(d.act==='reg')renderReg(); else if(d.ptedit)editPoint(d.ptedit); else if(d.pt)showPoint(d.pt); else if(d.act==='ptexport')exportPts(); else if(d.act==='home')renderHome(); else if(d.act==='leave')renderLeave(); else if(d.act==='login')renderLock(); else if(d.restore)restoreEmp(t);
+  else if(d.move)moveEmp(d.move); else if(d.edit)editEmp(d.edit); else if(d.del)delEmp(t); else if(d.resign)resignEmp(d.resign); else if(d.focal)focalDlg(d.focal); else if(d.ldel)delLeave(t); else if(d.racc)regAccept(d.racc); else if(d.uacc)updAccept(t); else if(d.urej)updReject(d.urej); else if(d.udel)delUpd(t); else if(d.act==='self')go('edit'); else if(d.rrej)regReject(d.rrej); else if(d.rdel)delReg(t); else if(d.act==='reg')go('register'); else if(d.ptedit)editPoint(d.ptedit); else if(d.pt)showPoint(d.pt); else if(d.act==='ptexport')exportPts(); else if(d.act==='home'){setPath('');renderHome()} else if(d.act==='leave')go('leave'); else if(d.act==='login')go('login'); else if(d.restore)restoreEmp(t);
   else if(d.copy)navigator.clipboard?.writeText(d.copy).then(()=>toast('تم النسخ'),()=>toast('حدّد الرقم وانسخه يدوياً'));
   else if(d.emp)showEmp(d.emp)});
 document.addEventListener('input',ev=>{const el=ev.target;
