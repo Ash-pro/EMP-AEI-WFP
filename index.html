@@ -59,9 +59,15 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background
 .bar h1{font-size:19px;font-weight:700;margin:0}
 .bar .sub{font-size:13px;color:var(--muted)}
 .acts{display:flex;flex-wrap:wrap;gap:8px}
-.tabs{display:flex;gap:4px;margin-top:12px;overflow-x:auto}
-.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:8px 14px;cursor:pointer;color:var(--muted);font-weight:600;white-space:nowrap}
-.tabs button[aria-selected="true"]{color:var(--brand);border-bottom-color:var(--brand)}
+.tabs{display:flex;align-items:flex-end;gap:0;margin-top:12px;overflow-x:auto}
+.tg{display:flex;align-items:flex-end;gap:2px;flex:none;position:relative;padding-top:16px}
+.tg+.tg{margin-inline-start:10px;padding-inline-start:10px;border-inline-start:1px solid var(--line)}
+.tgl{position:absolute;top:0;inset-inline-start:14px;font-size:10.5px;font-weight:600;color:var(--muted);letter-spacing:.03em;opacity:.8;white-space:nowrap;pointer-events:none}
+.tg+.tg .tgl{inset-inline-start:24px}
+.tabs button{display:inline-flex;align-items:center;gap:7px;background:none;border:0;border-bottom:3px solid transparent;border-radius:var(--r) var(--r) 0 0;padding:8px 14px;cursor:pointer;color:var(--muted);font-weight:600;font-size:14px;white-space:nowrap;transition:color .12s,background .12s}
+.tabs button:hover{color:var(--fg);background:var(--surface)}
+.tabs button[aria-selected="true"]{color:var(--brand);border-bottom-color:var(--brand);background:var(--brand-soft)}
+.bdg{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:var(--bad);color:var(--surface);font-size:11.5px;font-weight:700;line-height:1;font-family:var(--mono);font-variant-numeric:tabular-nums}
 
 .btn{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:7px 14px;cursor:pointer;font-weight:600;font-size:14px}
 .btn:hover{border-color:var(--brand)}
@@ -258,6 +264,7 @@ tbody tr:hover td.nm{background:var(--brand-soft)}.grp td.nm{background:var(--su
   .att li .btn{margin-inline-start:auto}
   .hero p{font-size:15px}
 }
+@media(max-width:640px){.tg{padding-top:14px}.tg+.tg{margin-inline-start:6px;padding-inline-start:6px}.tg+.tg .tgl{inset-inline-start:18px}.tgl{inset-inline-start:12px}}
 @media(max-width:380px){.kpi{padding:10px}.bar h1{font-size:16px}.tabs button{padding:10px}}
 @media(hover:none){tbody tr:hover{background:none}tbody tr:hover td.nm{background:var(--surface)}.cpb{opacity:.9}}
 @media print{header.top,.filters,.acts,.cpb,#toast{display:none!important}.tw{overflow:visible;border:0}td.nm{position:static}body{background:#fff}}
@@ -488,7 +495,10 @@ function render(){const n=S.emps.size, bad=all().filter(e=>issues(e).length).len
   const keep=document.activeElement?.id, pos=document.activeElement?.selectionStart;
   app.innerHTML=`<header class="top"><div class="bar"><div><h1>سجل موظفي AEI – WFP</h1><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي</div></div>
    <div class="acts"><label class="mon">الشهر<select id="g-month" aria-label="الشهر">${[...monthList(),'all'].map(m=>`<option value="${m}"${m===selMonth()?' selected':''}>${mLabel(m)}</option>`).join('')}</select></label><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm" data-act="pin">تغيير الرمز</button><button class="btn" data-act="logout">تسجيل الخروج</button></div></div>
-   <div class="tabs" role="tablist">${[['home','الرئيسية'],['db','قاعدة البيانات'],['points','حسب النقاط'],['pts','بيانات النقاط'],['sups','حسب المشرفين'],['plan','الخطة الأسبوعية'],['leave','الإجازات'],['reg','طلبات التسجيل'+(newRegs().length?' ('+newRegs().length+')':'')],['upd','طلبات التعديل'+(newUpds().length?' ('+newUpds().length+')':'')],['res','الاستقالات'],['log','سجل التعديلات']].filter(t=>isAdmin()||(t[0]!=='res'&&t[0]!=='log'&&t[0]!=='home'&&t[0]!=='reg'&&t[0]!=='upd')).map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}</button>`).join('')}</div></header>
+   <div class="tabs" role="tablist">${(()=>{const nl=[...S.leaves.values()].filter(x=>x.status==='جديد').length,adm=isAdmin(),
+     G=[['',[['home','الرئيسية',0,1]]],['البيانات',[['db','قاعدة البيانات'],['points','حسب النقاط'],['pts','بيانات النقاط'],['sups','حسب المشرفين']]],['الدوام',[['plan','الخطة الأسبوعية']]],
+        ['الطلبات',[['leave','الإجازات',nl],['reg','طلبات التسجيل',newRegs().length,1],['upd','طلبات التعديل',newUpds().length,1]]],['السجلات',[['res','الاستقالات',0,1],['log','سجل التعديلات',0,1]]]];
+     return G.map(([g,ts])=>[g,ts.filter(t=>adm||!t[3])]).filter(x=>x[1].length).map(([g,ts])=>`<div class="tg" role="presentation">${g?`<span class="tgl">${g}</span>`:''}${ts.map(([k,l,n])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}${n?`<span class="bdg" aria-label="${n} طلب جديد">${n>99?'99+':n}</span>`:''}</button>`).join('')}</div>`).join('')})()}</div></header>
    <div class="sum"><span><b>${n}</b> موظف</span>${TRACKS.map(t=>{const c=all().filter(e=>e.track===t).length;return c?`<span>${chip(t)} <b>${c}</b></span>`:''}).join('')}
    <span><b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة</span>${mRes().length?`<span><b>${mRes().length}</b> استقالة</span>`:''}${mLeaves().length?`<span><b>${mLeaves().length}</b> إجازة</span>`:''}${[...S.leaves.values()].some(x=>x.status==='جديد')?`<span><b>${[...S.leaves.values()].filter(x=>x.status==='جديد').length}</b> طلب إجازة جديد</span>`:''}${bad?`<span style="color:var(--warn)"><b>${bad}</b> بحاجة لمراجعة</span>`:''}</div>
    ${isArch()?`<div class="note">أرشيف ${mLabel(selMonth())}: بيانات الموظفين كما كانت في نهاية ذلك الشهر، للعرض والتصدير فقط. للتعديل ارجع إلى الشهر الحالي.</div>`:''}
