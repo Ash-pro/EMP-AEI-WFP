@@ -214,6 +214,12 @@ td.rn,th.rn{width:1%;color:var(--muted);font-family:var(--mono);font-size:.85em;
 body.arch [data-act=add],body.arch [data-edit],body.arch [data-move],body.arch [data-resign],body.arch [data-focal],body.arch [data-restore]{display:none!important}
 #toast{position:fixed;inset-inline:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));margin-inline:auto;width:fit-content;max-width:calc(100% - 32px);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:var(--r);font-weight:600;z-index:20}
 
+[data-ch]{display:none!important}
+.colb{display:inline-flex;align-items:center;gap:6px;margin-inline-start:auto;font-weight:600}.colb svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2}.colb.on{color:var(--brand);border-color:var(--brand)}
+#colm{position:fixed;z-index:30;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 10px 30px rgba(0,0,0,.28);max-height:min(420px,calc(100vh - 16px));display:flex;flex-direction:column;font-size:14px}
+#colm .colh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+#colm .coll{overflow:auto;padding:6px 12px 10px;display:grid}#colm .chk{padding:6px 0;white-space:normal;cursor:pointer}
+@media print{.colb{display:none}}
 /* ---------- responsive ---------- */
 html{-webkit-text-size-adjust:100%}
 .wrap,.home{padding-inline:max(16px,env(safe-area-inset-left,0px),env(safe-area-inset-right,0px))}
@@ -802,7 +808,31 @@ function numTable(t){if(t.dataset.num)return;t.dataset.num=1;const hr=t.tHead&&t
     if(grouped&&!tr.classList.contains('g1'))continue;
     const td=document.createElement('td');td.className='rn';td.textContent=++n;if(grouped)td.rowSpan=c0.rowSpan||1;tr.insertBefore(td,c0)}
   const box=t.closest('.tw'),prev=box&&box.previousElementSibling;
-  if(box&&n&&!(prev&&(prev.classList.contains('hint')||prev.querySelector('.hint')))){const hdiv=document.createElement('div');hdiv.className='hint';hdiv.innerHTML=`<span>عدد السجلات <b>${n}</b></span>`;if(box.parentElement.classList.contains('sv')||box.parentElement.classList.contains('db'))hdiv.style.paddingInline=box.parentElement.classList.contains('sv')?'14px':'0';box.parentElement.insertBefore(hdiv,box)}}
+  if(box&&n&&!(prev&&(prev.classList.contains('hint')||prev.querySelector('.hint')))){const hdiv=document.createElement('div');hdiv.className='hint';hdiv.innerHTML=`<span>عدد السجلات <b>${n}</b></span>`;if(box.parentElement.classList.contains('sv')||box.parentElement.classList.contains('db'))hdiv.style.paddingInline=box.parentElement.classList.contains('sv')?'14px':'0';box.parentElement.insertBefore(hdiv,box)}
+  colSetup(t)}
+/* ---------- show / hide columns ---------- */
+const CLI='<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg>';
+const colLabel=c=>{const cl=c.cloneNode(true);cl.querySelectorAll('.cpb,.dsub').forEach(x=>x.remove());return cl.textContent.replace(/[\d\/]+/g,'').replace(/\s+/g,' ').trim()||(c.classList.contains('rn')?'#':'الإجراءات')};
+const colStore={all:null,load(){if(!this.all){try{this.all=JSON.parse(localStorage.getItem('aei-cols')||'{}')}catch(e){this.all={}}}return this.all},get(k){return this.load()[k]||[]},set(k,v){this.load();if(v.length)this.all[k]=v;else delete this.all[k];try{localStorage.setItem('aei-cols',JSON.stringify(this.all))}catch(e){}}};
+function colGrid(t){const out=[],carry=[];for(const tr of [...(t.tHead?t.tHead.rows:[]),...(t.tBodies[0]?t.tBodies[0].rows:[])]){let ci=0;for(const c of tr.cells){while(carry[ci]>0){carry[ci]--;ci++}const sp=c.colSpan||1;if((c.rowSpan||1)>1)for(let j=0;j<sp;j++)carry[ci+j]=c.rowSpan-1;out.push([c,ci,sp]);ci+=sp}for(let j=ci;j<carry.length;j++)if(carry[j]>0)carry[j]--}return out}
+function colSetup(t){const hr=t.tHead&&t.tHead.rows[0];if(!hr||hr.cells.length<3)return;const labels=[...hr.cells].map(colLabel);t._cols=labels;t.dataset.ck=(S.pub?'pub':S.tab||'x')+'|'+labels.slice(0,4).join(',');
+  const box=t.closest('.tw')||t,prev=box.previousElementSibling;let hint=prev&&(prev.classList.contains('hint')?prev:prev.querySelector('.hint'));
+  if(!hint){hint=document.createElement('div');hint.className='hint';const pc=box.parentElement.classList;if(pc.contains('sv'))hint.style.paddingInline='14px';box.parentElement.insertBefore(hint,box)}
+  if(!hint.querySelector('.colb')){const b=document.createElement('button');b.type='button';b.className='btn sm colb';b.innerHTML=CLI+'<span>الأعمدة</span>';b.title='إظهار وإخفاء أعمدة الجدول';hint.appendChild(b);b._t=t}
+  colApply(t)}
+function colApply(t){const hid=new Set(colStore.get(t.dataset.ck)),L=t._cols||[];for(const [c,ci,sp] of colGrid(t)){if(sp>1)continue;if(hid.has(L[ci]))c.setAttribute('data-ch','');else c.removeAttribute('data-ch')}
+  const box=t.closest('.tw')||t,prev=box.previousElementSibling,b=prev&&prev.querySelector('.colb');if(b){const n=L.filter(x=>hid.has(x)).length;b.classList.toggle('on',!!n);b.querySelector('span').textContent=n?`الأعمدة (${n} مخفي)`:'الأعمدة'}}
+function colMenu(b){closeColMenu();const t=b._t;if(!t||!t.isConnected)return;const k=t.dataset.ck,L=[...new Set(t._cols)],hid=new Set(colStore.get(k));
+  const m=document.createElement('div');m.id='colm';m.setAttribute('role','dialog');m.setAttribute('aria-label','أعمدة الجدول');m._k=k;
+  m.innerHTML=`<div class="colh"><b>أعمدة الجدول</b><button type="button" class="btn sm" data-colall>إظهار الكل</button></div><div class="coll">${L.map(l=>`<label class="chk"><input type="checkbox" value="${h(l)}"${hid.has(l)?'':' checked'}> ${h(l)}</label>`).join('')}</div>`;
+  (dlg.open?dlg:document.body).appendChild(m);const r=b.getBoundingClientRect(),w=Math.min(260,innerWidth-16);m.style.width=w+'px';m.style.top=Math.min(r.bottom+6,innerHeight-Math.min(m.offsetHeight,innerHeight-16)-8)+'px';m.style.left=Math.max(8,Math.min(r.left,innerWidth-w-8))+'px'}
+function closeColMenu(){const m=document.getElementById('colm');if(m)m.remove()}
+function colChange(m){const boxes=[...m.querySelectorAll('input')],hid=boxes.filter(x=>!x.checked).map(x=>x.value);if(hid.length>=boxes.length){toast('يجب إبقاء عمود واحد على الأقل');return false}
+  colStore.set(m._k,hid);document.querySelectorAll('#app table,#dlg table').forEach(t=>{if(t.dataset.ck===m._k)colApply(t)});return true}
+document.addEventListener('click',ev=>{const b=ev.target.closest('.colb');if(b){ev.stopPropagation();return document.getElementById('colm')?closeColMenu():colMenu(b)}
+  const m=document.getElementById('colm');if(!m)return;if(ev.target.closest('[data-colall]')){m.querySelectorAll('input').forEach(x=>x.checked=true);colChange(m);return}if(!ev.target.closest('#colm'))closeColMenu()},true);
+document.addEventListener('change',ev=>{const m=ev.target.closest&&ev.target.closest('#colm');if(m&&!colChange(m))ev.target.checked=true},true);
+addEventListener('keydown',ev=>{if(ev.key==='Escape')closeColMenu()});addEventListener('scroll',closeColMenu,{passive:true});addEventListener('resize',closeColMenu);
 const CPI='<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>',CPOK='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 function colValues(th){const t=th.closest('table'),col=[...th.parentElement.cells].indexOf(th),out=[],carry=[];
   for(const tr of t.tBodies[0].rows){if(tr.classList.contains('grp')||(tr.cells.length===1&&tr.cells[0].colSpan>1))continue;
