@@ -160,7 +160,9 @@ textarea{font:inherit;color:inherit;background:var(--surface);border:1px solid v
 .kpi b{display:block;font-size:26px;line-height:1.2;font-variant-numeric:tabular-nums}.kpi span{font-size:13px;color:var(--muted)}
 .kpi.hot b{color:var(--warn)}
 button.kpi{font:inherit;color:inherit;text-align:start;cursor:pointer;width:100%}button.kpi:hover{border-color:var(--brand)}button.kpi:hover span{color:var(--brand)}
-th.cp{cursor:copy}th.cp:hover{color:var(--brand)}
+.cpb{display:inline-grid;place-items:center;width:20px;height:20px;margin-inline-start:4px;padding:0;border:0;border-radius:4px;background:none;color:var(--muted);cursor:pointer;vertical-align:middle;opacity:.65}
+.cpb svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cpb:hover,.cpb:focus-visible{opacity:1;color:var(--brand);background:var(--brand-soft)}.cpb.done{opacity:1;color:var(--ok)}
 .att{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-bottom:18px}
 .att h2,.hc h2{margin:0;font-size:16px}
 .att>header{padding:12px 14px;border-bottom:1px solid var(--line)}
@@ -556,13 +558,14 @@ function filteredAllSorted(){const f=S.f;S.f={q:'',region:'',psup:'',point:'',tr
 
 /* ---------- automatic row numbers and count hints for every table ---------- */
 function numTable(t){if(t.dataset.num)return;t.dataset.num=1;const hr=t.tHead&&t.tHead.rows[0];if(!hr)return;
-  const th=document.createElement('th');th.textContent='#';th.className='rn';hr.insertBefore(th,hr.firstChild);for(const c of hr.cells)if(c.textContent.trim()&&c!==th){c.classList.add('cp');c.title='اضغط لنسخ بيانات هذا العمود'}let n=0;const grouped=t.classList.contains('ptt');
+  const th=document.createElement('th');th.textContent='#';th.className='rn';hr.insertBefore(th,hr.firstChild);for(const c of hr.cells){const nm=c.textContent.trim();if(!nm||c===th||nm==='إجراءات')continue;const b=document.createElement('button');b.type='button';b.className='cpb';b.title='نسخ عمود '+nm;b.setAttribute('aria-label','نسخ عمود '+nm);b.innerHTML=CPI;c.appendChild(b)}let n=0;const grouped=t.classList.contains('ptt');
   for(const tr of t.tBodies[0]?t.tBodies[0].rows:[]){const c0=tr.cells[0];
     if(tr.cells.length===1&&c0.colSpan>1||tr.classList.contains('grp')){c0.colSpan+=1;continue}
     if(grouped&&!tr.classList.contains('g1'))continue;
     const td=document.createElement('td');td.className='rn';td.textContent=++n;if(grouped)td.rowSpan=c0.rowSpan||1;tr.insertBefore(td,c0)}
   const box=t.closest('.tw'),prev=box&&box.previousElementSibling;
   if(box&&n&&!(prev&&(prev.classList.contains('hint')||prev.querySelector('.hint')))){const hdiv=document.createElement('div');hdiv.className='hint';hdiv.innerHTML=`<span>عدد السجلات <b>${n}</b></span>`;if(box.parentElement.classList.contains('sv')||box.parentElement.classList.contains('db'))hdiv.style.paddingInline=box.parentElement.classList.contains('sv')?'14px':'0';box.parentElement.insertBefore(hdiv,box)}}
+const CPI='<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>',CPOK='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 function colValues(th){const t=th.closest('table'),col=[...th.parentElement.cells].indexOf(th),out=[],carry=[];
   for(const tr of t.tBodies[0].rows){if(tr.classList.contains('grp')||(tr.cells.length===1&&tr.cells[0].colSpan>1))continue;
     let ci=0,k=0,found=null,covered=false;
@@ -579,8 +582,9 @@ function colValues(th){const t=th.closest('table'),col=[...th.parentElement.cell
   return out}
 async function copyCol(th){const vals=colValues(th),txt=vals.join('\n'),name=th.textContent.trim();if(!vals.length)return toast('لا توجد بيانات للنسخ');
   let ok=false;try{await navigator.clipboard.writeText(txt);ok=true}catch(e){try{const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';(dlg.open?dlg:document.body).appendChild(ta);ta.select();ok=document.execCommand('copy');ta.remove()}catch(e2){}}
+  const b=th.querySelector('.cpb');if(ok&&b){b.innerHTML=CPOK;b.classList.add('done');setTimeout(()=>{b.innerHTML=CPI;b.classList.remove('done')},1500)}
   toast(ok?`نُسخ ${vals.length} قيمة من عمود «${name}»`:'تعذّر النسخ في هذا المتصفح')}
-document.addEventListener('click',ev=>{const th=ev.target.closest('th.cp');if(th)copyCol(th)});
+document.addEventListener('click',ev=>{const b=ev.target.closest('.cpb');if(b)copyCol(b.closest('th'))});
 const numAll=()=>document.querySelectorAll('#app table,#dlg table').forEach(numTable);
 new MutationObserver(numAll).observe(document.getElementById('app'),{childList:true,subtree:true});
 new MutationObserver(numAll).observe(document.getElementById('dlg'),{childList:true,subtree:true});
