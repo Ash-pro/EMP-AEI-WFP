@@ -142,15 +142,19 @@ label.wide{grid-column:1/-1}
 .ib.on{color:var(--brand-fg);background:var(--brand);border-color:var(--brand)} .ib.on svg{fill:currentColor}
 .ib:hover{color:var(--brand);border-color:var(--brand)} .ib.out:hover{color:var(--bad);border-color:var(--bad)}
 textarea{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:7px 10px;width:100%;min-height:70px;resize:vertical}
-.home{max-width:860px;margin-inline:auto;padding-block:48px 24px;display:grid;gap:28px}
-.hero h1{font-size:30px;margin:6px 0 12px;text-wrap:balance}
-.hero p{margin:0;max-width:60ch;color:var(--muted);font-size:16px}
-.hero .sub{color:var(--brand);font-weight:600;font-size:14px}
-.hgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
-.hcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:10px;align-content:start}
-.hcard h2{margin:0;font-size:18px}.hcard p{margin:0;color:var(--muted);font-size:14px}.hcard .btn{justify-self:start;margin-top:6px}
-.hfeat{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px 20px;font-size:14px;color:var(--muted)}
-.hfeat b{color:var(--fg);display:block}
+.home{max-width:1040px;margin-inline:auto;padding:clamp(28px,7vh,72px) 16px 32px;display:grid;gap:32px}
+.hero{display:grid;gap:10px;padding-bottom:24px;border-bottom:1px solid var(--line)}
+.hero h1{font-size:clamp(26px,3.4vw,34px);margin:0;line-height:1.25;text-wrap:balance}
+.hero p{margin:0;max-width:62ch;color:var(--muted);font-size:16px;line-height:1.8}
+.hero .sub{color:var(--brand);font-weight:600;font-size:13px;letter-spacing:.01em}
+.hgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
+.hcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;gap:10px;min-height:210px;transition:border-color .15s}
+.hcard:hover{border-color:var(--brand)}
+.hcard h2{margin:0;font-size:18px;line-height:1.4}.hcard p{margin:0;color:var(--muted);font-size:14px;line-height:1.8}
+.hcard .btn{margin-top:auto;width:100%;justify-content:center;text-align:center;min-height:42px}.hcard p+.btn{margin-top:auto}
+.hfeat{margin:0;padding:0 24px;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 16px;font-size:13px;line-height:1.7;color:var(--muted)}
+.hfeat li{padding-inline-end:24px}.hfeat b{color:var(--fg);display:block;font-size:14px;margin-bottom:2px}
+@media(max-width:820px){.hgrid,.hfeat{grid-template-columns:1fr}.hcard{min-height:0;gap:12px}.hcard .btn{margin-top:8px}.hfeat{padding:0 4px}}
 .page{max-width:760px;margin-inline:auto;padding-block:28px}
 .page>form{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
 .okbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:28px;display:grid;gap:12px;justify-items:start}
@@ -288,7 +292,7 @@ const isAdmin=()=>S.role==='admin';
   renderHome()})();
 function renderHome(){document.body.classList.remove('ro');
   app.innerHTML=`<div class="home"><div class="hero"><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي WFP</div><h1>سجل موظفي AEI – WFP</h1>
-   <p>منصة داخلية لطاقم المشروع: بيانات الموظفين موزعة حسب النقاط والمشرفين، ونموذج إلكتروني لتقديم طلبات الإجازة ومتابعتها.</p></div>
+   <p>منصة داخلية لطاقم المشروع: بيانات الموظفين موزعة حسب النقاط والمشرفين، مع نماذج إلكترونية لتسجيل الموظفين الجدد وتقديم طلبات الإجازة.</p></div>
    <div class="hgrid"><section class="hcard"><h2>طلب إجازة</h2><p>للموظفين والمتطوعين والأمن. عبّئ النموذج وسيصل طلبك إلى الإدارة ومشرفك مباشرة، بدون رمز دخول.</p><button class="btn pri" data-act="leave">تقديم طلب إجازة</button></section>
    <section class="hcard"><h2>تسجيل موظف جديد</h2><p>للملتحقين الجدد بالمشروع. عبّئ بياناتك وستراجعها الإدارة قبل اعتمادك في النظام.</p><button class="btn pri" data-act="reg">تسجيل موظف جديد</button></section>
    <section class="hcard"><h2>دخول النظام</h2><p>للمشرفين والإدارة. عرض بيانات الموظفين والنقاط وطلبات الإجازة باستخدام رمز PIN.</p><button class="btn" data-act="login">دخول برمز PIN</button></section></div>
