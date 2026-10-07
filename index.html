@@ -159,6 +159,8 @@ textarea{font:inherit;color:inherit;background:var(--surface);border:1px solid v
 .kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
 .kpi b{display:block;font-size:26px;line-height:1.2;font-variant-numeric:tabular-nums}.kpi span{font-size:13px;color:var(--muted)}
 .kpi.hot b{color:var(--warn)}
+button.kpi{font:inherit;color:inherit;text-align:start;cursor:pointer;width:100%}button.kpi:hover{border-color:var(--brand)}button.kpi:hover span{color:var(--brand)}
+th.cp{cursor:copy}th.cp:hover{color:var(--brand)}
 .att{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-bottom:18px}
 .att h2,.hc h2{margin:0;font-size:16px}
 .att>header{padding:12px 14px;border-bottom:1px solid var(--line)}
@@ -361,12 +363,12 @@ function vHome(){const sum=$('.sum');if(sum)sum.hidden=true;
   const es=all(),pr=pointRows(),lv=[...S.leaves.values()],td=today(),wk=(()=>{const d=new Date();d.setDate(d.getDate()+7);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})();
   const live=x=>x.status!=='مرفوض',onToday=lv.filter(x=>live(x)&&x.start<=td&&x.end>=td),week=lv.filter(x=>live(x)&&x.start<=wk&&x.end>=td),fresh=lv.filter(x=>x.status==='جديد');
   const sups=uniq('psup').filter(x=>x!=='إداري'),bad=es.filter(e=>issues(e).length).length,noF=pr.filter(r=>!r.focals.length).length,noC=pr.filter(r=>!r.x||!r.y).length,mis=supMismatch().length,arch=isArch();
-  const kpi=(v,l,hot)=>`<div class="kpi${hot&&v?' hot':''}"><b>${v}</b><span>${l}</span></div>`;
+  const kpi=(v,l,go,hot)=>`<button class="kpi${hot&&v?' hot':''}" data-go="${go}" title="فتح ${l}"><b>${v}</b><span>${l}</span></button>`;
   const att=[[fresh.length,'طلب إجازة جديد بانتظار الرد','leave','','فتح الإجازات'],[bad,'موظف بياناته بحاجة لمراجعة (أيبان أو رقم خاطئ أو حقل ناقص)','db','bad','عرضهم'],[noF,'نقطة بدون فوكال بوينت','pts','nofocal','فتح بيانات النقاط'],[noC,'نقطة بدون إحداثيات','pts','nocoord','فتح بيانات النقاط']].filter(a=>a[0]);
   const row=(l,v)=>`<div class="row"><span>${l}</span><span${typeof v==='number'?' class="num"':' style="font-weight:600;font-variant-numeric:tabular-nums"'}>${v}</span></div>`,cnt=(k,v)=>es.filter(e=>e[k]===v).length;
   const card=(t,desc,body,go,label)=>`<section class="hc"><h2>${t}</h2><p>${desc}</p><div class="rows">${body}</div><button class="btn" data-go="${go}">${label||'فتح القسم'}</button></section>`;
   const maxS=Math.max(1,...sups.map(x=>cnt('psup',x))),lastRes=mRes().sort((a,b)=>(b.resignDate||'').localeCompare(a.resignDate||''))[0];
-  $('#view').innerHTML=`<div class="kpis">${kpi(es.length,'موظف')}${kpi(pr.length,'نقطة')}${kpi(sups.length,'مشرف')}${arch?kpi(mLeaves().length,'إجازة في الشهر'):kpi(onToday.length,'مجاز اليوم')}${kpi(fresh.length,'طلب إجازة جديد',1)}${kpi(mRes().length,'استقالة في الشهر')}</div>
+  $('#view').innerHTML=`<div class="kpis">${kpi(es.length,'موظف','db')}${kpi(pr.length,'نقطة','pts')}${kpi(sups.length,'مشرف','sups')}${arch?kpi(mLeaves().length,'إجازة في الشهر','leave'):kpi(onToday.length,'مجاز اليوم','leave')}${kpi(fresh.length,'طلب إجازة جديد','leave',1)}${kpi(mRes().length,'استقالة في الشهر','res')}</div>
    <section class="att"><header><h2>يحتاج انتباهك</h2></header>${att.length||mis?`<ul>${att.map(a=>`<li><span><b>${a[0]}</b> ${a[1]}</span><button class="btn sm" data-go="${a[2]}" data-gof="${a[3]}">${a[4]}</button></li>`).join('')}${mis?`<li><span><b>${mis}</b> موظف مشرف نقطته يختلف عن باقي طاقم النقطة</span><button class="btn sm" data-act="mismatch">عرضهم</button></li>`:''}</ul>`:'<div class="ok">لا يوجد شيء بحاجة لإجراء الآن.</div>'}</section>
    <div class="hcs">
    ${card('قاعدة البيانات','كل الموظفين ببياناتهم الكاملة، مع البحث والفلاتر والتعديل.',TRACKS.filter(t=>cnt('track',t)).map(t=>row(chip(t),cnt('track',t))).join('')+`<div class="row muted" style="font-size:13px"><span>${uniq('cat').map(c=>h(c)+' '+cnt('cat',c)).join(' · ')}</span></div>`,'db')}
@@ -554,13 +556,31 @@ function filteredAllSorted(){const f=S.f;S.f={q:'',region:'',psup:'',point:'',tr
 
 /* ---------- automatic row numbers and count hints for every table ---------- */
 function numTable(t){if(t.dataset.num)return;t.dataset.num=1;const hr=t.tHead&&t.tHead.rows[0];if(!hr)return;
-  const th=document.createElement('th');th.textContent='#';th.className='rn';hr.insertBefore(th,hr.firstChild);let n=0;const grouped=t.classList.contains('ptt');
+  const th=document.createElement('th');th.textContent='#';th.className='rn';hr.insertBefore(th,hr.firstChild);for(const c of hr.cells)if(c.textContent.trim()&&c!==th){c.classList.add('cp');c.title='اضغط لنسخ بيانات هذا العمود'}let n=0;const grouped=t.classList.contains('ptt');
   for(const tr of t.tBodies[0]?t.tBodies[0].rows:[]){const c0=tr.cells[0];
     if(tr.cells.length===1&&c0.colSpan>1||tr.classList.contains('grp')){c0.colSpan+=1;continue}
     if(grouped&&!tr.classList.contains('g1'))continue;
     const td=document.createElement('td');td.className='rn';td.textContent=++n;if(grouped)td.rowSpan=c0.rowSpan||1;tr.insertBefore(td,c0)}
   const box=t.closest('.tw'),prev=box&&box.previousElementSibling;
   if(box&&n&&!(prev&&(prev.classList.contains('hint')||prev.querySelector('.hint')))){const hdiv=document.createElement('div');hdiv.className='hint';hdiv.innerHTML=`<span>عدد السجلات <b>${n}</b></span>`;if(box.parentElement.classList.contains('sv')||box.parentElement.classList.contains('db'))hdiv.style.paddingInline=box.parentElement.classList.contains('sv')?'14px':'0';box.parentElement.insertBefore(hdiv,box)}}
+function colValues(th){const t=th.closest('table'),col=[...th.parentElement.cells].indexOf(th),out=[],carry=[];
+  for(const tr of t.tBodies[0].rows){if(tr.classList.contains('grp')||(tr.cells.length===1&&tr.cells[0].colSpan>1))continue;
+    let ci=0,k=0,found=null,covered=false;
+    while(ci<=col){if(carry[ci]>0){if(ci===col)covered=true;carry[ci]--;ci++;continue}
+      const c=tr.cells[k++];if(!c)break;const span=c.colSpan||1;
+      for(let j=0;j<span;j++)if((c.rowSpan||1)>1)carry[ci+j]=c.rowSpan-1;
+      if(col>=ci&&col<ci+span)found=span>1?'':c;ci+=span}
+    for(let j=ci;j<carry.length;j++){} 
+    if(covered)continue;if(found===null)continue;
+    if(found===''){out.push('');continue}
+    const sel=found.querySelector('select');if(sel){out.push(sel.value);continue}
+    const cl=found.cloneNode(true);cl.querySelectorAll('.fp,.flag,.ibs,.btn,div.muted,small').forEach(x=>x.remove());cl.querySelectorAll('br').forEach(x=>x.replaceWith(' / '));
+    out.push(cl.textContent.replace(/\s+/g,' ').trim())}
+  return out}
+async function copyCol(th){const vals=colValues(th),txt=vals.join('\n'),name=th.textContent.trim();if(!vals.length)return toast('لا توجد بيانات للنسخ');
+  let ok=false;try{await navigator.clipboard.writeText(txt);ok=true}catch(e){try{const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';(dlg.open?dlg:document.body).appendChild(ta);ta.select();ok=document.execCommand('copy');ta.remove()}catch(e2){}}
+  toast(ok?`نُسخ ${vals.length} قيمة من عمود «${name}»`:'تعذّر النسخ في هذا المتصفح')}
+document.addEventListener('click',ev=>{const th=ev.target.closest('th.cp');if(th)copyCol(th)});
 const numAll=()=>document.querySelectorAll('#app table,#dlg table').forEach(numTable);
 new MutationObserver(numAll).observe(document.getElementById('app'),{childList:true,subtree:true});
 new MutationObserver(numAll).observe(document.getElementById('dlg'),{childList:true,subtree:true});
