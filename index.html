@@ -223,6 +223,7 @@ body.arch [data-act=add],body.arch [data-edit],body.arch [data-move],body.arch [
 div.wide{grid-column:1/-1}
 .eclist{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:var(--r);padding:4px 10px;display:grid}.eclist .chk{padding:6px 0;white-space:normal;border-bottom:1px solid var(--line);cursor:pointer}.eclist .chk:last-child{border:0}.eclist small{margin-inline-start:auto;white-space:nowrap}
 .df{z-index:3}
+th.srt{cursor:pointer;user-select:none}th.srt:hover{color:var(--fg)}th.son{color:var(--brand)}.sarr{display:inline-block;margin-inline-start:4px;font-size:10px;opacity:.45;min-width:9px}th.son .sarr{opacity:1}
 .lgchips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}.lgc{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:99px;padding:5px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .lgc i{width:8px;height:8px;border-radius:50%;background:var(--gc)}.lgc b{color:var(--fg);font-family:var(--mono);font-size:12px}.lgc.on{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
 .lgl{display:grid;gap:6px}.lgday{font-size:12.5px;font-weight:700;color:var(--muted);margin:12px 2px 2px;padding-bottom:4px;border-bottom:1px solid var(--line)}
@@ -1054,7 +1055,23 @@ function numTable(t){if(t.dataset.num)return;t.dataset.num=1;const hr=t.tHead&&t
     const td=document.createElement('td');td.className='rn';td.textContent=++n;if(grouped)td.rowSpan=c0.rowSpan||1;tr.insertBefore(td,c0)}
   const box=t.closest('.tw'),prev=box&&box.previousElementSibling;
   if(box&&n&&!(prev&&(prev.classList.contains('hint')||prev.querySelector('.hint')))){const hdiv=document.createElement('div');hdiv.className='hint';hdiv.innerHTML=`<span>عدد السجلات <b>${n}</b></span>`;if(box.parentElement.classList.contains('sv')||box.parentElement.classList.contains('db'))hdiv.style.paddingInline=box.parentElement.classList.contains('sv')?'14px':'0';box.parentElement.insertBefore(hdiv,box)}
-  colSetup(t)}
+  colSetup(t);sortSetup(t)}
+/* ---------- column sorting ---------- */
+const SORT=new Map(),SARR={0:'↕',1:'▲',2:'▼'};
+function sortKey(c){if(!c)return '';const sl=c.querySelector('select');if(sl)return sl.value;const cl=c.cloneNode(true);cl.querySelectorAll('.cpb,.ibs,button.btn,.flag').forEach(x=>x.remove());let v=cl.textContent.replace(/\s+/g,' ').trim();
+  const d=v.match(/^(\d{2})\/(\d{2})\/(\d{4})/);if(d)return d[3]+d[2]+d[1];return v==='—'||v==='-'?'':v}
+function sortSetup(t){const hr=t.tHead&&t.tHead.rows[0],tb=t.tBodies[0];if(!hr||!tb||tb.rows.length<2)return;
+  for(const tr of tb.rows){if(tr.classList.contains('grp'))return;for(const c of tr.cells)if((c.rowSpan||1)>1||(c.colSpan||1)>1)return}
+  const key=(S.pub?'pub':S.tab||'x')+'|'+[...hr.cells].map(colLabel).slice(0,4).join(',');t.dataset.sk=key;[...tb.rows].forEach((r,i)=>r._o=i);
+  [...hr.cells].forEach((c,i)=>{const l=colLabel(c);if(c.classList.contains('rn')||!l||l==='الإجراءات'||l==='إجراءات'||c.classList.contains('adm'))return;c.classList.add('srt');c.dataset.si=i;c.title='اضغط للترتيب';
+    if(!c.querySelector('.sarr')){const a=document.createElement('span');a.className='sarr';a.setAttribute('aria-hidden','true');a.textContent=SARR[0];c.insertBefore(a,c.querySelector('.cpb'))}});
+  const st=SORT.get(key);if(st)sortApply(t,st)}
+function sortApply(t,st){const tb=t.tBodies[0],hr=t.tHead.rows[0],rows=[...tb.rows];
+  if(!st.dir)rows.sort((a,b)=>a._o-b._o);else{const m=st.dir===1?1:-1;rows.sort((a,b)=>{const x=sortKey(a.cells[st.i]),y=sortKey(b.cells[st.i]);if(!x&&y)return 1;if(x&&!y)return -1;return m*x.localeCompare(y,'ar',{numeric:true,sensitivity:'base'})||a._o-b._o})}
+  rows.forEach(r=>tb.appendChild(r));let n=0;for(const r of rows){const c=r.cells[0];if(c&&c.classList.contains('rn'))c.textContent=++n}
+  [...hr.cells].forEach((c,i)=>{const a=c.querySelector('.sarr');if(!a)return;const on=st.dir&&i===st.i;a.textContent=on?SARR[st.dir]:SARR[0];c.classList.toggle('son',!!on);c.setAttribute('aria-sort',on?(st.dir===1?'ascending':'descending'):'none')})}
+document.addEventListener('click',ev=>{const th=ev.target.closest('th.srt');if(!th||ev.target.closest('.cpb'))return;const t=th.closest('table'),i=+th.dataset.si,cur=SORT.get(t.dataset.sk)||{i,dir:0},dir=cur.i===i?(cur.dir+1)%3:1,st={i,dir};
+  SORT.set(t.dataset.sk,st);document.querySelectorAll('#app table,#dlg table').forEach(x=>{if(x.dataset.sk===t.dataset.sk)sortApply(x,st)})});
 /* ---------- show / hide columns ---------- */
 const CLI='<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg>';
 const colLabel=c=>{const cl=c.cloneNode(true);cl.querySelectorAll('.cpb,.dsub').forEach(x=>x.remove());return cl.textContent.replace(/[\d\/]+/g,'').replace(/\s+/g,' ').trim()||(c.classList.contains('rn')?'#':'الإجراءات')};
