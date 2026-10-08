@@ -311,7 +311,7 @@ const TRACKS=['وقائي','علاجي','كاش','أمن','إداري'], TCLS={'
 const CATS=['موظف/ة','متطوع/ة','أمن','مشرف/ة'], DEPTS=['وقائي','علاجي','إداري'], MARITAL=['متزوج/ة','أعزب / آنسة','أرمل/ة','مطلق/ة'], PAYS=['بنك فلسطين','محفظة بال بي'];
 const F=[ // key, label, excel header
  ['num','#'],['id','رقم الهوية'],['focal','الفوكال بوينت في النقطة'],['assign','دوام جديد'],['name','الاسم الرباعي'],['mobile','رقم الجوال'],['dept','القسم'],['cat','الفئة الوظيفية'],
- ['sup','المشرف المباشر'],['psup','مشرف النقطة'],['region','النطاق الجغرافي'],['area','منطقة النقطة'],['dob','تاريخ الميلاد'],['marital','الحالة الاجتماعية'],['uni','الجامعة'],
+ ['sup','المشرف المباشر'],['psup','مشرف النقطة'],['region','النطاق الجغرافي'],['area','منطقة النقطة'],['start','تاريخ بداية الدوام'],['dob','تاريخ الميلاد'],['marital','الحالة الاجتماعية'],['uni','الجامعة'],
  ['degree','الدرجة العلمية'],['major','التخصص'],['grad','تاريخ الحصول على الشهادة'],['pay','طريقة تلقي الراتب'],['iban','الأيبان / رقم المحفظة']];
 const S={db:null,dl:null,emps:new Map(),res:new Map(),leaves:new Map(),regs:new Map(),upds:new Map(),rreqs:new Map(),meta:new Map(),live:new Map(),snaps:new Map(),month:null,points:new Map(),plans:new Map(),pm:null,pf:{q:'',region:'',sup:'',type:''},tab:'db',ready:false,pinHash:null,tries:0,lockUntil:0,f:{q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false}};
 let unsub=null;
@@ -412,7 +412,7 @@ async function renderReg(){app.innerHTML='<div class="empty">جاري تحميل
   try{LISTS=LISTS||await rpc('aei_public_lists',{})}catch(e){app.innerHTML=`<div class="page"><div class="okbox"><div class="note bad">تعذّر تحميل النموذج: ${h(e.message)}</div><button class="btn" data-act="home">رجوع</button></div></div>`;return}
   app.innerHTML=`<div class="page"><form id="regf"><div class="dh"><h2>تسجيل موظف جديد</h2><button class="btn sm" type="button" data-act="home">رجوع</button></div><div class="db"><div id="ferr"></div>
    <fieldset><legend>البيانات الأساسية</legend>${inp('name','الاسم الرباعي','',{req:1,wide:1})}${inp('id','رقم الهوية (9 أرقام)','',{req:1,ltr:1})}${inp('mobile','رقم الجوال','',{req:1,ltr:1})}${inp('dob','تاريخ الميلاد','',{type:'date'})}${sel('marital','الحالة الاجتماعية',MARITAL,'')}</fieldset>
-   <fieldset><legend>الدوام</legend>${sel('point','اسم النقطة',LISTS.points||[],'')}${sel('cat','المسمى الوظيفي',(LISTS.cats&&LISTS.cats.length?LISTS.cats:CATS),'')}${sel('sup','اسم المشرف',LISTS.sups||[],'')}</fieldset>
+   <fieldset><legend>الدوام</legend>${sel('point','اسم النقطة',LISTS.points||[],'')}${sel('cat','المسمى الوظيفي',(LISTS.cats&&LISTS.cats.length?LISTS.cats:CATS),'')}${sel('sup','اسم المشرف',LISTS.sups||[],'')}${inp('start','تاريخ بداية الدوام (اختياري)','',{type:'date'})}</fieldset>
    <fieldset><legend>المؤهل العلمي</legend>${inp('uni','الجامعة','')}${sel('degree','الدرجة العلمية',DEGS,'')}${inp('grad','تاريخ الحصول على الشهادة','',{type:'date'})}${inp('major','التخصص','',{wide:1})}</fieldset>
    <fieldset><legend>الراتب</legend>${sel('pay','طريقة تلقي الراتب',PAYS,'')}${inp('iban','الأيبان / رقم المحفظة','',{ltr:1})}<label class="wide">ملاحظات<textarea id="e-notes" name="notes" maxlength="1000"></textarea></label></fieldset></div>
    <div class="df"><div><button class="btn pri">إرسال الطلب</button><button class="btn" type="button" data-act="home">إلغاء</button></div></div></form></div>`}
@@ -440,7 +440,7 @@ function showReg(rid){const x=S.regs.get(rid);if(!x)return;const kv=(l,v,c)=>`<d
    <div class="esum"><div class="acts" style="align-items:center"><span class="st st-${x.status==='مقبول'?'ok':x.status==='مرفوض'?'no':'new'}">${h(x.status)}</span>${x.cat?`<span class="chip">${h(x.cat)}</span>`:''}</div><div class="muted">${h(x.point||'—')} · المشرف: ${h(x.sup||'—')} · قُدّم <span class="num">${h(new Date(x.ts).toLocaleDateString('en-GB'))}</span></div></div>
    ${dup&&isNew?`<div class="note bad">رقم الهوية مسجل مسبقاً في قاعدة البيانات باسم ${h(S.emps.get(x.id).name)}. لا يمكن قبول الطلب.</div>`:''}${x.reason?`<div class="note bad">سبب الرفض: ${h(x.reason)}</div>`:''}
    ${sec('البيانات الأساسية',kv('رقم الهوية',x.id,1)+kv('رقم الجوال',mob(x.mobile),1)+kv('تاريخ الميلاد',x.dob?fd(x.dob):'',1)+kv('الحالة الاجتماعية',x.marital))}
-   ${sec('الدوام المطلوب',kv('النقطة',x.point)+kv('المسمى الوظيفي',x.cat)+kv('المشرف',x.sup))}
+   ${sec('الدوام المطلوب',kv('النقطة',x.point)+kv('المسمى الوظيفي',x.cat)+kv('المشرف',x.sup)+kv('تاريخ بداية الدوام',x.start?fd(x.start):'',1))}
    ${sec('المؤهل العلمي',kv('الجامعة',x.uni)+kv('الدرجة العلمية',x.degree)+kv('تاريخ الشهادة',x.grad?fd(x.grad):'',1)+wide('التخصص',x.major))}
    ${sec('الراتب',kv('طريقة تلقي الراتب',x.pay)+`<div class="wide2"><dt>الأيبان / رقم المحفظة</dt><dd class="ibn"><span class="num">${h(x.iban||'—')}</span>${x.iban?`<button class="btn sm" data-copy="${h(x.iban)}" type="button">نسخ</button>`:''}</dd></div>`)}
    ${x.notes?sec('ملاحظات المتقدّم',wide('',x.notes)):''}</div>
@@ -448,20 +448,20 @@ function showReg(rid){const x=S.regs.get(rid);if(!x)return;const kv=(l,v,c)=>`<d
 function editReg(rid){const x=S.regs.get(rid);if(!x)return;
   dlg.innerHTML=`<form id="rgef" data-rid="${h(rid)}">`+head('تعديل طلب تسجيل: '+h(x.name))+`<div class="db"><div id="ferr"></div>
    <fieldset><legend>البيانات الأساسية</legend>${inp('name','الاسم الرباعي',x.name,{req:1,wide:1})}${inp('id','رقم الهوية (9 أرقام)',x.id,{req:1,ltr:1})}${inp('mobile','رقم الجوال',mob(x.mobile),{req:1,ltr:1})}${inp('dob','تاريخ الميلاد',x.dob,{type:'date'})}${sel('marital','الحالة الاجتماعية',MARITAL,x.marital)}</fieldset>
-   <fieldset><legend>الدوام المطلوب</legend>${sel('point','النقطة',allPoints(),x.point)}${sel('cat','المسمى الوظيفي',CATS,x.cat)}${sel('sup','المشرف',supList(),x.sup)}</fieldset>
+   <fieldset><legend>الدوام المطلوب</legend>${sel('point','النقطة',allPoints(),x.point)}${sel('cat','المسمى الوظيفي',CATS,x.cat)}${sel('sup','المشرف',supList(),x.sup)}${inp('start','تاريخ بداية الدوام (اختياري)',x.start,{type:'date'})}</fieldset>
    <fieldset><legend>المؤهل العلمي</legend>${inp('uni','الجامعة',x.uni)}${sel('degree','الدرجة العلمية',DEGS,x.degree)}${inp('grad','تاريخ الحصول على الشهادة',x.grad,{type:'date'})}${inp('major','التخصص',x.major,{wide:1})}</fieldset>
    <fieldset><legend>الراتب</legend>${sel('pay','طريقة تلقي الراتب',PAYS,x.pay)}${inp('iban','الأيبان / رقم المحفظة',x.iban,{ltr:1})}<label class="wide">ملاحظات<textarea id="e-notes" name="notes" maxlength="1000">${h(x.notes||'')}</textarea></label></fieldset></div>
    <div class="df"><div><button class="btn pri">حفظ التعديلات</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open()}
 async function saveRegEdit(f){const rid=f.dataset.rid,x=S.regs.get(rid),o=formData(f);o.id=o.id.replace(/\D/g,'');o.mobile=mob(o.mobile).replace(/^0/,'');o.iban=o.iban.replace(/[\s\u200e\u200f']/g,'');
   if(o.name.split(/\s+/).length<3)return ferr('أدخل الاسم الرباعي كاملاً.');if(!/^\d{9}$/.test(o.id))return ferr('رقم الهوية يجب أن يكون 9 أرقام.');if(!/^5[69]\d{7}$/.test(o.mobile))return ferr('رقم الجوال غير صحيح.');
-  const LB={name:'الاسم',id:'الهوية',mobile:'الجوال',dob:'الميلاد',marital:'الحالة الاجتماعية',point:'النقطة',cat:'المسمى',sup:'المشرف',uni:'الجامعة',degree:'الدرجة',grad:'تاريخ الشهادة',major:'التخصص',pay:'طريقة الراتب',iban:'الأيبان',notes:'ملاحظات'},ch=Object.keys(LB).filter(k=>String(x[k]??'')!==String(o[k]??'')&&!(k==='mobile'&&mob(x.mobile).replace(/^0/,'')===o.mobile));
+  const LB={name:'الاسم',id:'الهوية',mobile:'الجوال',dob:'الميلاد',marital:'الحالة الاجتماعية',point:'النقطة',cat:'المسمى',sup:'المشرف',start:'بداية الدوام',uni:'الجامعة',degree:'الدرجة',grad:'تاريخ الشهادة',major:'التخصص',pay:'طريقة الراتب',iban:'الأيبان',notes:'ملاحظات'},ch=Object.keys(LB).filter(k=>String(x[k]??'')!==String(o[k]??'')&&!(k==='mobile'&&mob(x.mobile).replace(/^0/,'')===o.mobile));
   if(!ch.length){dlg.close();return}const btn=f.querySelector('.pri');btn.disabled=true;
   try{await S.db.doc('reg/'+rid).update(o);log('تعديل طلب تسجيل',{id:o.id,name:o.name},ch.map(k=>`${LB[k]}: ${x[k]||'—'} ← ${o[k]||'—'}`).join(' | '));dlg.close();toast('حُفظت التعديلات')}catch(e){btn.disabled=false;ferr(e.message)}}
 async function reopenReg(rid){const x=S.regs.get(rid);if(!x)return;try{await S.db.doc('reg/'+rid).update({status:'جديد',reason:''});log('إرجاع طلب تسجيل',{id:x.id,name:x.name},'مرفوض ← جديد');dlg.close();toast('أُعيد الطلب إلى «جديد»')}catch(e){toast('تعذّر: '+e.message)}}
 function regAccept(rid){const x=S.regs.get(rid);if(!x)return;
   if(S.emps.has(x.id)){toast('رقم الهوية مسجل مسبقاً باسم '+S.emps.get(x.id).name);return}
   const peer=[...S.live.values()].find(e=>e.point===x.point&&e.cat===x.cat)||[...S.live.values()].find(e=>e.point===x.point)||{};
-  editEmp(null,{name:x.name,id:x.id,mobile:x.mobile,dob:x.dob,marital:x.marital,point:x.point,cat:x.cat,psup:peer.psup||x.sup,sup:x.sup,track:peer.track,dept:peer.dept,region:peer.region,area:peer.area,uni:x.uni,degree:x.degree,major:x.major,grad:x.grad,pay:x.pay||'بنك فلسطين',iban:x.iban},rid)}
+  editEmp(null,{name:x.name,id:x.id,mobile:x.mobile,dob:x.dob,marital:x.marital,point:x.point,cat:x.cat,psup:peer.psup||x.sup,sup:x.sup,track:peer.track,dept:peer.dept,region:peer.region,area:peer.area,uni:x.uni,degree:x.degree,major:x.major,grad:x.grad,pay:x.pay||'بنك فلسطين',iban:x.iban,start:x.start},rid)}
 function regReject(rid){const x=S.regs.get(rid);if(!x)return;
   dlg.innerHTML=`<form id="rrejf" data-rid="${h(rid)}">`+head('رفض طلب: '+h(x.name))+`<div class="db"><fieldset>${inp('reason','سبب الرفض (اختياري)','',{wide:1})}</fieldset></div><div class="df"><div><button class="btn danger">تأكيد الرفض</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open()}
 async function saveReject(f){const rid=f.dataset.rid,x=S.regs.get(rid),reason=f.querySelector('#e-reason').value.trim();
@@ -885,7 +885,7 @@ function showEmp(id){const e=S.emps.get(id);if(!e)return;const is=issues(e);
    <div class="esum"><div class="acts" style="align-items:center">${chip(e.track)}${e.cat?`<span class="chip">${h(e.cat)}</span>`:''}${e.focal?'<span class="fp" style="margin:0">فوكال بوينت</span>':''}</div><div class="muted">${h(e.point||'—')}${e.psup&&e.psup!==e.point?' · مشرف النقطة: '+h(e.psup):''}</div></div>
    ${is.length?`<div class="note">${is.map(h).join(' · ')}</div>`:''}
    ${sec('البيانات الأساسية',kv('رقم الهوية',e.id,1)+kv('رقم الجوال',mob(e.mobile),1)+kv('تاريخ الميلاد',fd(e.dob),1)+kv('الحالة الاجتماعية',e.marital))}
-   ${sec('الدوام',kv('النقطة',e.point)+kv('القسم',e.dept)+kv('الفئة الوظيفية',e.cat)+kv('مشرف النقطة',e.psup)+kv('المشرف المباشر',e.sup)+kv('النطاق الجغرافي',e.region)+kv('منطقة النقطة',e.area)+(e.note?wide('ملاحظة الدوام',e.note):''))}
+   ${sec('الدوام',kv('النقطة',e.point)+kv('القسم',e.dept)+kv('الفئة الوظيفية',e.cat)+kv('مشرف النقطة',e.psup)+kv('المشرف المباشر',e.sup)+kv('النطاق الجغرافي',e.region)+kv('منطقة النقطة',e.area)+kv('تاريخ بداية الدوام',e.start?fd(e.start):'',1)+(e.note?wide('ملاحظة الدوام',e.note):''))}
    ${sec('المؤهل العلمي',kv('الجامعة',e.uni)+kv('الدرجة العلمية',e.degree)+kv('تاريخ الشهادة',fd(e.grad),1)+wide('التخصص',e.major))}
    ${sec('الراتب',kv('طريقة تلقي الراتب',e.pay)+`<div class="wide2"><dt>الأيبان / رقم المحفظة</dt><dd class="ibn"><span class="num">${h(e.iban||'—')}</span>${e.iban?`<button class="btn sm" data-copy="${h(e.iban)}" type="button">نسخ</button>`:''}</dd></div>`)}</div>
    <div class="df"><div><button class="btn pri adm" data-edit="${h(id)}">تعديل البيانات</button><button class="btn adm" data-move="${h(id)}">نقل إلى نقطة أخرى</button><button class="btn" data-focal="${h(id)}">${e.focal?'إلغاء الفوكال':'تعيين فوكال'}</button></div><div class="adm"><button class="btn danger" data-resign="${h(id)}">استقالة موظف</button></div></div>`;
@@ -905,7 +905,7 @@ function editEmp(id,pre,rid){const e=id?S.emps.get(id):(pre||{pay:'بنك فلس
     ${inp('dob','تاريخ الميلاد',e.dob,{type:'date'})}${sel('marital','الحالة الاجتماعية',MARITAL,e.marital)}</fieldset>
    <fieldset><legend>الدوام</legend>${selx('point','النقطة',allPoints(),e.point,1)}${sel('track','المسار',TRACKS,e.track)}${sel('dept','القسم',DEPTS,e.dept)}${sel('cat','الفئة الوظيفية',CATS,e.cat)}
     ${selx('psup','مشرف النقطة',supList(),e.psup)}${selx('sup','المشرف المباشر',supList(),e.sup)}${selx('region','النطاق الجغرافي',uniq('region'),e.region)}${selx('area','منطقة النقطة',uniq('area'),e.area)}
-    ${inp('note','ملاحظة الدوام (اختياري)',e.note)}<label class="chk" style="align-self:end"><input id="e-focal" name="focal" type="checkbox"${e.focal?' checked':''}> فوكال بوينت في النقطة</label></fieldset>
+    ${inp('start','تاريخ بداية الدوام (اختياري)',e.start,{type:'date'})}${inp('note','ملاحظة الدوام (اختياري)',e.note)}<label class="chk" style="align-self:end"><input id="e-focal" name="focal" type="checkbox"${e.focal?' checked':''}> فوكال بوينت في النقطة</label></fieldset>
    <fieldset><legend>المؤهل العلمي</legend>${selx('uni','الجامعة',uniq('uni'),e.uni)}${selx('degree','الدرجة العلمية',[...new Set(['ثانوية عامة','دبلوم','بكالوريوس','ماجستير','دكتوراه',...uniq('degree')])],e.degree)}${inp('grad','تاريخ الحصول على الشهادة',e.grad,{type:'date'})}${inp('major','التخصص',e.major,{wide:1})}</fieldset>
    <fieldset><legend>الراتب</legend>${sel('pay','طريقة تلقي الراتب',PAYS,e.pay)}${inp('iban','الأيبان / رقم المحفظة',e.iban,{ltr:1})}</fieldset></div>
    <div class="df"><div><button class="btn pri">${id?'حفظ التعديلات':rid?'قبول وإضافة للنظام':'إضافة الموظف'}</button><button class="btn" type="button" data-act="close">إلغاء</button></div>
@@ -988,7 +988,7 @@ function exportPts(){if(!window.XLSX)return toast('تعذّر تحميل مكت�
   const tag=[f.region,f.sup,f.type,f.q.trim()].filter(Boolean).join(' - ').replace(/[\\/:*?"<>|]/g,' '),d=new Date(),name=`بيانات النقاط${tag?' - '+tag:''} ${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}.xlsx`;
   try{const u=URL.createObjectURL(new Blob([XLSX.write(wb,{type:'array',bookType:'xlsx'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);toast('تم تنزيل '+rows.length+' نقطة')}catch(e){toast('تعذّر التصدير: '+(e.message||e))}}
 async function exportXlsx(){if(!window.XLSX)return toast('تعذّر تحميل مكتبة التصدير. تحقق من الاتصال.');
-  const rows=filteredAllSorted(),val=(e,k)=>k==='assign'?assign(e):k==='focal'?(e.focal?'فوكال بوينت':''):k==='dob'||k==='grad'?fd(e[k]):k==='mobile'?mob(e[k]):(e[k]??'');
+  const rows=filteredAllSorted(),val=(e,k)=>k==='assign'?assign(e):k==='focal'?(e.focal?'فوكال بوينت':''):k==='dob'||k==='grad'||k==='start'?fd(e[k]):k==='mobile'?mob(e[k]):(e[k]??'');
   const ws=XLSX.utils.aoa_to_sheet([F.map(f=>f[1]),...rows.map(e=>F.map(([k])=>String(val(e,k))))]);ws['!cols']=F.map(([k])=>({wch:k==='name'||k==='major'||k==='iban'?34:k==='assign'?26:16}));
   const ws2=XLSX.utils.aoa_to_sheet([['النطاق','منطقة النقطة','النقطة','مشرف النقطة','المسار','الاسم','الفئة','الجوال','المشرف المباشر'],...rows.map(e=>[e.region,e.area,e.point,e.psup,e.track,e.name,e.cat,mob(e.mobile),e.sup].map(v=>String(v??'')))]);ws2['!cols']=[14,14,20,18,10,34,12,14,18].map(w=>({wch:w}));
   const rs=mRes().sort((a,b)=>(a.resignDate||'').localeCompare(b.resignDate||''));
