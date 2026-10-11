@@ -1,5 +1,9 @@
 {
   "rewrites": [
     { "source": "/(register|leave|edit|resign|login|assets)", "destination": "/index.html" }
+  ],
+  "headers": [
+    { "source": "/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }, { "key": "Service-Worker-Allowed", "value": "/" }] },
+    { "source": "/site.webmanifest", "headers": [{ "key": "Content-Type", "value": "application/manifest+json; charset=utf-8" }] }
   ]
 }

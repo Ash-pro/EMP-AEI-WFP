@@ -10,6 +10,10 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="AEI–WFP HR">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>سجل موظفي AEI – WFP</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script>
@@ -25,7 +29,12 @@ body.ro .adm{display:none!important}
 .lg{width:48px;height:48px;flex:none;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:10px}.lg.xl{width:92px;height:92px;border-radius:16px}.lg.md{width:64px;height:64px;border-radius:12px;margin-bottom:8px}
 .brand{display:flex;align-items:center;gap:12px;min-width:0}.lock .lg{justify-self:center}
 .credit{text-align:center;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px))}.credit a{color:inherit;text-decoration:none;display:inline-flex;flex-wrap:wrap;gap:4px 8px;justify-content:center;align-items:baseline}.credit a b{color:var(--fg)}.credit a:hover b,.credit a:hover .num{color:var(--brand);text-decoration:underline}
-@media print{.credit{display:none}}
+.pwab{position:fixed;inset-inline-start:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;display:inline-flex;align-items:center;gap:2px;background:var(--brand);color:var(--brand-fg);border-radius:99px;box-shadow:0 4px 14px rgba(8,14,20,.28);font-size:13.5px;font-weight:600}
+.pwab button{background:none;border:0;color:inherit;font:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:7px;padding:9px 6px 9px 14px}.pwab button+button{padding:9px 12px 9px 8px;opacity:.75;font-size:16px;line-height:1}.pwab svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+[dir=rtl] .pwab button{padding:9px 14px 9px 6px}[dir=rtl] .pwab button+button{padding:9px 8px 9px 12px}
+.credit .pwal{background:none;border:0;font:inherit;color:var(--brand);font-weight:600;cursor:pointer;padding:0;margin-inline-start:14px;text-decoration:underline}
+@media (display-mode:standalone){.pwab,.credit .pwal{display:none!important}}
+@media print{.credit,.pwab{display:none}}
 .tsub{font-size:12.5px;color:var(--muted);white-space:nowrap}.tsub b{font-size:inherit!important;color:var(--fg)}
 
 /* Layout: a field roster. Sticky header with tabs, one working surface per tab; points are ledger blocks grouped by governorate. */
@@ -345,7 +354,8 @@ tr.axhid td{opacity:.55}
 <div class="wrap" dir="rtl" lang="ar">
   <div id="app"><div class="empty">جاري الاتصال بقاعدة البيانات…</div></div>
 </div>
-<footer class="credit" dir="rtl" lang="ar"><a href="https://wa.me/972598466903" target="_blank" rel="noopener" title="تواصل عبر واتساب">تصميم وبرمجة: <b>أشرف أسامة الصليبي</b> <span class="num">00972598466903</span></a></footer>
+<footer class="credit" dir="rtl" lang="ar"><a href="https://wa.me/972598466903" target="_blank" rel="noopener" title="تواصل عبر واتساب">تصميم وبرمجة: <b>أشرف أسامة الصليبي</b> <span class="num">00972598466903</span></a><button class="pwal" id="pwal" type="button" hidden>تثبيت التطبيق على جهازك</button></footer>
+<div class="pwab" id="pwab" dir="rtl" lang="ar" hidden><button type="button" id="pwago" title="تثبيت التطبيق على هذا الجهاز"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>تثبيت التطبيق</button><button type="button" id="pwax" aria-label="إخفاء" title="إخفاء">×</button></div>
 <dialog id="dlg" dir="rtl" lang="ar"></dialog>
 <div id="toast" dir="rtl" hidden></div>
 
@@ -1749,6 +1759,23 @@ document.addEventListener('input',ev=>{const el=ev.target;
   if(f.id==='axef'){if(el.id==='e-newName')astSim(el);astSync()}
   else if(f.id==='axrv')axAfter(); else if(f.id==='axaf'){if(el.id==='e-pt'||el.id==='e-item'||el.id==='e-type'){f.querySelectorAll('#e-ng,#e-nd').forEach(x=>x.value='');axAddSync()}}
   else if(f.id==='axmf'&&el.id==='e-from')axMoveRows()});
+</script>
+<script>
+/* ---------- PWA: service worker + install button ---------- */
+(()=>{const web=/^https?:$/.test(location.protocol),standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  if(web&&'serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+  const pill=document.getElementById('pwab'),link=document.getElementById('pwal');if(!web||standalone||!pill)return;
+  const ua=navigator.userAgent,ios=/iphone|ipad|ipod/i.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1),K='pwa-hide';let ev=null;
+  const hidden=()=>{try{return Date.now()-(+localStorage.getItem(K)||0)<14*864e5}catch(e){return false}};
+  const show=()=>{link.hidden=false;pill.hidden=hidden()},done=()=>{pill.hidden=true;link.hidden=true;ev=null};
+  const help=()=>{dlg.innerHTML=head('تثبيت التطبيق على الجهاز')+'<div class="db"><div>على iPhone و iPad يتم التثبيت من متصفح Safari:</div><ol style="margin:0;padding-inline-start:20px;line-height:2.1"><li>اضغط زر <b>المشاركة</b> أسفل الشاشة (مربع بداخله سهم للأعلى).</li><li>اختر <b>إضافة إلى الشاشة الرئيسية</b>.</li><li>اضغط <b>إضافة</b>، وستظهر أيقونة التطبيق بين تطبيقاتك.</li></ol></div>';open()};
+  const go=async()=>{if(ev){const e=ev;ev=null;e.prompt();try{const r=await e.userChoice;if(r&&r.outcome==='accepted')done();else ev=e}catch(x){}}else if(ios)help();else toast('افتح قائمة المتصفح واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».',6000)};
+  addEventListener('beforeinstallprompt',e=>{e.preventDefault();ev=e;show()});
+  addEventListener('appinstalled',()=>{done();toast('تم تثبيت التطبيق')});
+  if(ios)show();
+  document.getElementById('pwago').addEventListener('click',go);link.addEventListener('click',go);
+  document.getElementById('pwax').addEventListener('click',()=>{pill.hidden=true;try{localStorage.setItem(K,String(Date.now()))}catch(e){}});
+})();
 </script>
 </body>
 </html>
