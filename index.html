@@ -1015,13 +1015,13 @@ const dayLabel=ts=>{const d=new Date(ts),t=new Date(),y=new Date();y.setDate(t.g
 async function vLog(){const v=$('#view');if(!S.logDocs||S.logTab!==selMonth()){v.innerHTML='<div class="empty">جاري تحميل السجل…</div>';
   try{const s0=await S.db.collection('log').orderBy('ts','desc').limit(1000).get();if(S.tab!=='log')return;S.logDocs=s0.docs.map(d=>d.data()).filter(x=>inMonthTs(x.ts));S.logTab=selMonth()}
   catch(e){v.innerHTML=`<div class="empty">تعذّر تحميل السجل: ${h(e.message||e.code)}</div>`;return}}
-  const f=S.lgf=S.lgf||{g:'',q:''},all=S.logDocs,qs=nrm(f.q).split(' ').filter(Boolean),cnt=g=>all.filter(x=>logGroup(x.type)===g).length;
+  const f=S.lgf=S.lgf||{g:'',q:'',by:''},NB='غير مسجّل',byOf=x=>x.by||NB,all0=S.logDocs,bys=[...new Set(all0.map(byOf))].sort((a,b)=>(a===NB?1:0)-(b===NB?1:0)||a.localeCompare(b,'ar'));if(f.by&&!bys.includes(f.by))f.by='';const all=f.by?all0.filter(x=>byOf(x)===f.by):all0,qs=nrm(f.q).split(' ').filter(Boolean),cnt=g=>all.filter(x=>logGroup(x.type)===g).length;
   const rs=all.filter(x=>(!f.g||logGroup(x.type)===f.g)&&qs.every(w=>nrm([x.type,x.name,x.text,x.empId,x.by].join(' ')).includes(w)));
   let last='',body='';for(const x of rs){const dl=dayLabel(x.ts);if(dl!==last){body+=`<div class="lgday">${h(dl)}</div>`;last=dl}const g=logGroup(x.type),gc=LG.find(z=>z[0]===g),emp=x.empId&&S.emps.get(x.empId);
     body+=`<article class="lgi" style="--gc:${gc[2]}"><div class="lgh"><span class="lgt">${h(x.type)}</span>${emp?`<button class="who" data-emp="${h(x.empId)}">${h(x.name)}</button>`:`<b>${h(x.name||'')}</b>`}<time class="num">${h(new Date(x.ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}))}</time><span class="chip" title="منفّذ العملية">${h(x.by||'غير مسجّل')}</span></div>${x.text?`<ul class="lgd">${logText(x.text)}</ul>`:''}</article>`}
-  v.innerHTML=all.length?`<div class="filters"><input class="q" id="lg-q" type="search" placeholder="بحث في السجل بالاسم أو نوع العملية أو المنفّذ أو أي قيمة…" value="${h(f.q)}" aria-label="بحث في السجل"></div>
+  v.innerHTML=all0.length?`<div class="filters"><input class="q" id="lg-q" type="search" placeholder="بحث في السجل بالاسم أو نوع العملية أو المنفّذ أو أي قيمة…" value="${h(f.q)}" aria-label="بحث في السجل"><select id="lg-by" aria-label="منفّذ العملية"><option value="">كل المدراء (${all0.length})</option>${bys.map(b=>`<option value="${h(b)}"${f.by===b?' selected':''}>${h(b)} (${all0.filter(x=>byOf(x)===b).length})</option>`).join('')}</select></div>
    <div class="lgchips" role="tablist"><button class="lgc${f.g?'':' on'}" data-lgg="">الكل <b>${all.length}</b></button>${LG.filter(([g])=>cnt(g)).map(([g,l,c])=>`<button class="lgc${f.g===g?' on':''}" data-lgg="${g}" style="--gc:${c}"><i></i>${l} <b>${cnt(g)}</b></button>`).join('')}</div>
-   <div class="hint"><span>المعروض <b>${rs.length}</b> من <b>${all.length}</b> عملية في ${h(mLabel(selMonth()))}</span></div>${rs.length?`<div class="lgl">${body}</div>`:'<div class="empty">لا توجد عمليات مطابقة.</div>'}`
+   <div class="hint"><span>المعروض <b>${rs.length}</b> من <b>${all0.length}</b> عملية في ${h(mLabel(selMonth()))}</span>${f.by?`<span>المنفّذ: <b>${h(f.by)}</b></span>`:''}</div>${rs.length?`<div class="lgl">${body}</div>`:'<div class="empty">لا توجد عمليات مطابقة.</div>'}`
    :'<div class="empty">لا توجد عمليات مسجلة في هذا الشهر. كل إضافة أو نقل أو تعديل سيظهر هنا.</div>'}
 
 /* ---------- dialogs ---------- */
@@ -1267,6 +1267,7 @@ document.addEventListener('input',ev=>{const el=ev.target;
   if(el.id?.startsWith('f-')){const k=el.id.slice(2);S.f[k]=el.type==='checkbox'?el.checked:el.value;vDb();if(k==='q'){const q=$('#f-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}}
   if(el.id&&el.id.startsWith('pf-')){const k=el.id.slice(3);S.pf[k]=el.value;vPts();if(k==='q'){const q=$('#pf-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}return}
   if(el.id&&el.id.startsWith('vf-')){const k=el.id.slice(3);S.vf[k]=el.value;vPoints();if(k==='q'){const q=$('#vf-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}return}
+  if(el.id==='lg-by'){S.lgf.by=el.value;vLog();return}
   if(el.id==='lg-q'){S.lgf.q=el.value;vLog();const q=$('#lg-q');q.focus();q.setSelectionRange(q.value.length,q.value.length);return}
   if(el.id==='up-q'||el.id==='up-st'){S.upf[el.id==='up-q'?'q':'st']=el.value;vUpd();if(el.id==='up-q'){const q=$('#up-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}return}
   if(el.id==='rg-q'||el.id==='rg-st'){S.rgf[el.id==='rg-q'?'q':'st']=el.value;vReg();if(el.id==='rg-q'){const q=$('#rg-q');q.focus();q.setSelectionRange(q.value.length,q.value.length)}return}
