@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#245b8a">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 <title>سجل موظفي AEI – WFP</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script>
@@ -16,6 +22,10 @@ const CONFIG={
 <style>
 body{margin:0}[hidden]{display:none!important}img{max-width:100%}
 body.ro .adm{display:none!important}
+.lg{width:48px;height:48px;flex:none;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:10px}.lg.xl{width:92px;height:92px;border-radius:16px}.lg.md{width:64px;height:64px;border-radius:12px;margin-bottom:8px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}.lock .lg{justify-self:center}
+.credit{text-align:center;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px))}.credit a{color:inherit;text-decoration:none;display:inline-flex;flex-wrap:wrap;gap:4px 8px;justify-content:center;align-items:baseline}.credit a b{color:var(--fg)}.credit a:hover b,.credit a:hover .num{color:var(--brand);text-decoration:underline}
+@media print{.credit{display:none}}
 .tsub{font-size:12.5px;color:var(--muted);white-space:nowrap}.tsub b{font-size:inherit!important;color:var(--fg)}
 
 /* Layout: a field roster. Sticky header with tabs, one working surface per tab; points are ledger blocks grouped by governorate. */
@@ -335,6 +345,7 @@ tr.axhid td{opacity:.55}
 <div class="wrap" dir="rtl" lang="ar">
   <div id="app"><div class="empty">جاري الاتصال بقاعدة البيانات…</div></div>
 </div>
+<footer class="credit" dir="rtl" lang="ar"><a href="https://wa.me/972598466903" target="_blank" rel="noopener" title="تواصل عبر واتساب">تصميم وبرمجة: <b>أشرف أسامة الصليبي</b> <span class="num">00972598466903</span></a></footer>
 <dialog id="dlg" dir="rtl" lang="ar"></dialog>
 <div id="toast" dir="rtl" hidden></div>
 
@@ -432,7 +443,7 @@ addEventListener('popstate',()=>{if(S.ready||S.pub||S.shr)return;const n=routeNa
   rt==='login'?renderLock():renderHome()})();
 async function copyLink(btn){const u=routeUrl(btn.dataset.link);try{await navigator.clipboard.writeText(u)}catch(e){const i=document.createElement('input');i.value=u;document.body.append(i);i.select();document.execCommand('copy');i.remove()}toast('نُسخ الرابط: '+u)}
 function renderHome(){document.body.classList.remove('ro');
-  app.innerHTML=`<div class="home"><div class="hero"><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي WFP</div><h1>سجل موظفي AEI – WFP</h1>
+  app.innerHTML=`<div class="home"><div class="hero"><img class="lg xl" src="/logo.png" width="256" height="256" alt="شعار جمعية أرض الإنسان وبرنامج الأغذية العالمي – الموارد البشرية"><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي WFP</div><h1>سجل موظفي AEI – WFP</h1>
    <p>منصة داخلية لطاقم المشروع: بيانات الموظفين موزعة حسب النقاط والمشرفين، مع نماذج إلكترونية لتسجيل الموظفين الجدد وتقديم طلبات الإجازة.</p></div>
    <div class="hgrid"><section class="hcard"><h2>طلب إجازة</h2><p>للموظفين والمتطوعين والأمن. عبّئ النموذج وسيصل طلبك إلى الإدارة ومشرفك مباشرة، بدون رمز دخول.</p><button class="btn pri" data-act="leave">تقديم طلب إجازة</button><button class="lnk" type="button" data-link="leave">نسخ رابط الصفحة</button></section>
    <section class="hcard"><h2>تسجيل موظف جديد</h2><p>للملتحقين الجدد بالمشروع. عبّئ بياناتك وستراجعها الإدارة قبل اعتمادك في النظام.</p><button class="btn pri" data-act="reg">تسجيل موظف جديد</button><button class="lnk" type="button" data-link="register">نسخ رابط الصفحة</button></section>
@@ -631,7 +642,7 @@ async function setLeave(v){const i=v.lastIndexOf('|'),id=v.slice(0,i),st=v.slice
   try{await S.db.doc('leave/'+id).update({status:st});log('حالة إجازة',{id:x.id,name:x.name},`${x.status||'جديد'} ← ${st}`);if(dlg.open)dlg.close();toast(st==='موافق عليه'?'تمت الموافقة على الإجازة':st==='مرفوض'?'رُفض طلب الإجازة':'أُعيد الطلب إلى «جديد»')}catch(e){toast('لم تُحفظ: '+e.message)}}
 async function delLeave(btn){if(!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='تأكيد الحذف';return}
   try{await S.db.doc('leave/'+btn.dataset.ldel).delete();if(dlg.open)dlg.close();toast('حُذف الطلب')}catch(e){toast('لم يُحذف: '+e.message)}}
-function renderLock(msg){const m=S.lm||'user';app.innerHTML=`<div class="lock"><form id="lockf"><h1>سجل موظفي AEI – WFP</h1>
+function renderLock(msg){const m=S.lm||'user';app.innerHTML=`<div class="lock"><form id="lockf"><img class="lg xl" src="/logo.png" width="256" height="256" alt="شعار جمعية أرض الإنسان وبرنامج الأغذية العالمي – الموارد البشرية"><h1>سجل موظفي AEI – WFP</h1>
   <div class="lgchips" role="tablist"><button type="button" class="lgc${m==='user'?' on':''}" data-act="lmode" data-v="user">دخول الإدارة</button><button type="button" class="lgc${m==='pin'?' on':''}" data-act="lmode" data-v="pin">رمز العرض (للمشرفين)</button></div>
   ${m==='user'?`<label>اسم المستخدم<input id="lu" class="lin" dir="ltr" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="30" value="${h(S.lu||'')}"></label><label>كلمة المرور<input id="lp" class="lin" dir="ltr" type="password" autocomplete="current-password" maxlength="60"></label>`:`<div class="muted">أدخل رمز العرض لمشاهدة البيانات.</div><input id="pin" inputmode="numeric" type="password" autocomplete="off" maxlength="20" aria-label="رمز العرض">`}
   ${msg?`<div class="note bad">${h(msg)}</div>`:''}<div class="acts"><button class="btn pri" id="go">دخول</button><button class="btn" type="button" data-act="home">رجوع</button></div></form></div>`;$(m==='user'?(S.lu?'#lp':'#lu'):'#pin').focus()}
@@ -697,7 +708,7 @@ function filtered(){const f=S.f,qs=nrm(f.q).split(' ').filter(Boolean);
    .sort((a,b)=>(a.region||'').localeCompare(b.region||'','ar')||(a.psup||'').localeCompare(b.psup||'','ar')||(a.point||'').localeCompare(b.point||'','ar')||(a.name||'').localeCompare(b.name||'','ar'))}
 function render(){const n=S.emps.size, bad=all().filter(e=>issues(e).length).length;
   const keep=document.activeElement?.id, pos=document.activeElement?.selectionStart;
-  app.innerHTML=`<header class="top"><div class="bar"><div><h1>سجل موظفي AEI – WFP</h1><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي</div></div>
+  app.innerHTML=`<header class="top"><div class="bar"><div class="brand"><img class="lg" src="/logo.png" width="256" height="256" alt="شعار جمعية أرض الإنسان وبرنامج الأغذية العالمي – الموارد البشرية"><div><h1>سجل موظفي AEI – WFP</h1><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي</div></div></div>
    <div class="acts"><label class="mon">الشهر<select id="g-month" aria-label="الشهر">${[...monthList(),'all'].map(m=>`<option value="${m}"${m===selMonth()?' selected':''}>${mLabel(m)}</option>`).join('')}</select></label><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm${bkDue()?' due':''}" data-act="backup" title="${h(bkLabel())}">نسخة احتياطية</button>${isSuper()?'<button class="btn adm" data-act="users">مدراء النظام</button>':''}${S.user?`<button class="btn adm" data-act="mypw">كلمة المرور</button><span class="uchip" title="المستخدم الحالي">${isSuper()?'مدير أعلى':'مدير'} · <b>${h(S.user.name)}</b></span>`:''}<button class="btn" data-act="logout">تسجيل الخروج</button></div></div>
    <div class="tabs" role="tablist">${(()=>{const nl=[...S.leaves.values()].filter(x=>x.status==='جديد').length,adm=isAdmin(),
      G=[['',[['home','الرئيسية',0,1]]],['البيانات',[['db','قاعدة البيانات'],['points','التوزيع حسب النقاط'],['pts','بيانات النقاط'],['sups','حسب المشرفين']]],['الدوام',[['plan','الخطة الأسبوعية']]],['الأصول',[['ast','أصول النقاط',pendAst().length,1]]],
@@ -824,7 +835,7 @@ function planExport(){if(!window.XLSX)return toast('تعذّر تحميل مكت
   const ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=[{wch:26},...Array(6).fill({wch:24}),{wch:24}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'الخطة الأسبوعية');wb.Workbook={Views:[{RTL:true}]};
   try{const u=URL.createObjectURL(new Blob([XLSX.write(wb,{type:'array',bookType:'xlsx'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),a=document.createElement('a');a.href=u;a.download=`الخطة الأسبوعية ${m.slice(5)}.${m.slice(0,4)}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);toast('تم تنزيل الخطة')}catch(e){toast('تعذّر التصدير: '+(e.message||e))}}
 async function publicPlan(m,t){document.body.classList.add('ro');S.pub={m,t,doc:null};rpc('aei_public_lists',{}).then(l=>LISTS=l).catch(()=>{});
-  const show=S.pub.show=d=>{S.pub.doc={people:[],cells:{},hol:{},...d};S.pm=m;app.innerHTML=`<div class="pubh"><div>جمعية أرض الإنسان · مشروع الغذاء العالمي WFP</div><h1>الجدول الأسبوعي لدوام المشرفين · ${MN[+m.slice(5)-1]} ${m.slice(0,4)}</h1><div>اضغط على خانتك في اليوم المطلوب لإدخال نقاط دوامك · آخر تحديث للصفحة <span class="num">${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span></div></div>${planTables(S.pub.doc,m,'pub')}`};
+  const show=S.pub.show=d=>{S.pub.doc={people:[],cells:{},hol:{},...d};S.pm=m;app.innerHTML=`<div class="pubh"><img class="lg md" src="/logo.png" width="256" height="256" alt="شعار جمعية أرض الإنسان وبرنامج الأغذية العالمي – الموارد البشرية"><div>جمعية أرض الإنسان · مشروع الغذاء العالمي WFP</div><h1>الجدول الأسبوعي لدوام المشرفين · ${MN[+m.slice(5)-1]} ${m.slice(0,4)}</h1><div>اضغط على خانتك في اليوم المطلوب لإدخال نقاط دوامك · آخر تحديث للصفحة <span class="num">${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span></div></div>${planTables(S.pub.doc,m,'pub')}`};
   const load=async first=>{try{const d=await rpc('aei_plan_public',{m,t});
     if(!d){app.innerHTML='<div class="page"><div class="okbox"><h2 style="margin:0">الرابط غير مفعّل</h2><div class="muted">هذا الرابط أُوقف أو جُدّد. اطلب الرابط الجديد من الإدارة.</div></div></div>';return}
     if(first||!dlg.open)show(d)}
@@ -843,7 +854,7 @@ async function shareLink(btn,off){const k=btn.dataset.k,doc={...(S.meta.get('sha
 async function publicShare(k,t){document.body.classList.add('ro');S.shr={k,t};S.tab=k;S.role='share';
   const box=x=>{app.innerHTML=`<div class="page"><div class="okbox">${x}</div></div>`};
   const draw=()=>{const keep=document.activeElement?.id,pos=document.activeElement?.selectionStart;
-    app.innerHTML=`<div class="pubh"><div>جمعية أرض الإنسان · مشروع الغذاء العالمي WFP</div><h1>${SHK[k]}</h1><div>صفحة عرض فقط لمتابعة الإدارة · <b>${all().length}</b> موظف · <b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة · آخر تحديث <span class="num">${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span></div></div><main id="view"></main>`;
+    app.innerHTML=`<div class="pubh"><img class="lg md" src="/logo.png" width="256" height="256" alt="شعار جمعية أرض الإنسان وبرنامج الأغذية العالمي – الموارد البشرية"><div>جمعية أرض الإنسان · مشروع الغذاء العالمي WFP</div><h1>${SHK[k]}</h1><div>صفحة عرض فقط لمتابعة الإدارة · <b>${all().length}</b> موظف · <b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة · آخر تحديث <span class="num">${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span></div></div><main id="view"></main>`;
     ({points:vPoints,pts:vPts,sups:vSups})[k]();if(keep){const el=document.getElementById(keep);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(e){}}}};
   const load=async first=>{try{const d=await rpc('aei_share_public',{k,t});
     if(!d){S.shr.dead=1;dlg.open&&dlg.close();return box('<h2 style="margin:0">الرابط غير مفعّل</h2><div class="muted">هذا الرابط أُوقف أو جُدّد. اطلب الرابط الجديد من الإدارة.</div>')}
