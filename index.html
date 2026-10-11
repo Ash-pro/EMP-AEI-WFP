@@ -398,7 +398,7 @@ function pointInfo(p){const c={};for(const e of all())if(e.point===p){const k=[e
   const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];if(!top){const m=S.points.get(p);return m&&(m.psup||m.region||m.area)?{psup:m.psup||'',region:m.region||'',area:m.area||''}:null}const [psup,region,area]=top[0].split('|');return{psup,region,area}}
 const chip=t=>`<span class="chip ${TCLS[t]||''}">${h(t||'—')}</span>`;
 /* tracks listed in SPLIT show a per-category breakdown (موظف / متطوع) next to their total */
-const SPLIT=['وقائي'],catS=c=>String(c||'—').replace('/ة',''),catsOf=m=>[...new Set(m.map(e=>e.cat).filter(Boolean))].sort((a,b)=>(b.startsWith('موظف')?1:0)-(a.startsWith('موظف')?1:0)||a.localeCompare(b,'ar'));
+const SPLIT=['وقائي','علاجي'],catS=c=>String(c||'—').replace('/ة',''),catsOf=m=>[...new Set(m.map(e=>e.cat).filter(Boolean))].sort((a,b)=>(b.startsWith('موظف')?1:0)-(a.startsWith('موظف')?1:0)||a.localeCompare(b,'ar'));
 const trStats=list=>TRACKS.map(t=>{const m=list.filter(e=>e.track===t);if(!m.length)return '';const cs=SPLIT.includes(t)?catsOf(m):[];return `<span>${chip(t)} <b>${m.length}</b>${cs.length>1?` <span class="tsub">(${cs.map(c=>h(catS(c))+' <b>'+m.filter(e=>e.cat===c).length+'</b>').join(' · ')})</span>`:''}</span>`}).join('');
 const opts=(arr,sel,blank)=>(blank!==undefined?`<option value="">${h(blank)}</option>`:'')+arr.map(v=>`<option${v===sel?' selected':''}>${h(v)}</option>`).join('');
 
