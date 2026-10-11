@@ -16,6 +16,7 @@ const CONFIG={
 <style>
 body{margin:0}[hidden]{display:none!important}img{max-width:100%}
 body.ro .adm{display:none!important}
+.tsub{font-size:12.5px;color:var(--muted);white-space:nowrap}.tsub b{font-size:inherit!important;color:var(--fg)}
 
 /* Layout: a field roster. Sticky header with tabs, one working surface per tab; points are ledger blocks grouped by governorate. */
 :root{
@@ -395,6 +396,9 @@ const openPts=()=>[...S.points.entries()].filter(([k,v])=>!v.closed).map(([k])=>
 function pointInfo(p){const c={};for(const e of all())if(e.point===p){const k=[e.psup,e.region,e.area].join('|');c[k]=(c[k]||0)+1}
   const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];if(!top){const m=S.points.get(p);return m&&(m.psup||m.region||m.area)?{psup:m.psup||'',region:m.region||'',area:m.area||''}:null}const [psup,region,area]=top[0].split('|');return{psup,region,area}}
 const chip=t=>`<span class="chip ${TCLS[t]||''}">${h(t||'—')}</span>`;
+/* tracks listed in SPLIT show a per-category breakdown (موظف / متطوع) next to their total */
+const SPLIT=['وقائي'],catS=c=>String(c||'—').replace('/ة',''),catsOf=m=>[...new Set(m.map(e=>e.cat).filter(Boolean))].sort((a,b)=>(b.startsWith('موظف')?1:0)-(a.startsWith('موظف')?1:0)||a.localeCompare(b,'ar'));
+const trStats=list=>TRACKS.map(t=>{const m=list.filter(e=>e.track===t);if(!m.length)return '';const cs=SPLIT.includes(t)?catsOf(m):[];return `<span>${chip(t)} <b>${m.length}</b>${cs.length>1?` <span class="tsub">(${cs.map(c=>h(catS(c))+' <b>'+m.filter(e=>e.cat===c).length+'</b>').join(' · ')})</span>`:''}</span>`}).join('');
 const opts=(arr,sel,blank)=>(blank!==undefined?`<option value="">${h(blank)}</option>`:'')+arr.map(v=>`<option${v===sel?' selected':''}>${h(v)}</option>`).join('');
 
 /* ---------- backend (Supabase RPC) ---------- */
@@ -691,7 +695,7 @@ function render(){const n=S.emps.size, bad=all().filter(e=>issues(e).length).len
      G=[['',[['home','الرئيسية',0,1]]],['البيانات',[['db','قاعدة البيانات'],['points','التوزيع حسب النقاط'],['pts','بيانات النقاط'],['sups','حسب المشرفين']]],['الدوام',[['plan','الخطة الأسبوعية']]],['الأصول',[['ast','أصول النقاط',pendAst().length,1]]],
         ['الطلبات',[['leave','الإجازات',nl],['reg','طلبات التسجيل',newRegs().length,1],['upd','طلبات التعديل',newUpds().length,1]]],['السجلات',[['res','الاستقالات',newRReqs().length,1],['log','سجل التعديلات',0,1]]]];
      return G.map(([g,ts])=>[g,ts.filter(t=>adm||!t[3])]).filter(x=>x[1].length).map(([g,ts])=>`<div class="tg" role="presentation">${g?`<span class="tgl">${g}</span>`:''}${ts.map(([k,l,n])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}${n?`<span class="bdg" aria-label="${n} طلب جديد">${n>99?'99+':n}</span>`:''}</button>`).join('')}</div>`).join('')})()}</div></header>
-   <div class="sum"><span><b>${n}</b> موظف</span>${TRACKS.map(t=>{const c=all().filter(e=>e.track===t).length;return c?`<span>${chip(t)} <b>${c}</b></span>`:''}).join('')}
+   <div class="sum"><span><b>${n}</b> موظف</span>${trStats(all())}
    <span><b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة</span>${mRes().length?`<span><b>${mRes().length}</b> استقالة</span>`:''}${mLeaves().length?`<span><b>${mLeaves().length}</b> إجازة</span>`:''}${[...S.leaves.values()].some(x=>x.status==='جديد')?`<span><b>${[...S.leaves.values()].filter(x=>x.status==='جديد').length}</b> طلب إجازة جديد</span>`:''}${bad?`<span style="color:var(--warn)"><b>${bad}</b> بحاجة لمراجعة</span>`:''}</div>
    ${isArch()?`<div class="note">أرشيف ${mLabel(selMonth())}: بيانات الموظفين كما كانت في نهاية ذلك الشهر، للعرض والتصدير فقط. للتعديل ارجع إلى الشهر الحالي.</div>`:''}
    <main id="view"></main>`;
@@ -707,7 +711,7 @@ function vDb(){const f=S.f,rows=filtered();
    <select id="f-track" aria-label="المسار">${opts(TRACKS,f.track,'كل المسارات')}</select>
    <select id="f-cat" aria-label="الفئة">${opts([...uniq('cat'),'فوكال بوينت'],f.cat,'كل الفئات')}</select>
    <label class="chk"><input id="f-bad" type="checkbox"${f.bad?' checked':''}> بحاجة لمراجعة فقط</label></div>
-   <div class="hint"><span>المعروض <b>${rows.length}</b> من <b>${all().length}</b> موظف</span>${TRACKS.map(t=>{const c=rows.filter(e=>e.track===t).length;return c?`<span>${chip(t)} <b>${c}</b></span>`:''}).join('')}<span>فوكال <b>${rows.filter(e=>e.focal).length}</b></span><span>اضغط على أي صف لعرض التفاصيل</span></div>
+   <div class="hint"><span>المعروض <b>${rows.length}</b> من <b>${all().length}</b> موظف</span>${trStats(rows)}<span>فوكال <b>${rows.filter(e=>e.focal).length}</b></span><span>اضغط على أي صف لعرض التفاصيل</span></div>
    <div class="tw"><table><thead><tr><th>الاسم الرباعي</th><th>رقم الهوية</th><th>الجوال</th><th>النقطة</th><th>المسار</th><th>الفئة</th><th>مشرف النقطة</th><th>النطاق</th><th>المنطقة</th><th>طريقة الدفع</th><th>إجراءات</th></tr></thead>
    <tbody>${rows.map(e=>`<tr data-emp="${h(e.id)}"><td class="nm">${h(e.name)}${e.focal?'<span class="fp">فوكال</span>':''}${issues(e).length?'<span class="flag" title="بحاجة لمراجعة">!</span>':''}</td>
     <td class="num">${h(e.id)}</td><td class="num">${h(mob(e.mobile))}</td><td>${h(e.point)}</td><td>${chip(e.track)}</td><td>${h(e.cat)}</td><td>${h(e.psup)}</td><td>${h(e.region)}</td><td>${h(e.area)}</td><td>${h(e.pay)}</td><td>${ibs(e)}</td></tr>`).join('')
@@ -741,7 +745,7 @@ function vHome(){const sum=$('.sum');if(sum)sum.hidden=true;
   $('#view').innerHTML=`<div class="kpis">${kpi(es.length,'موظف','db')}${kpi(pr.length,'نقطة','pts')}${kpi(sups.length,'مشرف','sups')}${arch?kpi(mLeaves().length,'إجازة في الشهر','leave'):kpi(onToday.length,'مجاز اليوم','leave')}${kpi(fresh.length,'طلب إجازة جديد','leave',1)}${kpi(mRes().length,'استقالة في الشهر','res')}</div>
    <section class="att"><header><h2>يحتاج انتباهك</h2></header>${att.length||mis?`<ul>${att.map(a=>`<li><span><b>${a[0]}</b> ${a[1]}</span><button class="btn sm" ${a[2]?`data-go="${a[2]}" data-gof="${a[3]}"`:'data-act="backup"'}>${a[4]}</button></li>`).join('')}${mis?`<li><span><b>${mis}</b> موظف مشرف نقطته يختلف عن باقي طاقم النقطة</span><button class="btn sm" data-act="mismatch">عرضهم</button></li>`:''}</ul>`:'<div class="ok">لا يوجد شيء بحاجة لإجراء الآن.</div>'}</section>
    <div class="hcs">
-   ${card('قاعدة البيانات','كل الموظفين ببياناتهم الكاملة، مع البحث والفلاتر والتعديل.',TRACKS.filter(t=>cnt('track',t)).map(t=>row(chip(t),cnt('track',t))).join('')+`<div class="row muted" style="font-size:13px"><span>${uniq('cat').map(c=>h(c)+' '+cnt('cat',c)).join(' · ')}</span></div>`,'db')}
+   ${card('قاعدة البيانات','كل الموظفين ببياناتهم الكاملة، مع البحث والفلاتر والتعديل.',TRACKS.filter(t=>cnt('track',t)).map(t=>{const m=es.filter(e=>e.track===t),cs=SPLIT.includes(t)?catsOf(m):[];return row(chip(t),m.length)+(cs.length>1?cs.map(c=>`<div class="row muted" style="font-size:13px;padding-inline-start:16px"><span>${h(catS(c))}</span><span class="num">${m.filter(e=>e.cat===c).length}</span></div>`).join(''):'')}).join('')+`<div class="row muted" style="font-size:13px"><span>${uniq('cat').map(c=>h(c)+' '+cnt('cat',c)).join(' · ')}</span></div>`,'db')}
    ${card('التوزيع حسب النقاط','طاقم كل نقطة مجمّعاً حسب المحافظة، مع النقل بين النقاط.',uniq('region').filter(r=>r!=='إداري').map(r=>row(h(r),`${new Set(es.filter(e=>e.region===r).map(e=>e.point)).size} نقطة · ${cnt('region',r)} موظف`)).join(''),'points')}
    ${card('بيانات النقاط','المحافظة والإحداثيات وطبيعة العمل والفوكال بوينت والأمن لكل نقطة.',PT.map(t=>row(chip(t),pr.filter(r=>r.types.includes(t)).length+' نقطة')).join('')+row('نقاط فيها فوكال بوينت',`${pr.length-noF} من ${pr.length}`)+row('نقاط مُدخلة إحداثياتها',`${pr.length-noC} من ${pr.length}`),'pts')}
    ${card('حسب المشرفين','كل مشرف ونقاطه، مع تفصيل الموظفين والمتطوعين والأمن.',sups.map(x=>{const mine=es.filter(e=>e.psup===x),c=k=>mine.filter(e=>e.cat===k).length,oth=mine.length-c('موظف/ة')-c('متطوع/ة')-c('أمن');
@@ -958,7 +962,7 @@ function vRes(){S.rf=S.rf||{m:isArch()?selMonth():'',q:''};const f=S.rf,all=[...
   const qs=nrm(f.q).split(' ').filter(Boolean),rs=all.filter(e=>(!f.m||(e.resignDate||'').slice(0,7)===f.m)&&qs.every(q=>nrm([e.name,e.id,e.mobile,e.point,e.psup,e.cat,e.repName].join(' ')).includes(q))).sort((a,b)=>(b.resignDate||'').localeCompare(a.resignDate||''));
   const rep=e=>e.repName||e.repId||e.repMobile;
   $('#view').innerHTML=rreqBlock()+(all.length?`<div class="filters"><input class="q" id="rf-q" placeholder="بحث بالاسم، الهوية، الجوال، النقطة…" value="${h(f.q)}" aria-label="بحث في الاستقالات"><select id="rf-m" aria-label="شهر الاستقالة"><option value="">كل الأشهر (${all.length})</option>${months.map(m=>`<option value="${m}"${f.m===m?' selected':''}>${MN[+m.slice(5)-1]} ${m.slice(0,4)} (${all.filter(e=>(e.resignDate||'').slice(0,7)===m).length})</option>`).join('')}</select></div>
-   <div class="hint"><span>المعروض <b>${rs.length}</b> من <b>${all.length}</b> استقالة</span><span>لها بديل مسجّل <b>${rs.filter(rep).length}</b></span>${TRACKS.map(t=>{const c=rs.filter(e=>e.track===t).length;return c?`<span>${chip(t)} <b>${c}</b></span>`:''}).join('')}</div>
+   <div class="hint"><span>المعروض <b>${rs.length}</b> من <b>${all.length}</b> استقالة</span><span>لها بديل مسجّل <b>${rs.filter(rep).length}</b></span>${trStats(rs)}</div>
    ${rs.length?`<div class="tw"><table class="lvt"><thead><tr><th>الاسم</th><th>النقطة</th><th>المسار</th><th>مشرف النقطة</th><th>تاريخ الاستقالة</th><th>البديل</th><th>إجراءات</th></tr></thead><tbody>${
    rs.map(e=>`<tr data-rview="${h(e.id)}"><td class="nm">${h(e.name)}<small class="muted">${h(e.cat||'')}</small></td><td>${h(e.point)}</td><td>${chip(e.track)}</td><td>${h(e.psup||'—')}</td><td class="num">${h(fd(e.resignDate))}</td><td>${rep(e)?`<span class="st st-ok">${h(e.repName||'مسجّل')}</span>`:'<span class="muted">بدون بديل</span>'}</td>
     <td><div class="ibs"><button class="ib" data-rview="${h(e.id)}" title="عرض البيانات" aria-label="عرض البيانات">${IC.view}</button><button class="ib" data-redit="${h(e.id)}" title="تعديل بيانات الاستقالة" aria-label="تعديل بيانات الاستقالة">${IC.edit}</button><button class="ib okb" data-rback="${h(e.id)}" title="إرجاع للعمل" aria-label="إرجاع للعمل">${RIC}</button></div></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">لا توجد استقالات مطابقة للبحث أو الشهر المختار.</div>'}`
