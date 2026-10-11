@@ -326,7 +326,7 @@ tr.axhid td{opacity:.55}
 .axnew{padding:12px;border:1px dashed var(--line);border-radius:var(--r)}
 .axmap{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 14px}.axmap label{display:grid;gap:4px;font-size:13.5px}
 .axsups{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 14px}.axsups label{display:grid;gap:4px;font-size:14px}
-.axwa{justify-self:stretch}.axbt th,.axbt td{padding-inline:8px}.axbt td.num{text-align:center}
+.axwa{justify-self:stretch}.axev li>.acts{grid-row:1/3;grid-column:2}.axreq{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;margin-top:12px}.axcnt input{width:76px;text-align:center}.axcnt td,.axcnt th{padding-inline:8px}tr.axdiff td{background:var(--warn-soft)}.axbt th,.axbt td{padding-inline:8px}.axbt td.num{text-align:center}
 @media(max-width:560px){.axtypes{grid-template-columns:1fr 1fr!important}.axty small{display:none}.axsec{padding:12px}}
 </style>
 </head>
@@ -348,7 +348,7 @@ const F=[ // key, label, excel header
  ['num','#'],['id','رقم الهوية'],['focal','الفوكال بوينت في النقطة'],['assign','دوام جديد'],['name','الاسم الرباعي'],['mobile','رقم الجوال'],['dept','القسم'],['cat','الفئة الوظيفية'],
  ['sup','المشرف المباشر'],['psup','مشرف النقطة'],['region','النطاق الجغرافي'],['area','منطقة النقطة'],['start','تاريخ بداية الدوام'],['dob','تاريخ الميلاد'],['marital','الحالة الاجتماعية'],['uni','الجامعة'],
  ['degree','الدرجة العلمية'],['major','التخصص'],['grad','تاريخ الحصول على الشهادة'],['pay','طريقة تلقي الراتب'],['iban','الأيبان / رقم المحفظة']];
-const S={db:null,dl:null,emps:new Map(),res:new Map(),leaves:new Map(),regs:new Map(),upds:new Map(),rreqs:new Map(),meta:new Map(),acat:new Map(),aev:new Map(),apin:new Map(),live:new Map(),snaps:new Map(),month:null,points:new Map(),plans:new Map(),pm:null,pf:{q:'',region:'',sup:'',type:''},tab:'db',ready:false,pinHash:null,tries:0,lockUntil:0,f:{q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false}};
+const S={db:null,dl:null,emps:new Map(),res:new Map(),leaves:new Map(),regs:new Map(),upds:new Map(),rreqs:new Map(),meta:new Map(),acat:new Map(),aev:new Map(),apin:new Map(),areq:new Map(),live:new Map(),snaps:new Map(),month:null,points:new Map(),plans:new Map(),pm:null,pf:{q:'',region:'',sup:'',type:''},tab:'db',ready:false,pinHash:null,tries:0,lockUntil:0,f:{q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false}};
 let unsub=null;
 const IC={view:'<svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
  edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
@@ -633,7 +633,7 @@ function renderLock(msg){app.innerHTML=`<div class="lock"><form id="lockf"><h1>�
   <input id="pin" inputmode="numeric" type="password" autocomplete="off" maxlength="20" aria-label="رمز الدخول">${msg?`<div class="note bad">${h(msg)}</div>`:''}<div class="acts"><button class="btn pri" id="go">دخول</button><button class="btn" type="button" data-act="home">رجوع</button></div></form></div>`;$('#pin').focus()}
 async function submitLock(){const p=$('#pin').value.trim();if(!p)return;$('#go').disabled=true;$('#go').textContent='جاري التحقق…';
   try{const r=await rpc('aei_login',{p});if(r){PIN=p;S.role=r;ss.set(p);start()}else renderLock('الرمز غير صحيح.')}catch(e){renderLock(e.message)}}
-const BK_COLLS=[['emp','الموظفون'],['resigned','الاستقالات'],['leave','الإجازات'],['reg','طلبات التسجيل'],['upd','طلبات التعديل'],['resreq','طلبات الاستقالة'],['point','بيانات النقاط'],['plan','الخطط الأسبوعية'],['snap','الأرشيف الشهري'],['log','سجل التعديلات'],['acat','قائمة الأصول'],['aev','حركات الأصول'],['apin','رموز أصول النقاط']],BK_DAYS=7;
+const BK_COLLS=[['emp','الموظفون'],['resigned','الاستقالات'],['leave','الإجازات'],['reg','طلبات التسجيل'],['upd','طلبات التعديل'],['resreq','طلبات الاستقالة'],['point','بيانات النقاط'],['plan','الخطط الأسبوعية'],['snap','الأرشيف الشهري'],['log','سجل التعديلات'],['acat','قائمة الأصول'],['aev','حركات الأصول'],['apin','رموز أصول النقاط'],['areq','طلبات جرد الأصول']],BK_DAYS=7;
 const bkTs=()=>{const m=S.meta.get('backup');return m&&m.ts||0},bkDays=()=>bkTs()?Math.floor((Date.now()-bkTs())/864e5):null,bkDue=()=>isAdmin()&&(bkDays()===null||bkDays()>=BK_DAYS),
   bkLabel=()=>bkTs()?`آخر نسخة احتياطية: ${new Date(bkTs()).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}`:'لم تُؤخذ نسخة احتياطية بعد';
 function backupDlg(){const m=S.meta.get('backup')||{};
@@ -678,6 +678,7 @@ function start(){document.body.classList.toggle('ro',!isAdmin());S.tab=isAdmin()
   if(isAdmin())S.db.collection('resreq').limit(1000).onSnapshot(snap=>{S.rreqs=new Map(snap.docs.map(d=>[d.id,{...d.data(),docId:d.id}]));if(S.ready&&!dlg.open)render()},()=>{});
   if(isAdmin())S.db.collection('acat').limit(1000).onSnapshot(snap=>{S.acat=new Map(snap.docs.map(d=>[d.id,d.data()]));if(S.ready&&!dlg.open)render()},()=>{});
   if(isAdmin())S.db.collection('aev').limit(1000).onSnapshot(snap=>{S.aev=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));if(S.ready&&!dlg.open)render()},()=>{});
+  if(isAdmin())S.db.collection('areq').limit(500).onSnapshot(snap=>{S.areq=new Map(snap.docs.map(d=>[d.id,d.data()]));if(S.ready&&!dlg.open&&S.tab==='ast')render()},()=>{});
   if(isAdmin())S.db.collection('apin').limit(1000).onSnapshot(snap=>{S.apin=new Map(snap.docs.map(d=>[d.id,d.data()]));if(S.ready&&!dlg.open&&S.tab==='ast')render()},()=>{});
   if(isAdmin())S.db.collection('resigned').limit(1000).onSnapshot(snap=>{S.res=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));if(S.ready)render()},()=>{})}
 
@@ -930,14 +931,14 @@ function closePoint(name){const es=[...S.emps.values()].filter(e=>e.point===name
    <div class="df"><div><button class="btn danger">إغلاق النقطة</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open()}
 async function saveClosePoint(f){const name=f.dataset.pn,sels=[...f.querySelectorAll('select[data-pcd]')];if(!f.querySelector('#e-sure').checked)return ferr('ضع علامة التأكيد أولاً.');
   if(sels.some(x=>!x.value))return ferr('اختر نقطة جديدة لكل موظف.');
-  const apend=aevs().filter(e=>e.pt===name&&e.status==='جديد').length,asum=astSum(astBal(name)),adest=f.querySelector('#pc-ast');if(apend)return ferr(`يوجد ${apend} طلب أصول معلق لهذه النقطة. احسمه أولاً من تبويب «أصول النقاط».`);
+  const apend=aevs().filter(e=>(e.pt===name||e.to===name)&&e.status==='جديد').length,asum=astSum(astBal(name)),adest=f.querySelector('#pc-ast');if(apend)return ferr(`يوجد ${apend} طلب أصول معلق لهذه النقطة. احسمه أولاً من تبويب «أصول النقاط».`);
   if((asum.g||asum.d)&&!(adest&&adest.value))return ferr('اختر النقطة التي ستُنقل إليها أصول هذه النقطة.');const btn=f.querySelector('.btn.danger');btn.disabled=true;btn.textContent='جاري الإغلاق…';
   try{const moved=[];for(const x of sels){const e=S.emps.get(x.dataset.pcd);await moveMany([x.dataset.pcd],x.value,pointInfo(x.value)||{},{focal:false});moved.push(`${e.name} ← ${x.value}`)}
     if(adest&&adest.value){const b=astBal(name),rows=Object.entries(b).filter(([k,x])=>x.g||x.d).map(([k,x])=>({item:k,g:x.g,d:x.d}));await axTransfer(name,adest.value,rows,today(),'إغلاق نقطة '+name);moved.push(`الأصول (${asum.g} صالح، ${asum.d} تالف) ← ${adest.value}`);await refresh('aev')}
     await rpc('aei_set',{p:PIN,c:'point',i:name,d:{...(S.points.get(name)||{}),closed:true,closedAt:today()}});if(S.apin.has(name)){await rpc('aei_delete',{p:PIN,c:'apin',i:name});await refresh('apin')}await refresh('emp');await refresh('point');
     log('إغلاق نقطة',{id:'',name},moved.join(' | ')||'بدون موظفين');dlg.close();toast(`أُغلقت نقطة ${name}${moved.length?' ووُزّع '+moved.length+' موظف':''}`)}
   catch(e){btn.disabled=false;btn.textContent='إغلاق النقطة';ferr('لم يكتمل: '+e.message+'. راجع قاعدة البيانات، فقد يكون بعض الموظفين نُقلوا.')}}
-function astCloseBlock(name,dests){if(!isAdmin())return '';const pend=aevs().filter(e=>e.pt===name&&e.status==='جديد').length,s=astSum(astBal(name));
+function astCloseBlock(name,dests){if(!isAdmin())return '';const pend=aevs().filter(e=>(e.pt===name||e.to===name)&&e.status==='جديد').length,s=astSum(astBal(name));
   if(pend)return `<div class="note bad">يوجد ${pend} طلب أصول معلق لهذه النقطة. احسمه من تبويب «أصول النقاط» قبل الإغلاق.</div>`;
   return s.g||s.d?`<fieldset><label class="wide">نقل أصول النقطة (صالح ${s.g}، تالف ${s.d}) إلى<select id="pc-ast" required>${opts(dests,'','— اختر النقطة —')}</select></label><div class="wide muted" style="font-size:12.5px">تُسجَّل كحركة نقل، ويُلغى رمز دخول أصول النقطة المغلقة.</div></fieldset>`:''}
 function editPoint(name){const r=pointRows().find(x=>x.name===name);if(!r)return;
@@ -1240,16 +1241,17 @@ const AT={'توريد':{c:'ok',ic:'📦',d:'أصول جديدة وصلت للن�
  'إصلاح':{c:'ok',ic:'🔧',d:'أصل تالف أُصلح وعاد صالحاً',fx:q=>({dg:q,dd:-q})},
  'سرقة':{c:'bad',ic:'🚨',d:'أصل صالح سُرق من النقطة',fx:q=>({dg:-q,dl:q})},
  'فقد':{c:'bad',ic:'❓',d:'أصل صالح فُقد ولا يُعرف مكانه',fx:q=>({dg:-q,dl:q})},
- 'سحب':{c:'mut',ic:'🗑️',d:'سحب أصل تالف من النقطة نهائياً',fx:q=>({dd:-q})}};
-const AT_ALL=[...Object.keys(AT),'افتتاحي','تصحيح','نقل صادر','نقل وارد'],ACATS=['أثاث','أجهزة','أخرى'],AST_ST=['جديد','معتمد','مرفوض','ملغى'];
-const atc=t=>AT[t]?AT[t].c:t==='افتتاحي'?'ok':t==='تصحيح'?'mut':'brand';
+ 'سحب':{c:'mut',ic:'🗑️',d:'سحب أصل تالف من النقطة نهائياً',fx:q=>({dd:-q})},
+ 'نقل':{c:'brand',ic:'🔁',d:'نقل أصل صالح إلى نقطة أخرى',fx:q=>({dg:-q})}};
+const AT_ALL=[...Object.keys(AT),'افتتاحي','تصحيح','نقل صادر','نقل وارد','جرد','فرق جرد'],ACATS=['أثاث','أجهزة','أخرى'],AST_ST=['جديد','معتمد','مرفوض','ملغى'];
+const atc=t=>AT[t]?AT[t].c:t==='افتتاحي'?'ok':t==='تصحيح'||t==='فرق جرد'?'mut':'brand';
 const evBadge=t=>`<span class="axt axt-${atc(t)}">${h(t)}</span>`;
 const astSt=s=>`<span class="st st-${s==='معتمد'?'ok':s==='مرفوض'||s==='ملغى'?'no':'new'}">${h(s==='جديد'?'بانتظار الاعتماد':s||'—')}</span>`;
 const dxText=e=>{const p=[];if(+e.dg)p.push('صالح '+(e.dg>0?'+':'−')+Math.abs(e.dg));if(+e.dd)p.push('تالف '+(e.dd>0?'+':'−')+Math.abs(e.dd));if(+e.dl)p.push('مفقود '+(e.dl>0?'+':'−')+Math.abs(e.dl));return p.join(' · ')};
 const waUrl=(m,t)=>(m&&/^5[69]\d{7}$/.test(m)?'https://wa.me/970'+m:'https://wa.me/')+(t?'?text='+encodeURIComponent(t):'');
 const rid=n=>{const a=new Uint8Array(n||16);crypto.getRandomValues(a);return [...a].map(x=>'abcdefghijkmnpqrstuvwxyz23456789'[x%32]).join('')};
 /* admin data helpers */
-const aevs=()=>[...S.aev.values()],acatName=id=>(S.acat.get(id)||{}).name,evItem=e=>acatName(e.item)||e.itemName||'—';
+const aevs=()=>[...S.aev.values()],acatName=id=>(S.acat.get(id)||{}).name,evItem=e=>e.type==='جرد'?'جرد النقطة':acatName(e.item)||e.itemName||'—';
 const pendAst=()=>aevs().filter(e=>e.status==='جديد'),newCats=()=>[...S.acat.entries()].filter(([k,v])=>v.status==='جديد');
 const isNewItem=e=>(S.acat.get(e.item)||{}).status==='جديد';
 const catList=()=>[...S.acat.entries()].filter(([k,v])=>v.status==='معتمد').map(([id,v])=>({id,...v})).sort((a,b)=>(a.ord||999)-(b.ord||999)||(a.name||'').localeCompare(b.name||'','ar'));
@@ -1271,14 +1273,14 @@ function vAst(){const sum=$('.sum');if(sum)sum.hidden=true;const f=S.af=S.af||{s
   const tot={g:0,d:0,l:0};for(const p of Object.values(astBalAll())){const x=astSum(p);tot.g+=x.g;tot.d+=x.d;tot.l+=x.l}const cm=curMonth();
   const sup=aevs().filter(e=>e.status==='معتمد'&&e.type==='توريد'&&(e.date||'').slice(0,7)===cm).reduce((a,e)=>a+(+e.q||0),0),noCode=astPoints().filter(p=>!S.apin.has(p)&&allPoints().includes(p)).length;
   const kp=(v,l,s,hot)=>`<button class="kpi${hot&&v?' hot':''}" data-ax="sub" data-v="${s}"><b>${v}</b><span>${l}</span></button>`;
-  const tabs=[['req','الطلبات المعلقة',pend.length],['bal','الأرصدة'],['log','سجل الحركات'],['cat','قائمة الأصول',newCats().length],['pins','الرموز والمشرفون',noCode]];
+  const tabs=[['req','الطلبات المعلقة',pend.length],['bal','الأرصدة'],['log','سجل الحركات'],['cat','قائمة الأصول',newCats().length],['cnt','الجرد',cntPend()],['rep','التقارير'],['pins','الرموز والمشرفون',noCode]];
   $('#view').innerHTML=`<div class="kpis">${kp(tot.g,'أصل صالح (العدد الكلي)','bal')}${kp(tot.d,'تالف (خارج العدد)','bal',1)}${kp(tot.l,'مفقود ومسروق','log',1)}${kp(sup,'توريد هذا الشهر','log')}${kp(pend.length,'طلب بانتظار الاعتماد','req',1)}</div>
    <div class="lgchips" role="tablist">${tabs.map(([k,l,n])=>`<button class="lgc${f.sub===k?' on':''}" data-ax="sub" data-v="${k}" role="tab" aria-selected="${f.sub===k}">${l}${n?` <b>${n}</b>`:''}</button>`).join('')}</div><div id="axv"></div>`;
-  ({req:axReq,bal:axBal,log:axLog,cat:axCat,pins:axPins})[f.sub]()}
+  ({req:axReq,bal:axBal,log:axLog,cat:axCat,cnt:axCnt,rep:axRep,pins:axPins})[f.sub]()}
 const axSel=(id,arr,v,blank,lab)=>`<select id="${id}" aria-label="${lab||blank}">${opts(arr,v,blank)}</select>`;
 function axReq(){const rs=pendAst().sort((a,b)=>(a.ts||0)-(b.ts||0));
   $('#axv').innerHTML=rs.length?`<div class="hint"><span><b>${rs.length}</b> طلب بانتظار الاعتماد، الأقدم أولاً</span><span>تابِع مع مشرف النقطة ثم اعتمد أو ارفض. الرصيد لا يتغير قبل الاعتماد.</span></div>
-   <div class="tw"><table class="lvt"><thead><tr><th>النقطة</th><th>الحدث</th><th>الأصل</th><th>العدد</th><th>تاريخ الحدث</th><th>المسجّل</th><th>صورة</th><th>أُرسل في</th><th>إجراءات</th></tr></thead><tbody>${rs.map(e=>`<tr data-ax="ev" data-id="${h(e.id)}"><td class="nm">${h(e.pt)}<small class="muted">${h((pointInfo(e.pt)||{}).psup||'')}</small></td><td>${evBadge(e.type)}</td><td>${h(evItem(e))}${isNewItem(e)?' <span class="st st-new">أصل جديد</span>':''}</td><td class="num">${h(e.q)}</td><td class="num">${h(fd(e.date))}</td><td>${h(e.by||'—')}</td><td>${e.link?`<a href="${h(e.link)}" target="_blank" rel="noopener" data-ax="noop">عرض</a>`:'—'}</td><td class="num">${h(new Date(e.ts).toLocaleDateString('en-GB'))}</td><td><button class="btn sm pri" data-ax="ev" data-id="${h(e.id)}">مراجعة</button></td></tr>`).join('')}</tbody></table></div>`
+   <div class="tw"><table class="lvt"><thead><tr><th>النقطة</th><th>الحدث</th><th>الأصل</th><th>العدد</th><th>تاريخ الحدث</th><th>المسجّل</th><th>صورة</th><th>أُرسل في</th><th>إجراءات</th></tr></thead><tbody>${rs.map(e=>`<tr data-ax="ev" data-id="${h(e.id)}"><td class="nm">${h(e.pt)}<small class="muted">${h((pointInfo(e.pt)||{}).psup||'')}</small></td><td>${evBadge(e.type)}</td><td>${h(evItem(e))}${isNewItem(e)?' <span class="st st-new">أصل جديد</span>':''}${e.type==='نقل'?`<br><small class="muted">إلى ${h(e.to)} · ${rcvTxt(e)}</small>`:''}${e.type==='جرد'?`<br><small class="muted">${h((S.areq.get(e.req)||{}).reason||'')} · ${e.q} أصل فيه فرق</small>`:''}</td><td class="num">${h(e.q)}</td><td class="num">${h(fd(e.date))}</td><td>${h(e.by||'—')}</td><td>${e.link?`<a href="${h(e.link)}" target="_blank" rel="noopener" data-ax="noop">عرض</a>`:'—'}</td><td class="num">${h(new Date(e.ts).toLocaleDateString('en-GB'))}</td><td><button class="btn sm pri" data-ax="ev" data-id="${h(e.id)}">مراجعة</button></td></tr>`).join('')}</tbody></table></div>`
    :'<div class="empty">لا توجد طلبات أصول بانتظار الاعتماد.</div>'}
 function axBal(){const f=S.af,all=astBalAll(),qs=nrm(f.q).split(' ').filter(Boolean),pts0=astPoints();
   const pts=pts0.filter(p=>{const i=pointInfo(p)||(S.points.get(p)||{});return(!f.region||i.region===f.region)&&(!f.sup||i.psup===f.sup)&&qs.every(w=>nrm(p+' '+(i.psup||'')+' '+(i.area||'')).includes(w))});
@@ -1313,11 +1315,12 @@ function axPins(){const pts=allPoints().filter(p=>p!=='إداري'),miss=pts.fil
    <form id="axsf"><div class="axsups">${sups.map((s,i)=>`<label>${h(s)}<input name="s${i}" data-sup="${h(s)}" dir="ltr" inputmode="tel" placeholder="${h(supSuggest(s)||'059xxxxxxx')}" value="${h(sm[s]?mob(sm[s]):supSuggest(s))}"></label>`).join('')||'<div class="muted">لا يوجد مشرفون.</div>'}</div><div class="acts" style="margin-top:10px"><button class="btn pri">حفظ أرقام المشرفين</button></div></form></section>`}
 
 /* review / approve / reject / cancel */
-function axEv(id){const e=S.aev.get(id);if(!e)return;const b=astBal(e.pt)[e.item]||{g:0,d:0,l:0},it=S.acat.get(e.item)||{},pend=e.status==='جديد',nw=pend&&it.status==='جديد';
+function axEv(id){const e=S.aev.get(id);if(!e)return;if(e.type==='جرد')return axCount(id);const b=astBal(e.pt)[e.item]||{g:0,d:0,l:0},it=S.acat.get(e.item)||{},pend=e.status==='جديد',nw=pend&&it.status==='جديد';
   const kv=(l,v,w)=>`<div${w?' class="wide"':''}><dt>${l}</dt><dd>${v}</dd></div>`;
   dlg.innerHTML=`<form id="axrv" data-id="${h(id)}">`+head(`${h(e.type)} · ${h(evItem(e))} · نقطة ${h(e.pt)}`)+`<div class="db"><div id="ferr"></div>
    <div class="esum"><div class="acts" style="align-items:center">${evBadge(e.type)}${astSt(e.status)}${e.src==='إدارة'?'<span class="chip">من الإدارة</span>':'<span class="chip">من النقطة</span>'}</div><div class="muted">سُجّل <span class="num">${h(new Date(e.ts).toLocaleString('en-GB'))}</span>${e.adm&&!pend?` · قرار الإدارة <span class="num">${h(new Date(e.adm).toLocaleString('en-GB'))}</span>`:''}</div></div>
    <section class="esec"><h3>تفاصيل الحدث</h3><dl class="kv">${kv('النقطة',h(e.pt))+kv('الأصل',h(evItem(e))+(nw?' <span class="st st-new">أصل جديد</span>':''))+kv('العدد',`<span class="num">${h(e.q)}</span>${e.q0?` <span class="muted">(طُلب ${h(e.q0)})</span>`:''}`)+kv('تاريخ الحدث',`<span class="num">${h(fd(e.date))}</span>`)+kv('المسجّل',h(e.by||'—'))+(e.to?kv('إلى نقطة',h(e.to)):'')+(e.from?kv('من نقطة',h(e.from)):'')+(e.status==='معتمد'?kv('الأثر على الرصيد',h(dxText(e))):'')+kv('الملاحظة',h(e.note||'—'),1)+(e.link?kv('صورة',`<a href="${h(e.link)}" target="_blank" rel="noopener">فتح رابط الصورة</a>`,1):'')+(e.why?kv(e.status==='معتمد'?'ملاحظة الاعتماد':'سبب الرفض / الإلغاء',h(e.why),1):'')}</dl></section>
+   ${e.type==='نقل'?axRcvBlock(e,pend):''}
    <section class="esec"><h3>رصيد هذا الأصل في النقطة الآن</h3><dl class="kv">${kv('الصالح',`<span class="num">${b.g}</span>`)+kv('التالف',`<span class="num">${b.d}</span>`)+kv('المفقود/المسروق',`<span class="num">${b.l}</span>`)}${pend?`<div class="wide"><dt>بعد الاعتماد</dt><dd id="ax-after"></dd></div>`:''}</dl></section>
    ${nw?`<section class="esec"><h3>أصل جديد غير موجود في القائمة</h3><fieldset><label class="chk wide"><input type="radio" name="nmode" value="new" checked> اعتماده كأصل جديد في القائمة</label>${inp('nname','اسم الأصل',it.name)}${sel('ncat','الفئة',ACATS,it.cat||'أخرى')}
      <label class="chk wide"><input type="radio" name="nmode" value="merge"> هو نفس أصل موجود في القائمة (دمج)</label><label>الأصل الموجود<select id="e-nmerge" name="nmerge"><option value="">—</option>${catList().map(c=>`<option value="${h(c.id)}">${h(c.name)}</option>`).join('')}</select></label></fieldset></section>`:''}
@@ -1339,10 +1342,12 @@ async function axApprove(f){const id=f.dataset.id,btn=f.querySelector('.pri');bt
   else if(it.status&&it.status!=='معتمد'&&it.status!=='مخفي')return fail('الأصل المرتبط بهذا الطلب لم يعد في القائمة. ارفض الطلب واطلب من النقطة إعادة تسجيله.');
   const dx=AT[e.type].fx(q),b=astBal(e.pt)[item]||{g:0,d:0,l:0};
   if(b.g+(dx.dg||0)<0||b.d+(dx.dd||0)<0)return fail(`لا يمكن الاعتماد: الرصيد المعتمد لهذا الأصل (صالح ${b.g}، تالف ${b.d}) لا يكفي لهذا العدد. صحّح العدد أو ارفض الطلب.`);
+  if(e.type==='نقل'){if(e.rcv!=='نعم'&&!(f.querySelector('#e-norcv')||{}).checked)return fail('النقطة المستلمة لم تؤكد الاستلام. انتظر التأكيد أو ضع علامة «اعتماد بدون تأكيد الاستلام».');if((S.points.get(e.to)||{}).closed)return fail('النقطة المستلمة مغلقة. ارفض الطلب.')}
   btn.textContent='جاري الاعتماد…';
   try{if(op&&op.merge)await axMergeItem(e.item,op.merge);else if(op)await rpc('aei_update',{p:PIN,c:'acat',i:e.item,d:{status:'معتمد',name:op.name,cat:op.cat,ord:900}});
-    await rpc('aei_update',{p:PIN,c:'aev',i:id,d:{status:'معتمد',q,q0:q!==+e.q?+e.q:null,item,itemName:iname,dg:dx.dg||0,dd:dx.dd||0,dl:dx.dl||0,why,adm:Date.now()}});
-    await refresh('acat');await refresh('aev');log('اعتماد حركة أصول',{id:'',name:e.pt},`${e.type}: ${iname} × ${q}${q!==+e.q?` (طُلب ${e.q})`:''} | المسجّل: ${e.by||'—'}${op&&op.name?' | أصل جديد أُضيف للقائمة':''}${op&&op.merge?' | دُمج مع '+iname:''}${why?' | ملاحظة: '+why:''}`);dlg.close();toast('اعتُمدت الحركة وتحدّث الرصيد')}
+    const leg=e.type==='نقل'?newEvId():null;if(leg)await rpc('aei_set',{p:PIN,c:'aev',i:leg,d:{pt:e.to,from:e.pt,type:'نقل وارد',item,itemName:iname,q,date:e.date,by:e.by,note:e.note||'',src:'نقطة',status:'معتمد',ts:Date.now(),adm:Date.now(),pair:id,dg:q,dd:0,dl:0,rcvBy:e.rcvBy||''}});
+    await rpc('aei_update',{p:PIN,c:'aev',i:id,d:{status:'معتمد',...(leg?{type:'نقل صادر',pair:leg}:{}),q,q0:q!==+e.q?+e.q:null,item,itemName:iname,dg:dx.dg||0,dd:dx.dd||0,dl:dx.dl||0,why,adm:Date.now()}});
+    await refresh('acat');await refresh('aev');log('اعتماد حركة أصول',{id:'',name:e.pt},`${e.type}${e.to?' إلى '+e.to:''}: ${iname} × ${q}${q!==+e.q?` (طُلب ${e.q})`:''} | المسجّل: ${e.by||'—'}${op&&op.name?' | أصل جديد أُضيف للقائمة':''}${op&&op.merge?' | دُمج مع '+iname:''}${why?' | ملاحظة: '+why:''}`);dlg.close();toast('اعتُمدت الحركة وتحدّث الرصيد')}
   catch(x){fail('لم يُحفظ: '+x.message)}}
 async function axMergeItem(from,to){const nm=acatName(to);for(const e of aevs().filter(x=>x.item===from))await rpc('aei_update',{p:PIN,c:'aev',i:e.id,d:{item:to,itemName:nm}});
   await rpc('aei_update',{p:PIN,c:'acat',i:from,d:{status:'مدمج',into:to}})}
@@ -1353,14 +1358,14 @@ async function axReject(btn){const f=btn.closest('form'),e=S.aev.get(f.dataset.i
   catch(x){btn.disabled=false;ferr('لم يُحفظ: '+x.message)}}
 async function axCancel(btn){const f=btn.closest('form'),e=S.aev.get(f.dataset.id),why=f.querySelector('#e-why').value.trim();if(!e)return;if(why.length<3)return ferr('اكتب سبب الإلغاء.');
   if(!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='تأكيد الإلغاء';return}
-  const legs=[e,...(e.pair&&S.aev.get(e.pair)&&S.aev.get(e.pair).status==='معتمد'?[S.aev.get(e.pair)]:[])];
+  const legs=e.type==='جرد'?[e,...aevs().filter(x=>x.pair===e.id&&x.status==='معتمد')]:[e,...(e.pair&&e.type!=='فرق جرد'&&S.aev.get(e.pair)&&S.aev.get(e.pair).status==='معتمد'?[S.aev.get(e.pair)]:[])];
   for(const x of legs){const b=astBal(x.pt)[x.item]||{g:0,d:0};if(b.g-(+x.dg||0)<0||b.d-(+x.dd||0)<0)return ferr(`لا يمكن الإلغاء: سيصبح رصيد ${evItem(x)} في نقطة ${x.pt} سالباً بسبب حركات لاحقة.`)}
   btn.disabled=true;try{for(const x of legs)await rpc('aei_update',{p:PIN,c:'aev',i:x.id,d:{status:'ملغى',why,adm:Date.now()}});
     await refresh('aev');log('إلغاء حركة أصول',{id:'',name:e.pt},`${e.type}: ${evItem(e)} × ${e.q} | السبب: ${why}`);dlg.close();toast('أُلغيت الحركة')}
   catch(x){btn.disabled=false;ferr('لم يُحفظ: '+x.message)}}
 
 /* admin: add movement / correction */
-function axAdd(pt){const pts=astPoints(),T=[...Object.keys(AT),'تصحيح'];
+function axAdd(pt){const pts=astPoints(),T=[...Object.keys(AT).filter(t=>t!=='نقل'),'تصحيح'];
   dlg.innerHTML=`<form id="axaf">`+head('إضافة حركة أصول من الإدارة')+`<div class="db"><div id="ferr"></div><div class="muted" style="font-size:13px">الحركة التي تضيفها الإدارة تُعتمد مباشرة. «تصحيح» يضبط الرصيد على أرقام جديدة مع سبب إلزامي.</div>
    <fieldset><label>النقطة<select id="e-pt" name="pt" required>${opts(pts,pt||'','—')}</select></label><label>الحدث<select id="e-type" name="type">${opts(T,'توريد')}</select></label>
     <label class="wide">الأصل<select id="e-item" name="item" required><option value="">—</option>${catList().map(c=>`<option value="${h(c.id)}">${h(c.name)}</option>`).join('')}</select></label>
@@ -1477,6 +1482,77 @@ async function axImGo(btn){const rs=axImRows(),st=$('#ax-imst');if(($('#ax-imok'
     await refresh('aev');log('استيراد رصيد أصول افتتاحي',{id:'',name:'الأصول'},`${AXIM.file} | ${n} بند | ${[...new Set(rs.map(r=>r.pt))].length} نقطة`);dlg.close();toast(`استُورد ${n} بند`)}
   catch(x){btn.disabled=false;if(st)st.textContent=`توقف بعد ${n} بند: ${x.message}`;toast('توقف الاستيراد: '+x.message)}}
 
+/* admin: transfers, inventory counts, reports */
+const rcvTxt=e=>e.rcv==='نعم'?`استلمتها النقطة (${h(e.rcvBy||'')})`:e.rcv==='لا'?'أبلغت النقطة أنها لم تصل':'بانتظار تأكيد الاستلام';
+function axRcvBlock(e,pend){const st=e.status==='جديد'?e.rcv:'';
+  return `<section class="esec"><h3>النقل إلى نقطة ${h(e.to||'—')}</h3>${e.status!=='جديد'?'':st==='نعم'?`<div class="note" style="background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)">أكدت نقطة ${h(e.to)} الاستلام: ${h(e.rcvBy||'')}${e.rcvNote?' · '+h(e.rcvNote):''}</div>`:st==='لا'?`<div class="note bad">أبلغت نقطة ${h(e.to)} أن الأصول لم تصل: ${h(e.rcvBy||'')}${e.rcvNote?' · '+h(e.rcvNote):''}</div>`:`<div class="note">لم تؤكد نقطة ${h(e.to)} الاستلام بعد.</div>`}
+   ${pend&&st!=='نعم'?'<label class="chk" style="margin-top:8px"><input type="checkbox" id="e-norcv"> اعتماد النقل بدون تأكيد الاستلام</label>':''}<div class="muted" style="font-size:12.5px;margin-top:6px">عند الاعتماد يُخصم من ${h(e.pt)} ويُضاف إلى ${h(e.to||'—')}.</div></section>`}
+function axCount(id){const e=S.aev.get(id),pend=e.status==='جديد',cur=astBal(e.pt),r=S.areq.get(e.req)||{};
+  const rows=(e.rows||[]).map(x=>{const c=cur[x.item]||{g:0,d:0};return{...x,cg:c.g,cd:c.d,dg:pend?x.g-c.g:x.g-x.g0,dd:pend?x.d-c.d:x.d-x.d0}}).filter(x=>x.g||x.d||x.g0||x.d0||x.cg||x.cd),nd=rows.filter(x=>x.dg||x.dd).length;
+  const sg=v=>(v>0?'+':'')+v,dt=x=>[x.dg?'صالح '+sg(x.dg):'',x.dd?'تالف '+sg(x.dd):''].filter(Boolean).join(' · ')||'—',gd=(g,d)=>`${g}${d?` <small class="muted">/ تالف ${d}</small>`:''}`;
+  dlg.innerHTML=`<form id="axcrv" data-id="${h(id)}">`+head('جرد نقطة '+h(e.pt))+`<div class="db"><div id="ferr"></div>
+   <div class="esum"><div class="acts" style="align-items:center">${evBadge('جرد')}${astSt(e.status)}</div><div class="muted">${h(r.reason||'جرد')} · أجراه ${h(e.by||'—')} · <span class="num">${h(fd(e.date))}</span></div></div>
+   ${e.note?`<div class="note">ملاحظة النقطة: ${h(e.note)}</div>`:''}
+   <div class="tw"><table class="lvt" data-num="1"><thead><tr><th>الأصل</th><th>المسجّل عند الجرد</th>${pend?'<th>المسجّل الآن</th>':''}<th>المعدود فعلياً</th><th>الفرق</th></tr></thead><tbody>${rows.map(x=>`<tr style="cursor:default"${x.dg||x.dd?' class="axdiff"':''}><td class="nm">${h(acatName(x.item)||x.item)}</td><td class="num">${gd(x.g0,x.d0)}</td>${pend?`<td class="num">${gd(x.cg,x.cd)}</td>`:''}<td class="num"><b>${x.g}</b>${x.d?` <small class="muted">/ تالف ${x.d}</small>`:''}</td><td class="num">${dt(x)}</td></tr>`).join('')}</tbody></table></div>
+   <div class="muted" style="font-size:13px">${nd?`${nd} أصل فيه فرق. ${pend?'الاعتماد يضبط الرصيد على الأعداد المعدودة، ويُسجَّل كل فرق كحركة «فرق جرد».':'طُبّقت الفروقات على الرصيد.'}`:'لا توجد فروقات، الرصيد مطابق.'}</div>
+   ${e.why&&!pend?`<div class="note">${h(e.why)}</div>`:''}
+   ${pend?'<fieldset><label class="wide">ملاحظة الاعتماد أو سبب الرفض (عند الرفض تعيد النقطة الجرد)<textarea id="e-why" name="why" maxlength="500"></textarea></label></fieldset>':''}
+   ${e.status==='معتمد'?'<fieldset><label class="wide">سبب الإلغاء (يُلغي فروقات هذا الجرد)<textarea id="e-why" name="why" maxlength="500"></textarea></label></fieldset>':''}</div>
+   <div class="df"><div>${pend?'<button class="btn pri">اعتماد الجرد</button>':''}<button class="btn" type="button" data-act="close">إغلاق</button></div><div>${pend?'<button class="btn danger" type="button" data-ax="rej">رفض الجرد</button>':''}${e.status==='معتمد'?'<button class="btn danger" type="button" data-ax="cancel">إلغاء الجرد</button>':''}</div></div></form>`;open()}
+async function axCountApprove(f){const id=f.dataset.id,btn=f.querySelector('.pri');btn.disabled=true;try{await refresh('aev')}catch(x){}
+  const e=S.aev.get(id);if(!e||e.status!=='جديد'){dlg.close();return toast('هذا الجرد حُسم مسبقاً')}const cur=astBal(e.pt),why=((f.querySelector('#e-why')||{}).value||'').trim(),r=S.areq.get(e.req)||{};let n=0;
+  btn.textContent='جاري الاعتماد…';
+  try{for(const x of e.rows||[]){const c=cur[x.item]||{g:0,d:0},dg=x.g-c.g,dd=x.d-c.d;if(!dg&&!dd)continue;
+      await axPut({pt:e.pt,item:x.item,itemName:acatName(x.item)||x.item,type:'فرق جرد',q:Math.abs(dg)+Math.abs(dd),dg,dd,dl:0,date:e.date,by:e.by,src:'نقطة',pair:id,note:'جرد: '+(r.reason||'')});n++}
+    await rpc('aei_update',{p:PIN,c:'aev',i:id,d:{status:'معتمد',why,adm:Date.now(),kids:n}});await refresh('aev');
+    log('اعتماد جرد أصول',{id:'',name:e.pt},`${r.reason||'جرد'} | ${n?n+' أصل عُدّل رصيده':'مطابق بدون فروقات'}`);dlg.close();toast(n?`اعتُمد الجرد وعُدّل رصيد ${n} أصل`:'اعتُمد الجرد: مطابق')}
+  catch(x){btn.disabled=false;btn.textContent='اعتماد الجرد';ferr('لم يكتمل: '+x.message+'. راجع سجل الحركات قبل إعادة المحاولة.')}}
+const AREQ_R=['متابعة دورية','نقل نقطة','إغلاق نقطة','تجديد مشروع','أخرى'];
+const areqs=()=>[...S.areq.entries()].map(([id,v])=>({id,...v})).sort((a,b)=>(b.ts||0)-(a.ts||0));
+const cntPend=()=>aevs().filter(e=>e.type==='جرد'&&e.status==='جديد').length;
+function reqPtStat(r,p){const ev=aevs().filter(e=>e.type==='جرد'&&e.req===r.id&&e.pt===p).sort((a,b)=>(b.ts||0)-(a.ts||0))[0],late=r.due&&r.due<today();
+  if(ev&&ev.status==='معتمد')return['تم','ok',ev];if(ev&&ev.status==='جديد')return['بانتظار الاعتماد','new',ev];if(r.status!=='مفتوح')return['لم يُنفَّذ','no',ev];
+  if(ev&&(ev.status==='مرفوض'||ev.status==='ملغى'))return['أُعيد للنقطة','no',ev];return[late?'متأخر':'لم يبدأ',late?'no':'new',ev]}
+function axCnt(){const rs=areqs();
+  $('#axv').innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:8px"><span class="hint" style="margin:0"><span>الجرد يُطلب عند الحاجة: نقل نقطة، إغلاقها، تجديد مشروع أو متابعة.</span>${cntPend()?`<span style="color:var(--warn)"><b>${cntPend()}</b> جرد بانتظار الاعتماد</span>`:''}</span><span class="acts"><button class="btn sm pri" data-ax="reqnew">طلب جرد جديد</button></span></div>
+   ${rs.length?`<div class="tw"><table class="lvt"><thead><tr><th>السبب</th><th>تاريخ الطلب</th><th>الموعد النهائي</th><th>النقاط</th><th>تم</th><th>بانتظار الاعتماد</th><th>متبقٍ</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>${rs.map(r=>{const st=(r.pts||[]).map(p=>reqPtStat(r,p)[0]),c=t=>st.filter(x=>x===t).length,left=st.length-c('تم')-c('بانتظار الاعتماد');
+     return `<tr data-ax="reqv" data-id="${h(r.id)}"><td class="nm">${h(r.reason)}${r.note?`<small class="muted">${h(r.note)}</small>`:''}</td><td class="num">${h(new Date(r.ts).toLocaleDateString('en-GB'))}</td><td class="num">${r.due?h(fd(r.due)):'—'}</td><td class="num">${(r.pts||[]).length}</td><td class="num">${c('تم')}</td><td class="num">${c('بانتظار الاعتماد')}</td><td class="num">${left}</td><td>${r.status==='مفتوح'?'<span class="st st-new">مفتوح</span>':'<span class="st st-ok">مغلق</span>'}</td><td><button class="btn sm" data-ax="reqv" data-id="${h(r.id)}">التفاصيل</button></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">لا توجد طلبات جرد بعد. اضغط «طلب جرد جديد» لاختيار النقاط.</div>'}`}
+function axReqNew(){const pts=allPoints().filter(p=>p!=='إداري'&&S.apin.has(p)&&!(S.points.get(p)||{}).closed),regs=[...new Set(pts.map(p=>(pointInfo(p)||{}).region).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
+  dlg.innerHTML=`<form id="axqf">`+head('طلب جرد أصول')+`<div class="db"><div id="ferr"></div><div class="muted" style="font-size:13px">يظهر الطلب في صفحة أصول كل نقطة مختارة، وتُرسل النقطة الأعداد الفعلية. الفروقات لا تُطبَّق على الرصيد قبل اعتمادك.</div>
+   <fieldset>${sel('reason','سبب الجرد',AREQ_R,'متابعة دورية')}${inp('due','الموعد النهائي (اختياري)','',{type:'date'})}${inp('note','تفاصيل (اختياري، وإلزامي عند «أخرى»)','',{wide:1})}</fieldset>
+   <fieldset><legend>النقاط</legend><div class="wide acts"><button type="button" class="btn sm" data-ax="reqall" data-v="1">تحديد الكل</button><button type="button" class="btn sm" data-ax="reqall" data-v="0">إلغاء التحديد</button>${regs.map(r=>`<button type="button" class="btn sm" data-ax="reqreg" data-v="${h(r)}">+ ${h(r)}</button>`).join('')}</div>
+   ${pts.map(p=>`<label class="chk"><input type="checkbox" data-rp="${h(p)}" data-rg="${h((pointInfo(p)||{}).region||'')}"> ${h(p)}</label>`).join('')||'<div class="muted wide">لا توجد نقاط لها رموز دخول. ولّد الرموز أولاً من «الرموز والمشرفون».</div>'}</fieldset></div>
+   <div class="df"><div><button class="btn pri">إرسال طلب الجرد</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open()}
+async function axReqSave(f){const o=formData(f),pts=[...f.querySelectorAll('input[data-rp]:checked')].map(x=>x.dataset.rp);if(!pts.length)return ferr('اختر نقطة واحدة على الأقل.');if(o.reason==='أخرى'&&(o.note||'').length<3)return ferr('اكتب سبب الجرد في التفاصيل.');
+  const btn=f.querySelector('.pri');btn.disabled=true;
+  try{await rpc('aei_set',{p:PIN,c:'areq',i:'r'+Date.now().toString(36),d:{pts,reason:o.reason||'متابعة دورية',note:o.note||'',due:o.due||'',status:'مفتوح',ts:Date.now()}});await refresh('areq');
+    log('طلب جرد أصول',{id:'',name:o.reason},`${pts.length} نقطة: ${pts.join('، ')}${o.due?' | الموعد: '+fd(o.due):''}`);dlg.close();S.af.sub='cnt';toast('أُرسل طلب الجرد للنقاط')}
+  catch(x){btn.disabled=false;ferr('لم يُحفظ: '+x.message)}}
+function axReqView(id){const r={id,...(S.areq.get(id)||{})};
+  dlg.innerHTML=head('طلب جرد: '+h(r.reason||''))+`<div class="db"><div class="esum"><div class="acts">${r.status==='مفتوح'?'<span class="st st-new">مفتوح</span>':'<span class="st st-ok">مغلق</span>'}</div><div class="muted">طُلب <span class="num">${h(new Date(r.ts).toLocaleDateString('en-GB'))}</span>${r.due?` · الموعد <span class="num">${h(fd(r.due))}</span>`:''}</div></div>${r.note?`<div class="note">${h(r.note)}</div>`:''}
+   <div class="tw"><table class="lvt" data-num="1"><thead><tr><th>النقطة</th><th>المشرف</th><th>الحالة</th><th>تاريخ الجرد</th><th>أصول فيها فرق</th></tr></thead><tbody>${(r.pts||[]).map(p=>{const [t,c,ev]=reqPtStat(r,p);return `<tr${ev?` data-ax="ev" data-id="${h(ev.id)}"`:' style="cursor:default"'}><td class="nm">${h(p)}</td><td>${h((pointInfo(p)||{}).psup||'—')}</td><td><span class="st st-${c}">${h(t)}</span></td><td class="num">${ev?h(fd(ev.date)):'—'}</td><td class="num">${ev?h(ev.q):'—'}</td></tr>`}).join('')}</tbody></table></div><div class="muted" style="font-size:12.5px">اضغط على نقطة أرسلت الجرد لمراجعته واعتماده.</div></div>
+   <div class="df"><div><button class="btn" data-act="close">إغلاق</button></div><div>${r.status==='مفتوح'?`<button class="btn danger" data-ax="reqclose" data-id="${h(id)}">إغلاق الطلب</button>`:`<button class="btn" data-ax="reqopen" data-id="${h(id)}">إعادة فتح الطلب</button>`}</div></div>`;open()}
+async function axReqStatus(btn,st){const id=btn.dataset.id;if(st==='مغلق'&&!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='تأكيد الإغلاق (يختفي من صفحات النقاط)';return}btn.disabled=true;
+  try{await rpc('aei_update',{p:PIN,c:'areq',i:id,d:{status:st}});await refresh('areq');log(st==='مغلق'?'إغلاق طلب جرد أصول':'إعادة فتح طلب جرد أصول',{id:'',name:(S.areq.get(id)||{}).reason||''},'');axReqView(id)}
+  catch(x){btn.disabled=false;toast('لم يُحفظ: '+x.message)}}
+const REPC=[['افتتاحي','افتتاحي',e=>+e.dg||0],['توريد','توريد',e=>+e.q||0],['تلف','تلف',e=>+e.q||0],['إصلاح','إصلاح',e=>+e.q||0],['سرقة','سرقة',e=>+e.q||0],['فقد','فقد',e=>+e.q||0],['سحب','سحب تالف',e=>+e.q||0],['نقل وارد','نقل وارد',e=>+e.dg||0],['نقل صادر','نقل صادر',e=>-(+e.dg||0)],['adj','فرق جرد / تصحيح',e=>+e.dg||0]];
+function repRows(){const f=S.af;if(!f.from){f.from=curMonth()+'-01';f.to=today()}
+  const evs=aevs().filter(e=>e.status==='معتمد'&&(!f.item||e.item===f.item)),pts=[...new Set([...astPoints(),...evs.map(e=>e.pt)])].sort((a,b)=>a.localeCompare(b,'ar')),key=t=>t==='فرق جرد'||t==='تصحيح'?'adj':t;
+  return pts.map(p=>{const o={p,op:0,cg:0,cd:0};for(const c of REPC)o[c[0]]=0;
+    for(const e of evs){if(e.pt!==p)continue;const dt=e.date||'';if(dt<f.from)o.op+=+e.dg||0;if(dt<=f.to){o.cg+=+e.dg||0;o.cd+=+e.dd||0}if(dt>=f.from&&dt<=f.to){const c=REPC.find(c=>c[0]===key(e.type));if(c)o[c[0]]+=c[2](e)}}return o})
+   .filter(o=>o.op||o.cg||o.cd||REPC.some(c=>o[c[0]]))}
+function axRep(){const f=S.af,rows=repRows(),T={op:0,cg:0,cd:0};REPC.forEach(c=>T[c[0]]=0);rows.forEach(o=>{for(const k in T)T[k]+=o[k]});
+  const n=v=>v?`<td class="num">${v}</td>`:'<td class="num muted">—</td>';
+  $('#axv').innerHTML=`<div class="filters"><label class="mon">من<input type="date" id="axf-from" value="${h(f.from)}"></label><label class="mon">إلى<input type="date" id="axf-to" value="${h(f.to)}"></label><select id="axf-item" aria-label="الأصل"><option value="">كل الأصول</option>${catList().map(c=>`<option value="${h(c.id)}"${f.item===c.id?' selected':''}>${h(c.name)}</option>`).join('')}</select></div>
+   <div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:8px"><span class="hint" style="margin:0"><span>حركة الأصول المعتمدة حسب <b>تاريخ الحدث</b></span><span>الرصيد = الصالح، والتالف في عمود مستقل</span></span><span class="acts"><button class="btn sm" data-ax="repx">تصدير التقرير</button></span></div>
+   ${rows.length?`<div class="tw"><table class="axm"><thead><tr><th>النقطة</th><th>رصيد أول المدة</th>${REPC.map(c=>`<th>${c[1]}</th>`).join('')}<th>رصيد آخر المدة</th><th>التالف آخر المدة</th></tr></thead><tbody>${rows.map(o=>`<tr data-ax="pt" data-axp="${h(o.p)}"><td class="nm">${h(o.p)}</td>${n(o.op)}${REPC.map(c=>n(o[c[0]])).join('')}<td class="num"><b>${o.cg}</b></td>${n(o.cd)}</tr>`).join('')}</tbody>
+   <tfoot><tr><td class="rn"></td><td>الإجمالي</td><td class="num">${T.op}</td>${REPC.map(c=>`<td class="num">${T[c[0]]}</td>`).join('')}<td class="num"><b>${T.cg}</b></td><td class="num">${T.cd}</td></tr></tfoot></table></div>`:'<div class="empty">لا توجد حركات معتمدة في هذه الفترة.</div>'}`}
+function axRepExport(){if(!window.XLSX)return toast('تعذّر تحميل مكتبة التصدير. تحقق من الاتصال.');const f=S.af,rows=repRows();
+  const a=[[`تقرير حركة الأصول من ${fd(f.from)} إلى ${fd(f.to)}${f.item?' · '+acatName(f.item):' · كل الأصول'}`],[],['النقطة','رصيد أول المدة',...REPC.map(c=>c[1]),'رصيد آخر المدة','التالف آخر المدة']];
+  for(const o of rows)a.push([o.p,o.op,...REPC.map(c=>o[c[0]]),o.cg,o.cd]);
+  const ws=XLSX.utils.aoa_to_sheet(a);ws['!cols']=[{wch:22},...Array(REPC.length+3).fill({wch:13})];const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,'حركة الأصول');
+  try{const u=URL.createObjectURL(new Blob([XLSX.write(wb,{type:'array',bookType:'xlsx'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),l=document.createElement('a');l.href=u;l.download=`حركة الأصول ${f.from} - ${f.to}.xlsx`;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);toast('تم التنزيل')}catch(x){toast('تعذّر التصدير: '+(x.message||x))}}
+
 /* ---------- public page /assets ---------- */
 let AST=null;
 const astSS={get(){try{return JSON.parse(sessionStorage.getItem('ast')||'null')}catch(e){return null}},set(v){try{v?sessionStorage.setItem('ast',JSON.stringify(v)):sessionStorage.removeItem('ast')}catch(e){}}};
@@ -1504,15 +1580,17 @@ function astHome(){AST.view='home';const d=AST.d,b=d.bal||{},ord=(d.items||[]).m
    <div class="axsup"><span>مشرف النقطة: <b>${h(d.sup||'—')}</b>${tel?` · <span class="num">${tel}</span>`:''}</span>${tel?`<span class="acts"><a class="btn sm" href="tel:${tel}">اتصال</a><a class="btn sm" href="${waUrl(d.smob,'')}" target="_blank" rel="noopener">واتساب</a></span>`:''}</div>
    <button class="btn pri axbig" data-ax="pnew">＋ تسجيل حدث: توريد، تلف، سرقة، فقد…</button></div>
    ${q.length?`<div class="note" style="margin-top:12px">${q.length} طلب محفوظ على هذا الجهاز ولم يصل بعد بسبب الاتصال، وسيُرسل تلقائياً. <button class="btn sm" data-ax="flush">إعادة المحاولة الآن</button></div>`:''}
+   ${astTop()}
    <section class="esec axsec"><h3>${h(d.label)} <span class="muted" style="font-weight:400;font-size:13px">· المعتمد من الإدارة فقط</span></h3>
    ${ids.length?`<div class="tw"><table class="lvt axbt" data-num="1"><thead><tr><th>الأصل</th><th>العدد الكلي</th><th>تالف *</th><th>مفقود *</th></tr></thead><tbody>${ids.map(k=>`<tr style="cursor:default"><td class="nm">${h(astName(k))}</td><td class="num"><b>${b[k].g}</b></td><td class="num">${b[k].d||'—'}</td><td class="num">${b[k].l||'—'}</td></tr>`).join('')}</tbody><tfoot><tr><td>الإجمالي</td><td class="num"><b>${tot.g}</b></td><td class="num">${tot.d}</td><td class="num">${tot.l}</td></tr></tfoot></table></div><div class="muted" style="font-size:12.5px;margin-top:6px">العدد الكلي = الصالح فقط. * التالف والمفقود/المسروق غير محسوبين ضمن العدد الكلي.</div>`:'<div class="muted">لا يوجد رصيد معتمد لهذه النقطة بعد.</div>'}</section>
-   <section class="esec axsec"><h3>الطلبات والحركات ${pend?`<span class="st st-new">${pend} بانتظار الاعتماد</span>`:''}</h3>${evs.length?`<ul class="axev">${evs.map(e=>`<li><div>${evBadge(e.type)} <b>${h(e.itemName||astName(e.item))}</b> × <span class="num">${h(e.q)}</span>${e.to?` <span class="muted">إلى ${h(e.to)}</span>`:''}${e.from?` <span class="muted">من ${h(e.from)}</span>`:''}</div><div class="muted"><span class="num">${h(fd(e.date))}</span>${e.by?' · '+h(e.by):''}</div>${astSt(e.status)}${e.why&&(e.status==='مرفوض'||e.status==='ملغى')?`<div class="axwhy">السبب: ${h(e.why)}</div>`:''}</li>`).join('')}</ul>`:'<div class="muted">لا توجد طلبات بعد.</div>'}</section></div>`}
+   <section class="esec axsec"><h3>الطلبات والحركات ${pend?`<span class="st st-new">${pend} بانتظار الاعتماد</span>`:''}</h3>${evs.length?`<ul class="axev">${evs.map(e=>`<li><div>${evBadge(e.type)} ${e.type==='جرد'?`<b>جرد النقطة</b> · <span class="num">${h(e.q)}</span> أصل فيه فرق`:`<b>${h(e.itemName||astName(e.item))}</b> × <span class="num">${h(e.q)}</span>`}${e.to?` <span class="muted">إلى ${h(e.to)}</span>`:''}${e.type==='نقل'&&e.status==='جديد'?` <span class="muted">· ${e.rcv==='نعم'?'استلمتها النقطة':e.rcv==='لا'?'أبلغت النقطة أنه لم يصل':'بانتظار تأكيد الاستلام'}</span>`:''}${e.from?` <span class="muted">من ${h(e.from)}</span>`:''}</div><div class="muted"><span class="num">${h(fd(e.date))}</span>${e.by?' · '+h(e.by):''}</div>${astSt(e.status)}${e.why&&(e.status==='مرفوض'||e.status==='ملغى')?`<div class="axwhy">السبب: ${h(e.why)}</div>`:''}</li>`).join('')}</ul>`:'<div class="muted">لا توجد طلبات بعد.</div>'}</section></div>`}
 function astNew(){AST.view='new';const d=AST.d,items=d.items||[],grp=ACATS.map(c=>[c,items.filter(i=>(i.cat||'أخرى')===c)]).filter(x=>x[1].length),me=astLS('ast-by:'+AST.pt);
   app.innerHTML=`<div class="page"><form id="axef"><div class="dh"><h2>تسجيل حدث · نقطة ${h(d.point)}</h2><button class="btn sm" type="button" data-ax="phome">رجوع</button></div><div class="db"><div id="ferr"></div>
    <fieldset class="axtypes"><legend>ماذا حدث؟</legend>${Object.entries(AT).map(([t,x],i)=>`<label class="axty axt-${x.c}"><input type="radio" name="type" value="${t}"${i?'':' checked'}><span><b>${x.ic} ${t}</b><small>${x.d}</small></span></label>`).join('')}</fieldset>
    <fieldset><label class="wide">الأصل<select id="e-item" name="item" required><option value="">— اختر الأصل —</option>${grp.map(([c,is])=>`<optgroup label="${c}">${is.map(i=>`<option value="${h(i.id)}">${h(i.name)}</option>`).join('')}</optgroup>`).join('')}<option value="__new">＋ إضافة أصل جديد غير موجود في القائمة</option></select></label>
     <div class="wide axnew" id="ax-new" hidden><fieldset>${inp('newName','اسم الأصل الجديد','',{})}${sel('newCat','الفئة',ACATS,'أخرى')}<div class="wide" id="ax-sim"></div><div class="wide muted" style="font-size:12.5px">الأصل الجديد يُسجَّل بحدث «توريد» فقط، ويظهر في القائمة بعد اعتماد الإدارة.</div></fieldset></div>
     <div class="wide muted" id="ax-cur" style="font-size:13px"></div>
+    <label class="wide" id="ax-to" hidden>إلى نقطة<select id="e-to" name="to"><option value="">— اختر النقطة المستلمة —</option>${(d.points||[]).map(p=>`<option>${h(p)}</option>`).join('')}</select></label>
     <label>العدد<span class="qty"><button type="button" class="btn" data-ax="qm" aria-label="إنقاص">−</button><input id="e-q" name="q" type="number" min="1" max="5000" value="1" inputmode="numeric" dir="ltr" required><button type="button" class="btn" data-ax="qp" aria-label="زيادة">+</button></span></label>
     ${inp('date','تاريخ الحدث',today(),{type:'date',req:1})}
     <label>اسمك (من يسجّل)<select id="e-by" name="by" required><option value="">— اختر اسمك —</option>${(d.staff||[]).map(n=>`<option${n===me?' selected':''}>${h(n)}</option>`).join('')}<option value="__other"${me&&!(d.staff||[]).includes(me)?' selected':''}>اسم آخر…</option></select></label>
@@ -1522,8 +1600,8 @@ function astNew(){AST.view='new';const d=AST.d,items=d.items||[],grp=ACATS.map(c
    <div class="df"><div><button class="btn pri">إرسال للاعتماد</button><button class="btn" type="button" data-ax="phome">إلغاء</button></div></div></form></div>`;scrollTo(0,0);astSync()}
 function astSync(){const f=$('#axef');if(!f)return;const it=f.querySelector('#e-item').value,nw=it==='__new',t=(f.querySelector('input[name=type]:checked')||{}).value,b=(AST.d.bal||{})[it]||{g:0,d:0,l:0};
   f.querySelector('#ax-new').hidden=!nw;if(nw&&t!=='توريد'){const r=f.querySelector('input[name=type][value="توريد"]');r.checked=true}
-  f.querySelector('#ax-byo').hidden=f.querySelector('#e-by').value!=='__other';
-  const need=t==='تلف'||t==='سرقة'||t==='فقد'?['الصالح',b.g]:t==='إصلاح'||t==='سحب'?['التالف',b.d]:null;
+  f.querySelector('#ax-byo').hidden=f.querySelector('#e-by').value!=='__other';f.querySelector('#ax-to').hidden=t!=='نقل';
+  const need=t==='تلف'||t==='سرقة'||t==='فقد'||t==='نقل'?['الصالح',b.g]:t==='إصلاح'||t==='سحب'?['التالف',b.d]:null;
   f.querySelector('#ax-cur').innerHTML=it&&!nw?`الرصيد المعتمد لهذا الأصل: صالح <b class="num">${b.g}</b> · تالف <b class="num">${b.d}</b>${need?` · الحد الأقصى لهذا الحدث <b class="num">${need[1]}</b> (${need[0]})`:''}`:''}
 function astSim(el){const box=$('#ax-sim'),v=nrm(el.value);if(!box)return;if(v.length<2){box.innerHTML='';return}
   const lev=(a,b)=>{const m=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=m[0];m[0]=i;for(let j=1;j<=b.length;j++){const t=m[j];m[j]=Math.min(m[j]+1,m[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return m[b.length]};
@@ -1533,19 +1611,54 @@ async function astSubmit(f){const o=formData(f),t=(f.querySelector('input[name=t
   if(!t)return ferr('اختر نوع الحدث.');if(!o.item)return ferr('اختر الأصل.');if(nw&&(o.newName||'').trim().length<2)return ferr('اكتب اسم الأصل الجديد.');
   if(!(q>=1&&q<=5000))return ferr('العدد غير صحيح.');if(!o.date)return ferr('أدخل تاريخ الحدث.');if(!by||by.length<3)return ferr('اختر اسمك أو اكتبه.');
   if(o.link&&!/^https:\/\/(drive|docs)\.google\.com\//i.test(o.link))return ferr('رابط الصورة يجب أن يبدأ بـ https://drive.google.com');
-  if(!nw){const b=(AST.d.bal||{})[o.item]||{g:0,d:0},mx=t==='تلف'||t==='سرقة'||t==='فقد'?b.g:t==='إصلاح'||t==='سحب'?b.d:Infinity;if(q>mx)return ferr(`العدد أكبر من المسجّل في النقطة (${mx}). إن كان الرصيد غير صحيح تواصل مع مشرفك.`)}
-  astLS('ast-by:'+AST.pt,by);const d={k:rid(20),type:t,q,date:o.date,by,note:o.note||'',link:o.link||'',...(nw?{newName:o.newName.trim(),newCat:o.newCat||'أخرى'}:{item:o.item})},iname=nw?o.newName.trim():astName(o.item);
+  if(t==='نقل'&&!o.to)return ferr('اختر النقطة المستلمة.');
+  if(!nw){const b=(AST.d.bal||{})[o.item]||{g:0,d:0},mx=t==='تلف'||t==='سرقة'||t==='فقد'||t==='نقل'?b.g:t==='إصلاح'||t==='سحب'?b.d:Infinity;if(q>mx)return ferr(`العدد أكبر من المسجّل في النقطة (${mx}). إن كان الرصيد غير صحيح تواصل مع مشرفك.`)}
+  astLS('ast-by:'+AST.pt,by);AST.lastTo=t==='نقل'?o.to:'';const d={k:rid(20),type:t,q,date:o.date,by,note:o.note||'',link:o.link||'',...(t==='نقل'?{to:o.to}:{}),...(nw?{newName:o.newName.trim(),newCat:o.newCat||'أخرى'}:{item:o.item})},iname=nw?o.newName.trim():astName(o.item);
   const btn=f.querySelector('.pri');btn.disabled=true;btn.textContent='جاري الإرسال…';
   try{const r=await rpc('aei_ast_submit',{pt:AST.pt,code:AST.code,d});if(!r||!r.ok){btn.disabled=false;btn.textContent='إرسال للاعتماد';return ferr(r&&r.msg||'تعذّر الإرسال.')}
     await astReload(false);astDone(t,iname,q,o.date,by,o.note,o.link,false)}
   catch(e){if(e&&e.code==='network'){const a=astQ.get();a.push({pt:AST.pt,code:AST.code,d,iname,ts:Date.now()});astQ.set(a);astDone(t,iname,q,o.date,by,o.note,o.link,true)}
     else{btn.disabled=false;btn.textContent='إرسال للاعتماد';ferr(e.message||'تعذّر الإرسال.')}}}
 function astDone(t,iname,q,date,by,note,link,queued){AST.view='done';const d=AST.d,ph=t==='تلف'||t==='سرقة'||t==='فقد';
-  const msg=`بلاغ أصول – نقطة ${d.point}\nالحدث: ${t}\nالأصل: ${iname}\nالعدد: ${q}\nتاريخ الحدث: ${fd(date)}\nالمسجّل: ${by}${note?'\nالملاحظة: '+note:''}${link?'\nرابط الصورة: '+link:''}\n\nالطلب مسجّل في النظام بانتظار الاعتماد.`;
+  const msg=`بلاغ أصول – نقطة ${d.point}\nالحدث: ${t}\nالأصل: ${iname}\nالعدد: ${q}${AST.lastTo?'\nإلى نقطة: '+AST.lastTo:''}\nتاريخ الحدث: ${fd(date)}\nالمسجّل: ${by}${note?'\nالملاحظة: '+note:''}${link?'\nرابط الصورة: '+link:''}\n\nالطلب مسجّل في النظام بانتظار الاعتماد.`;
   app.innerHTML=`<div class="page"><div class="okbox"><h2 style="margin:0">${queued?'حُفظ الطلب على هذا الجهاز':'تم إرسال الطلب للاعتماد'}</h2><div>${evBadge(t)} <b>${h(iname)}</b> × <span class="num">${q}</span> · <span class="num">${h(fd(date))}</span></div>
    ${queued?'<div class="note">لا يوجد اتصال الآن. سيُرسل الطلب تلقائياً عند عودة الإنترنت وأنت على هذه الصفحة. لا تسجّله مرة ثانية.</div>':'<div class="muted">الرصيد لا يتغير قبل اعتماد الإدارة. تابع حالة الطلب من صفحة أصول النقطة.</div>'}
    <div class="note axwa"><b>أبلغ مشرف النقطة${d.sup?' ('+h(d.sup)+')':''} على واتساب</b>${ph?'<br>أرفق صورة الأصل في المحادثة بعد فتحها.':''}<div class="acts" style="margin-top:8px"><a class="btn pri" href="${waUrl(d.smob,msg)}" target="_blank" rel="noopener">إرسال للمشرف عبر واتساب</a></div>${d.smob?'':'<div class="muted" style="font-size:12.5px;margin-top:4px">رقم المشرف غير مسجّل، اختر المحادثة يدوياً في واتساب.</div>'}</div>
    <div class="acts"><button class="btn" data-ax="pnew">تسجيل حدث آخر</button><button class="btn" data-ax="phome">العودة لأصول النقطة</button></div></div></div>`;scrollTo(0,0)}
+const astBySel=me=>{const st=AST.d.staff||[],oth=me&&!st.includes(me);return `<label>اسمك (من يسجّل)<select id="e-by" name="by" required><option value="">— اختر اسمك —</option>${st.map(n=>`<option${n===me?' selected':''}>${h(n)}</option>`).join('')}<option value="__other"${oth?' selected':''}>اسم آخر…</option></select></label><label id="ax-byo"${oth?'':' hidden'}>اكتب اسمك<input id="e-byo" name="byo" maxlength="80" value="${h(oth?me:'')}"></label>`};
+const astByOf=o=>o.by==='__other'?(o.byo||'').trim():o.by;
+function astTop(){const d=AST.d,inc=d.incoming||[],rq=d.reqs||[],pendN=(d.events||[]).filter(e=>e.status==='جديد').length+inc.length;let o='';
+  for(const r of rq)o+=`<div class="note axreq"><div><b>مطلوب جرد لأصول النقطة</b> · السبب: ${h(r.reason)}${r.due?` · قبل <span class="num">${h(fd(r.due))}</span>`:''}${pendN?'<div style="font-size:12.5px">يُفتح الجرد بعد اعتماد أو رفض الطلبات المعلقة للنقطة.</div>':''}</div>${pendN?'':`<button class="btn sm pri" data-ax="pcount" data-id="${h(r.id)}">بدء الجرد</button>`}</div>`;
+  if(inc.length)o+=`<section class="esec axsec"><h3>أصول منقولة إلى نقطتكم</h3><ul class="axev">${inc.map(x=>`<li><div>${evBadge('نقل')} <b>${h(x.itemName)}</b> × <span class="num">${h(x.q)}</span> <span class="muted">من ${h(x.from)}</span></div><div class="muted"><span class="num">${h(fd(x.date))}</span>${x.by?' · '+h(x.by):''}</div>${x.rcv==='نعم'?'<span class="st st-ok">أكدتم الاستلام</span>':x.rcv==='لا'?'<span class="st st-no">أبلغتم: لم يصل</span>':`<span class="acts"><button class="btn sm pri" data-ax="prcv" data-id="${h(x.id)}" data-ok="1">تم الاستلام</button><button class="btn sm" data-ax="prcv" data-id="${h(x.id)}" data-ok="0">لم يصل</button></span>`}</li>`).join('')}</ul><div class="muted" style="font-size:12.5px;margin-top:6px">تأكيد الاستلام يذهب للإدارة لاعتماد النقل، ولا يدخل رصيدكم قبل الاعتماد.</div></section>`;
+  return o}
+function astRecv(id,ok){const d=AST.d,x=(d.incoming||[]).find(y=>y.id===id);if(!x)return astHome();AST.view='rcv';
+  app.innerHTML=`<div class="page"><form id="axrcf" data-id="${h(id)}" data-ok="${ok?1:0}"><div class="dh"><h2>${ok?'تأكيد استلام أصول':'الإبلاغ أن النقل لم يصل'}</h2><button class="btn sm" type="button" data-ax="phome">رجوع</button></div><div class="db"><div id="ferr"></div>
+   <div class="note" style="margin-bottom:12px">${h(x.itemName)} × <b class="num">${h(x.q)}</b> من نقطة ${h(x.from)} · <span class="num">${h(fd(x.date))}</span></div>
+   <fieldset>${astBySel(astLS('ast-by:'+AST.pt))}<label class="wide">ملاحظة (اختياري)${ok?'':': ماذا وصل فعلياً؟'}<textarea id="e-note" name="note" maxlength="300"></textarea></label></fieldset></div>
+   <div class="df"><div><button class="btn pri">${ok?'تأكيد الاستلام':'إرسال البلاغ'}</button><button class="btn" type="button" data-ax="phome">إلغاء</button></div></div></form></div>`;scrollTo(0,0)}
+async function astRecvSave(f){const o=formData(f),by=astByOf(o),ok=f.dataset.ok==='1';if(!by||by.length<3)return ferr('اختر اسمك أو اكتبه.');astLS('ast-by:'+AST.pt,by);const btn=f.querySelector('.pri');btn.disabled=true;
+  try{const r=await rpc('aei_ast_receive',{pt:AST.pt,code:AST.code,i:f.dataset.id,ok,d:{by,note:o.note||''}});if(!r||!r.ok){btn.disabled=false;return ferr(r&&r.msg||'تعذّر الحفظ.')}
+    await astReload(false);toast(ok?'سُجّل الاستلام وأُبلغت الإدارة':'أُرسل البلاغ للإدارة');astHome()}
+  catch(e){btn.disabled=false;ferr(e.code==='network'?'لا يوجد اتصال. حاول مجدداً عند عودة الإنترنت.':e.message)}}
+function astCount(rq){const d=AST.d,r=(d.reqs||[]).find(x=>x.id===rq);if(!r)return astHome();AST.view='count';const b=d.bal||{},ids=[...new Set([...Object.keys(b).filter(k=>b[k].g||b[k].d),...(d.items||[]).map(i=>i.id)])];
+  app.innerHTML=`<div class="page"><form id="axcnf" data-id="${h(rq)}"><div class="dh"><h2>جرد أصول نقطة ${h(d.point)}</h2><button class="btn sm" type="button" data-ax="phome">رجوع</button></div><div class="db"><div id="ferr"></div>
+   <div class="note" style="margin-bottom:12px">السبب: ${h(r.reason)}${r.due?` · قبل <span class="num">${h(fd(r.due))}</span>`:''}. عُدّ الأصول الموجودة فعلياً في النقطة وعدّل الأرقام. الأعداد المكتوبة مسبقاً هي الرصيد المسجّل حالياً.</div>
+   <div class="tw"><table class="lvt axcnt" data-num="1"><thead><tr><th>الأصل</th><th>الصالح فعلياً</th><th>التالف فعلياً</th></tr></thead><tbody>${ids.map(k=>{const x=b[k]||{g:0,d:0};return `<tr style="cursor:default"><td class="nm">${h(astName(k))}<small class="muted">المسجّل: صالح ${x.g}${x.d?` · تالف ${x.d}`:''}</small></td><td><input type="number" min="0" max="100000" inputmode="numeric" dir="ltr" data-cg="${h(k)}" value="${x.g}" aria-label="الصالح فعلياً: ${h(astName(k))}"></td><td><input type="number" min="0" max="100000" inputmode="numeric" dir="ltr" data-cd="${h(k)}" value="${x.d}" aria-label="التالف فعلياً: ${h(astName(k))}"></td></tr>`}).join('')}</tbody></table></div>
+   <fieldset style="margin-top:12px">${astBySel(astLS('ast-by:'+AST.pt))}<label class="wide">ملاحظة (اختياري)<textarea id="e-note" name="note" maxlength="500"></textarea></label></fieldset></div>
+   <div class="df"><div><button class="btn pri">إرسال الجرد للاعتماد</button><button class="btn" type="button" data-ax="phome">إلغاء</button></div></div></form></div>`;scrollTo(0,0)}
+async function astCountSave(f){const o=formData(f),by=astByOf(o);if(!by||by.length<3)return ferr('اختر اسمك أو اكتبه.');
+  const rows=[...f.querySelectorAll('input[data-cg]')].map(x=>({item:x.dataset.cg,g:parseInt(x.value,10),d:parseInt((f.querySelector(`input[data-cd="${CSS.escape(x.dataset.cg)}"]`)||{}).value||'0',10)}));
+  if(rows.some(r=>!(r.g>=0)||!(r.d>=0)))return ferr('أدخل أعداداً صحيحة (صفر أو أكثر) في كل الخانات.');
+  const b=AST.d.bal||{},nd=rows.filter(r=>{const x=b[r.item]||{g:0,d:0};return r.g!==x.g||r.d!==x.d}).length;
+  if(!f.dataset.sure){f.dataset.sure=1;f.querySelector('.pri').textContent='تأكيد الإرسال';return ferr(nd?`في الجرد ${nd} أصل يختلف عن المسجّل. راجع الأرقام ثم اضغط «تأكيد الإرسال».`:'الأعداد مطابقة للمسجّل. اضغط «تأكيد الإرسال».')}
+  astLS('ast-by:'+AST.pt,by);const btn=f.querySelector('.pri'),r0=(AST.d.reqs||[]).find(x=>x.id===f.dataset.id)||{};btn.disabled=true;btn.textContent='جاري الإرسال…';
+  try{const r=await rpc('aei_ast_count',{pt:AST.pt,code:AST.code,d:{k:rid(20),req:f.dataset.id,by,note:o.note||'',rows}});
+    if(!r||!r.ok){btn.disabled=false;btn.textContent='إرسال الجرد للاعتماد';delete f.dataset.sure;return ferr(r&&r.msg||'تعذّر الإرسال.')}
+    await astReload(false);AST.view='done';const msg=`جرد أصول – نقطة ${AST.d.point}\nالسبب: ${r0.reason||''}\nأصول فيها فرق: ${r.diffs||0}\nأجراه: ${by}${o.note?'\nملاحظة: '+o.note:''}\n\nالجرد مسجّل في النظام بانتظار الاعتماد.`;
+    app.innerHTML=`<div class="page"><div class="okbox"><h2 style="margin:0">أُرسل الجرد للاعتماد</h2><div class="muted">${r.diffs?`فيه ${r.diffs} أصل يختلف عن المسجّل. يُعدَّل الرصيد بعد اعتماد الإدارة.`:'الأعداد مطابقة للرصيد المسجّل.'}</div>
+     <div class="note axwa"><b>أبلغ مشرف النقطة${AST.d.sup?' ('+h(AST.d.sup)+')':''} على واتساب</b><div class="acts" style="margin-top:8px"><a class="btn pri" href="${waUrl(AST.d.smob,msg)}" target="_blank" rel="noopener">إرسال للمشرف عبر واتساب</a></div></div>
+     <div class="acts"><button class="btn" data-ax="phome">العودة لأصول النقطة</button></div></div></div>`;scrollTo(0,0)}
+  catch(e){btn.disabled=false;btn.textContent='إرسال الجرد للاعتماد';delete f.dataset.sure;ferr(e.code==='network'?'لا يوجد اتصال. الجرد لم يُرسل، حاول مجدداً عند عودة الإنترنت ولا تغلق الصفحة.':e.message)}}
 let astBusy=false;
 async function astFlush(manual){if(astBusy)return;const a=astQ.get();if(!a.length)return;astBusy=true;let sent=0,left=[];
   try{for(let i=0;i<a.length;i++){const x=a[i];try{const r=await rpc('aei_ast_submit',{pt:x.pt,code:x.code,d:x.d});if(r&&r.ok)sent++;else toast('لم يُقبل طلب محفوظ ('+x.iname+'): '+(r&&r.msg||''),6000)}
@@ -1556,7 +1669,7 @@ addEventListener('online',()=>astFlush());
 setInterval(()=>{if(AST&&!document.hidden){astFlush();if(AST.view==='home')astReload(true)}},60000);
 
 /* events */
-document.addEventListener('submit',ev=>{const f=ev.target,id=f.getAttribute('id');const fn={axlf:astLogin,axef:astSubmit,axrv:axApprove,axaf:axAddSave,axmf:axMoveSave,axcf:axCatSave,axsf:axSupSave}[id];if(fn){ev.preventDefault();fn(f)}});
+document.addEventListener('submit',ev=>{const f=ev.target,id=f.getAttribute('id');const fn={axlf:astLogin,axef:astSubmit,axrv:axApprove,axaf:axAddSave,axmf:axMoveSave,axcf:axCatSave,axsf:axSupSave,axcrv:axCountApprove,axqf:axReqSave,axrcf:astRecvSave,axcnf:astCountSave}[id];if(fn){ev.preventDefault();fn(f)}});
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-ax]');if(!t)return;const a=t.dataset.ax,d=t.dataset;if(a==='noop')return;
   if(a==='sub'){S.af.sub=d.v;vAst()}
   else if(a==='ev')axEv(d.id); else if(a==='rej')axReject(t); else if(a==='cancel')axCancel(t); else if(a==='pt')axPoint(d.axp);
@@ -1565,11 +1678,16 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-ax]');if
   else if(a==='genall')axGen(allPoints().filter(p=>p!=='إداري'&&!S.apin.has(p)),t); else if(a==='gen1')axGen([d.axp],t).then(()=>{if(dlg.open)axPoint(d.axp)}); else if(a==='regen')axRegen(t); else if(a==='copyall')axCopyAll();
   else if(a==='pgo')go('assets'); else if(a==='pout'){AST=null;astSS.set(null);renderAssets()} else if(a==='pnew')astNew(); else if(a==='phome')astHome(); else if(a==='flush')astFlush(true);
   else if(a==='qm'||a==='qp'){const i=$('#e-q');i.value=Math.max(1,(parseInt(i.value,10)||1)+(a==='qp'?1:-1))}
+  else if(a==='prcv')astRecv(d.id,d.ok==='1'); else if(a==='pcount')astCount(d.id);
+  else if(a==='reqnew')axReqNew(); else if(a==='reqv')axReqView(d.id); else if(a==='reqclose')axReqStatus(t,'مغلق'); else if(a==='reqopen')axReqStatus(t,'مفتوح'); else if(a==='repx')axRepExport();
+  else if(a==='reqall')document.querySelectorAll('#axqf input[data-rp]').forEach(x=>x.checked=d.v==='1'); else if(a==='reqreg')document.querySelectorAll('#axqf input[data-rp]').forEach(x=>{if(x.dataset.rg===d.v)x.checked=true});
   else if(a==='pick'){const s=$('#e-item');s.value=d.id;astSync()}});
 document.addEventListener('input',ev=>{const el=ev.target;
-  if(el.id&&el.id.startsWith('axf-')){const k=el.id.slice(4);S.af[k]=el.value;({bal:axBal,log:axLog})[S.af.sub]?.();if(k==='q'){const q=$('#axf-q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}return}
+  if(el.id&&el.id.startsWith('axf-')){const k=el.id.slice(4);S.af[k]=el.value;({bal:axBal,log:axLog,rep:axRep})[S.af.sub]?.();if(k==='q'){const q=$('#axf-q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}return}
   if(el.id==='ax-file')return axParse(el);if(el.dataset&&(el.dataset.impp!==undefined||el.dataset.impi!==undefined))return axImSum();
   const f=el.form;if(!f)return;
+  if(el.id==='e-by'&&f.id!=='axef'){const o=f.querySelector('#ax-byo');if(o)o.hidden=el.value!=='__other'}
+  if(f.id==='axcnf'&&f.dataset.sure){delete f.dataset.sure;const b=f.querySelector('.pri');if(b)b.textContent='إرسال الجرد للاعتماد'}
   if(f.id==='axef'){if(el.id==='e-newName')astSim(el);astSync()}
   else if(f.id==='axrv')axAfter(); else if(f.id==='axaf'){if(el.id==='e-pt'||el.id==='e-item'||el.id==='e-type'){f.querySelectorAll('#e-ng,#e-nd').forEach(x=>x.value='');axAddSync()}}
   else if(f.id==='axmf'&&el.id==='e-from')axMoveRows()});
