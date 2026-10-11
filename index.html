@@ -154,7 +154,7 @@ textarea{font:inherit;color:inherit;background:var(--surface);border:1px solid v
 .hero h1{font-size:clamp(26px,3.4vw,34px);margin:0;line-height:1.25;text-wrap:balance}
 .hero p{margin:0;max-width:62ch;color:var(--muted);font-size:16px;line-height:1.8}
 .hero .sub{color:var(--brand);font-weight:600;font-size:13px;letter-spacing:.01em}
-.hgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;align-items:stretch}
+.hgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
 .hcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;gap:10px;min-height:236px;transition:border-color .15s}
 .hcard:hover{border-color:var(--brand)}
 .hcard h2{margin:0;font-size:18px;line-height:1.4}.hcard p{margin:0;color:var(--muted);font-size:14px;line-height:1.8}
@@ -302,6 +302,31 @@ tbody tr:hover td.nm{background:var(--brand-soft)}.grp td.nm{background:var(--su
 @media(max-width:380px){.kpi{padding:10px}.bar h1{font-size:16px}.tabs button{padding:10px}}
 @media(hover:none){tbody tr:hover{background:none}tbody tr:hover td.nm{background:var(--surface)}.cpb{opacity:.9}}
 @media print{header.top,.filters,.acts,.cpb,#toast{display:none!important}.tw{overflow:visible;border:0}td.nm{position:static}body{background:#fff}}
+.axt{display:inline-flex;align-items:center;padding:1px 10px;border-radius:99px;font-size:12.5px;font-weight:700;white-space:nowrap;background:var(--brand-soft);color:var(--brand)}
+.axt-ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}.axt-warn{background:var(--warn-soft);color:var(--warn)}.axt-bad{background:var(--bad-soft);color:var(--bad)}.axt-mut{background:var(--sunk);color:var(--muted)}
+.axd{display:inline-block;margin-inline-start:6px;padding:0 6px;border-radius:99px;background:var(--bad-soft);color:var(--bad);font-size:11.5px;font-weight:700;vertical-align:1px}
+.axm td.num,.axm th{text-align:center}.axm td.nm small{display:block;font-weight:400;font-size:12px}.axm td.nm{text-align:start}.axm tfoot td,.axbt tfoot td{font-weight:700;border-top:2px solid var(--line);background:var(--sunk)}
+tr.axhid td{opacity:.55}
+.axcode{font-family:var(--mono);font-size:22px!important;letter-spacing:.35em;text-align:center}
+.axcodev{font-size:15px;letter-spacing:.12em}
+.axhd{justify-items:stretch;gap:14px}.axtop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.axsup{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;font-size:14px;padding:10px 12px;border-radius:var(--r);background:var(--sunk)}
+.axbig{width:100%;justify-content:center;min-height:50px;font-size:16px}
+.axsec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-top:14px}
+.axev{list-style:none;margin:0;padding:0;display:grid;gap:0}.axev li{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.axev li:last-child{border-bottom:0}
+.axev li>.st{grid-row:1/3;grid-column:2}.axev li .muted{font-size:12.5px}.axwhy{grid-column:1/-1;font-size:12.5px;color:var(--bad)}
+.axtypes{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important}.axtypes legend{grid-column:1/-1}
+.axty{position:relative;display:block;cursor:pointer}.axty input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.axty span{display:grid;gap:2px;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);background:var(--surface);height:100%}.axty b{font-size:15px}.axty small{font-size:12px;color:var(--muted);line-height:1.5}
+.axty input:checked+span{border-color:currentColor;background:color-mix(in srgb,currentColor 9%,var(--surface))}.axty input:focus-visible+span{outline:2px solid var(--brand);outline-offset:2px}
+.axty.axt-ok{color:var(--ok)}.axty.axt-warn{color:var(--warn)}.axty.axt-bad{color:var(--bad)}.axty.axt-mut{color:var(--muted)}.axty b{color:var(--fg)}
+.axty{background:none;padding:0}
+.qty{display:flex;gap:6px;align-items:stretch}.qty input{text-align:center;min-width:0;flex:1}.qty .btn{min-width:44px;justify-content:center;font-size:18px;padding:0 10px}
+.axnew{padding:12px;border:1px dashed var(--line);border-radius:var(--r)}
+.axmap{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 14px}.axmap label{display:grid;gap:4px;font-size:13.5px}
+.axsups{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 14px}.axsups label{display:grid;gap:4px;font-size:14px}
+.axwa{justify-self:stretch}.axbt th,.axbt td{padding-inline:8px}.axbt td.num{text-align:center}
+@media(max-width:560px){.axtypes{grid-template-columns:1fr 1fr!important}.axty small{display:none}.axsec{padding:12px}}
 </style>
 </head>
 <body>
@@ -322,7 +347,7 @@ const F=[ // key, label, excel header
  ['num','#'],['id','رقم الهوية'],['focal','الفوكال بوينت في النقطة'],['assign','دوام جديد'],['name','الاسم الرباعي'],['mobile','رقم الجوال'],['dept','القسم'],['cat','الفئة الوظيفية'],
  ['sup','المشرف المباشر'],['psup','مشرف النقطة'],['region','النطاق الجغرافي'],['area','منطقة النقطة'],['start','تاريخ بداية الدوام'],['dob','تاريخ الميلاد'],['marital','الحالة الاجتماعية'],['uni','الجامعة'],
  ['degree','الدرجة العلمية'],['major','التخصص'],['grad','تاريخ الحصول على الشهادة'],['pay','طريقة تلقي الراتب'],['iban','الأيبان / رقم المحفظة']];
-const S={db:null,dl:null,emps:new Map(),res:new Map(),leaves:new Map(),regs:new Map(),upds:new Map(),rreqs:new Map(),meta:new Map(),live:new Map(),snaps:new Map(),month:null,points:new Map(),plans:new Map(),pm:null,pf:{q:'',region:'',sup:'',type:''},tab:'db',ready:false,pinHash:null,tries:0,lockUntil:0,f:{q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false}};
+const S={db:null,dl:null,emps:new Map(),res:new Map(),leaves:new Map(),regs:new Map(),upds:new Map(),rreqs:new Map(),meta:new Map(),acat:new Map(),aev:new Map(),apin:new Map(),live:new Map(),snaps:new Map(),month:null,points:new Map(),plans:new Map(),pm:null,pf:{q:'',region:'',sup:'',type:''},tab:'db',ready:false,pinHash:null,tries:0,lockUntil:0,f:{q:'',region:'',psup:'',point:'',track:'',cat:'',bad:false}};
 let unsub=null;
 const IC={view:'<svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
  edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
@@ -385,7 +410,7 @@ const DB={doc(path){const [c,i]=path.split('/');return{set:d=>rpc('aei_set',{p:P
 setInterval(()=>{if(!document.hidden&&!dlg.open&&S.ready)Object.keys(subs).forEach(c=>refresh(c).catch(()=>{}))},30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.ready&&!dlg.open)Object.keys(subs).forEach(c=>refresh(c).catch(()=>{}))});
 const isAdmin=()=>S.role==='admin';
-const ROUTES={register:()=>renderReg(),leave:()=>renderLeave(),edit:()=>renderSelf(),resign:()=>renderResign(),login:()=>renderLock()},WEB=/^https?:$/.test(location.protocol);
+const ROUTES={assets:()=>renderAssets(),register:()=>renderReg(),leave:()=>renderLeave(),edit:()=>renderSelf(),resign:()=>renderResign(),login:()=>renderLock()},WEB=/^https?:$/.test(location.protocol);
 function routeName(){const p=location.pathname.replace(/\/+$/,'').split('/').pop(),hsh=location.hash.slice(1);return ROUTES[hsh]?hsh:WEB&&ROUTES[p]?p:''}
 function routeUrl(n){return WEB?location.origin+'/'+n:location.href.split('#')[0]+'#'+n}
 function setPath(n){try{if(WEB)history.pushState(null,'','/'+n);else history.pushState(null,'',n?'#'+n:location.pathname)}catch(e){}}
@@ -406,6 +431,7 @@ function renderHome(){document.body.classList.remove('ro');
    <section class="hcard"><h2>تسجيل موظف جديد</h2><p>للملتحقين الجدد بالمشروع. عبّئ بياناتك وستراجعها الإدارة قبل اعتمادك في النظام.</p><button class="btn pri" data-act="reg">تسجيل موظف جديد</button><button class="lnk" type="button" data-link="register">نسخ رابط الصفحة</button></section>
    <section class="hcard"><h2>تعديل بيانات الموظف</h2><p>للموظفين والمتطوعين والأمن. تحقّق من هويتك ثم عدّل بياناتك، ويُعتمد التعديل بعد موافقة الإدارة.</p><button class="btn pri" data-act="self">تعديل بياناتي</button><button class="lnk" type="button" data-link="edit">نسخ رابط الصفحة</button></section>
    <section class="hcard"><h2>طلب استقالة</h2><p>للموظفين والمتطوعين والأمن. تحقّق من هويتك وقدّم طلبك، ويُعتمد بعد مراجعة الإدارة.</p><button class="btn pri" data-act="resign">تقديم طلب استقالة</button><button class="lnk" type="button" data-link="resign">نسخ رابط الصفحة</button></section>
+   <section class="hcard"><h2>أصول النقاط</h2><p>لطاقم النقاط. اعرض أصول نقطتك وسجّل التوريد والتلف والسرقة والفقد برمز النقطة، ويُعتمد كل حدث بعد متابعة المشرف.</p><button class="btn pri" data-ax="pgo">أصول نقطتي</button><button class="lnk" type="button" data-link="assets">نسخ رابط الصفحة</button></section>
    <section class="hcard"><h2>دخول النظام</h2><p>للمشرفين والإدارة. عرض بيانات الموظفين والنقاط وطلبات الإجازة باستخدام رمز PIN.</p><button class="btn" data-act="login">دخول برمز PIN</button><button class="lnk" type="button" data-link="login">نسخ رابط الصفحة</button></section></div>
    <ul class="hfeat"><li><b>قاعدة بيانات موحدة</b>بحث وفلترة حسب النطاق والنقطة والمشرف</li><li><b>عرض حسب النقاط والمشرفين</b>طاقم كل نقطة والفوكال بوينت</li><li><b>الإجازات والاستقالات</b>سجل واحد يُصدَّر إلى Excel</li></ul></div>`}
 let LISTS=null;
@@ -602,7 +628,7 @@ function renderLock(msg){app.innerHTML=`<div class="lock"><form id="lockf"><h1>�
   <input id="pin" inputmode="numeric" type="password" autocomplete="off" maxlength="20" aria-label="رمز الدخول">${msg?`<div class="note bad">${h(msg)}</div>`:''}<div class="acts"><button class="btn pri" id="go">دخول</button><button class="btn" type="button" data-act="home">رجوع</button></div></form></div>`;$('#pin').focus()}
 async function submitLock(){const p=$('#pin').value.trim();if(!p)return;$('#go').disabled=true;$('#go').textContent='جاري التحقق…';
   try{const r=await rpc('aei_login',{p});if(r){PIN=p;S.role=r;ss.set(p);start()}else renderLock('الرمز غير صحيح.')}catch(e){renderLock(e.message)}}
-const BK_COLLS=[['emp','الموظفون'],['resigned','الاستقالات'],['leave','الإجازات'],['reg','طلبات التسجيل'],['upd','طلبات التعديل'],['resreq','طلبات الاستقالة'],['point','بيانات النقاط'],['plan','الخطط الأسبوعية'],['snap','الأرشيف الشهري'],['log','سجل التعديلات']],BK_DAYS=7;
+const BK_COLLS=[['emp','الموظفون'],['resigned','الاستقالات'],['leave','الإجازات'],['reg','طلبات التسجيل'],['upd','طلبات التعديل'],['resreq','طلبات الاستقالة'],['point','بيانات النقاط'],['plan','الخطط الأسبوعية'],['snap','الأرشيف الشهري'],['log','سجل التعديلات'],['acat','قائمة الأصول'],['aev','حركات الأصول'],['apin','رموز أصول النقاط']],BK_DAYS=7;
 const bkTs=()=>{const m=S.meta.get('backup');return m&&m.ts||0},bkDays=()=>bkTs()?Math.floor((Date.now()-bkTs())/864e5):null,bkDue=()=>isAdmin()&&(bkDays()===null||bkDays()>=BK_DAYS),
   bkLabel=()=>bkTs()?`آخر نسخة احتياطية: ${new Date(bkTs()).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}`:'لم تُؤخذ نسخة احتياطية بعد';
 function backupDlg(){const m=S.meta.get('backup')||{};
@@ -645,6 +671,9 @@ function start(){document.body.classList.toggle('ro',!isAdmin());S.tab=isAdmin()
   if(isAdmin())S.db.collection('upd').limit(1000).onSnapshot(snap=>{S.upds=new Map(snap.docs.map(d=>[d.id,{...d.data(),docId:d.id}]));if(S.ready&&!dlg.open)render()},()=>{});
   if(isAdmin())S.db.collection('meta').limit(100).onSnapshot(snap=>{S.meta=new Map(snap.docs.map(d=>[d.id,d.data()]));if(!S.metaOk){S.metaOk=1;bkNag()}if(S.ready&&!dlg.open)render()},()=>{});
   if(isAdmin())S.db.collection('resreq').limit(1000).onSnapshot(snap=>{S.rreqs=new Map(snap.docs.map(d=>[d.id,{...d.data(),docId:d.id}]));if(S.ready&&!dlg.open)render()},()=>{});
+  if(isAdmin())S.db.collection('acat').limit(1000).onSnapshot(snap=>{S.acat=new Map(snap.docs.map(d=>[d.id,d.data()]));if(S.ready&&!dlg.open)render()},()=>{});
+  if(isAdmin())S.db.collection('aev').limit(1000).onSnapshot(snap=>{S.aev=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));if(S.ready&&!dlg.open)render()},()=>{});
+  if(isAdmin())S.db.collection('apin').limit(1000).onSnapshot(snap=>{S.apin=new Map(snap.docs.map(d=>[d.id,d.data()]));if(S.ready&&!dlg.open&&S.tab==='ast')render()},()=>{});
   if(isAdmin())S.db.collection('resigned').limit(1000).onSnapshot(snap=>{S.res=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));if(S.ready)render()},()=>{})}
 
 /* ---------- views ---------- */
@@ -658,15 +687,15 @@ function render(){const n=S.emps.size, bad=all().filter(e=>issues(e).length).len
   app.innerHTML=`<header class="top"><div class="bar"><div><h1>سجل موظفي AEI – WFP</h1><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي</div></div>
    <div class="acts"><label class="mon">الشهر<select id="g-month" aria-label="الشهر">${[...monthList(),'all'].map(m=>`<option value="${m}"${m===selMonth()?' selected':''}>${mLabel(m)}</option>`).join('')}</select></label><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm${bkDue()?' due':''}" data-act="backup" title="${h(bkLabel())}">نسخة احتياطية</button><button class="btn adm" data-act="pin">تغيير الرمز</button><button class="btn" data-act="logout">تسجيل الخروج</button></div></div>
    <div class="tabs" role="tablist">${(()=>{const nl=[...S.leaves.values()].filter(x=>x.status==='جديد').length,adm=isAdmin(),
-     G=[['',[['home','الرئيسية',0,1]]],['البيانات',[['db','قاعدة البيانات'],['points','التوزيع حسب النقاط'],['pts','بيانات النقاط'],['sups','حسب المشرفين']]],['الدوام',[['plan','الخطة الأسبوعية']]],
+     G=[['',[['home','الرئيسية',0,1]]],['البيانات',[['db','قاعدة البيانات'],['points','التوزيع حسب النقاط'],['pts','بيانات النقاط'],['sups','حسب المشرفين']]],['الدوام',[['plan','الخطة الأسبوعية']]],['الأصول',[['ast','أصول النقاط',pendAst().length,1]]],
         ['الطلبات',[['leave','الإجازات',nl],['reg','طلبات التسجيل',newRegs().length,1],['upd','طلبات التعديل',newUpds().length,1]]],['السجلات',[['res','الاستقالات',newRReqs().length,1],['log','سجل التعديلات',0,1]]]];
      return G.map(([g,ts])=>[g,ts.filter(t=>adm||!t[3])]).filter(x=>x[1].length).map(([g,ts])=>`<div class="tg" role="presentation">${g?`<span class="tgl">${g}</span>`:''}${ts.map(([k,l,n])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}${n?`<span class="bdg" aria-label="${n} طلب جديد">${n>99?'99+':n}</span>`:''}</button>`).join('')}</div>`).join('')})()}</div></header>
    <div class="sum"><span><b>${n}</b> موظف</span>${TRACKS.map(t=>{const c=all().filter(e=>e.track===t).length;return c?`<span>${chip(t)} <b>${c}</b></span>`:''}).join('')}
    <span><b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة</span>${mRes().length?`<span><b>${mRes().length}</b> استقالة</span>`:''}${mLeaves().length?`<span><b>${mLeaves().length}</b> إجازة</span>`:''}${[...S.leaves.values()].some(x=>x.status==='جديد')?`<span><b>${[...S.leaves.values()].filter(x=>x.status==='جديد').length}</b> طلب إجازة جديد</span>`:''}${bad?`<span style="color:var(--warn)"><b>${bad}</b> بحاجة لمراجعة</span>`:''}</div>
    ${isArch()?`<div class="note">أرشيف ${mLabel(selMonth())}: بيانات الموظفين كما كانت في نهاية ذلك الشهر، للعرض والتصدير فقط. للتعديل ارجع إلى الشهر الحالي.</div>`:''}
    <main id="view"></main>`;
-  if(!n&&S.tab!=='res'&&S.tab!=='log'&&S.tab!=='leave'&&S.tab!=='plan'&&S.tab!=='reg'&&S.tab!=='upd'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
-  ({home:vHome,plan:vPlan,db:vDb,points:vPoints,pts:vPts,sups:vSups,leave:vLeave,reg:vReg,upd:vUpd,res:vRes,log:vLog})[S.tab]();
+  if(!n&&S.tab!=='res'&&S.tab!=='log'&&S.tab!=='leave'&&S.tab!=='plan'&&S.tab!=='reg'&&S.tab!=='upd'&&S.tab!=='ast'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
+  ({home:vHome,plan:vPlan,db:vDb,points:vPoints,pts:vPts,sups:vSups,leave:vLeave,reg:vReg,upd:vUpd,res:vRes,log:vLog,ast:vAst})[S.tab]();
   if(keep){const el=document.getElementById(keep);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(e){}}}}
 function vDb(){const f=S.f,rows=filtered();
   $('#view').innerHTML=`<div class="filters">
@@ -704,7 +733,7 @@ function vHome(){const sum=$('.sum');if(sum)sum.hidden=true;
   const live=x=>x.status!=='مرفوض',onToday=lv.filter(x=>live(x)&&x.start<=td&&x.end>=td),week=lv.filter(x=>live(x)&&x.start<=wk&&x.end>=td),fresh=lv.filter(x=>x.status==='جديد');
   const sups=uniq('psup').filter(x=>x!=='إداري'),bad=es.filter(e=>issues(e).length).length,noF=pr.filter(r=>!r.focals.length).length,noC=pr.filter(r=>!r.x||!r.y).length,mis=supMismatch().length,arch=isArch();
   const kpi=(v,l,go,hot)=>`<button class="kpi${hot&&v?' hot':''}" data-go="${go}" title="فتح ${l}"><b>${v}</b><span>${l}</span></button>`;
-  const att=[...(bkDue()?[[bkDays()===null?'—':bkDays(),bkDays()===null?'لم تُؤخذ أي نسخة احتياطية من البيانات بعد':'يوماً منذ آخر نسخة احتياطية (المطلوب أسبوعياً)','','','أخذ نسخة الآن']]:[]),[newRReqs().length,'طلب استقالة من موظف بانتظار المراجعة','res','','فتح الاستقالات'],[newUpds().length,'طلب تعديل بيانات من موظف بانتظار المراجعة','upd','','فتح طلبات التعديل'],[newRegs().length,'طلب تسجيل موظف جديد بانتظار المراجعة','reg','','فتح طلبات التسجيل'],[fresh.length,'طلب إجازة جديد بانتظار الرد','leave','','فتح الإجازات'],[bad,'موظف بياناته بحاجة لمراجعة (أيبان أو رقم خاطئ أو حقل ناقص)','db','bad','عرضهم'],[noF,'نقطة بدون فوكال بوينت','pts','nofocal','فتح بيانات النقاط'],[noC,'نقطة بدون إحداثيات','pts','nocoord','فتح بيانات النقاط']].filter(a=>a[0]);
+  const att=[...(bkDue()?[[bkDays()===null?'—':bkDays(),bkDays()===null?'لم تُؤخذ أي نسخة احتياطية من البيانات بعد':'يوماً منذ آخر نسخة احتياطية (المطلوب أسبوعياً)','','','أخذ نسخة الآن']]:[]),[newRReqs().length,'طلب استقالة من موظف بانتظار المراجعة','res','','فتح الاستقالات'],[newUpds().length,'طلب تعديل بيانات من موظف بانتظار المراجعة','upd','','فتح طلبات التعديل'],[newRegs().length,'طلب تسجيل موظف جديد بانتظار المراجعة','reg','','فتح طلبات التسجيل'],[pendAst().length,'طلب أصول من النقاط بانتظار الاعتماد','ast','','فتح الأصول'],[fresh.length,'طلب إجازة جديد بانتظار الرد','leave','','فتح الإجازات'],[bad,'موظف بياناته بحاجة لمراجعة (أيبان أو رقم خاطئ أو حقل ناقص)','db','bad','عرضهم'],[noF,'نقطة بدون فوكال بوينت','pts','nofocal','فتح بيانات النقاط'],[noC,'نقطة بدون إحداثيات','pts','nocoord','فتح بيانات النقاط']].filter(a=>a[0]);
   const row=(l,v)=>`<div class="row"><span>${l}</span><span${typeof v==='number'?' class="num"':' style="font-weight:600;font-variant-numeric:tabular-nums"'}>${v}</span></div>`,cnt=(k,v)=>es.filter(e=>e[k]===v).length;
   const card=(t,desc,body,go,label)=>`<section class="hc"><h2>${t}</h2><p>${desc}</p><div class="rows">${body}</div><button class="btn" data-go="${go}">${label||'فتح القسم'}</button></section>`;
   const maxS=Math.max(1,...sups.map(x=>cnt('psup',x))),lastRes=mRes().sort((a,b)=>(b.resignDate||'').localeCompare(a.resignDate||''))[0];
@@ -833,7 +862,7 @@ async function saveNewPoint(f){const o=formData(f),name=o.name.replace(/\s+/g,' 
   if(name.length<2)return ferr('أدخل اسم النقطة.'); if(name==='إداري'||pointRows().some(r=>nrm(r.name)===nrm(name)))return ferr('توجد نقطة بهذا الاسم.');
   if(!o.region)return ferr('اختر المحافظة.'); if(!o.psup)return ferr('اختر مشرف النقطة.'); if(!num(o.x)||!num(o.y))return ferr('الإحداثيات يجب أن تكون أرقاماً، مثل 34.4668.');
   const d={addr:o.addr||'',x:o.x,y:o.y,types:PT.filter((t,i)=>o['ty'+i]),region:o.region,area:o.area||'',psup:o.psup,closed:false},btn=f.querySelector('.pri');btn.disabled=true;btn.textContent='جاري الحفظ…';
-  try{await rpc('aei_set',{p:PIN,c:'point',i:name,d});await moveMany(ids,name,d,{focal:false});await refresh('point');await refresh('emp');
+  try{await rpc('aei_set',{p:PIN,c:'point',i:name,d});await moveMany(ids,name,d,{focal:false});await refresh('point');await refresh('emp');await axEnsureCode(name).then(()=>refresh('apin')).catch(()=>{});
     log('إضافة نقطة',{id:'',name},`${d.region} · المشرف: ${d.psup}${ids.length?' · أُسند '+ids.length+' موظف: '+ids.map(i=>(S.emps.get(i)||{}).name).join('، '):''}`);dlg.close();toast(`أُضيفت النقطة${ids.length?' وأُسند لها '+ids.length+' موظف':''}`)}
   catch(e){btn.disabled=false;btn.textContent='إضافة النقطة';ferr('لم تُحفظ: '+e.message)}}
 function assignPoint(name){const i=pointInfo(name);dlg.innerHTML=`<form id="ptaf" data-pn="${h(name)}">`+head('إسناد موظفين إلى نقطة '+h(name))+`<div class="db"><div id="ferr"></div>
@@ -850,14 +879,21 @@ function closePoint(name){const es=[...S.emps.values()].filter(e=>e.point===name
    ${es.length?`<fieldset><label class="wide">نقل الجميع إلى نقطة واحدة (اختياري)<select id="pc-all">${opts(dests,'','— اختر لتعبئة الكل —')}</select></label></fieldset>
    <div class="tw"><table><thead><tr><th>الموظف</th><th>المسار</th><th>النقطة الجديدة</th></tr></thead><tbody>${es.map(e=>`<tr style="cursor:default"><td class="nm">${h(e.name)}${e.focal?'<span class="fp">فوكال</span>':''}</td><td>${chip(e.track)}</td><td><select data-pcd="${h(e.id)}" aria-label="النقطة الجديدة لـ ${h(e.name)}" style="min-width:170px">${opts(dests,'','— اختر —')}</select></td></tr>`).join('')}</tbody></table></div>
    <div class="muted" style="font-size:12.5px">كل موظف يأخذ مشرف ومحافظة ومنطقة نقطته الجديدة، وتُلغى صفة الفوكال عمّن كان فوكال هنا.</div>`:''}
+   ${astCloseBlock(name,dests)}
    <label class="chk" style="white-space:normal"><input id="e-sure" name="sure" type="checkbox" required> أؤكد إغلاق نقطة ${h(name)}</label></div>
    <div class="df"><div><button class="btn danger">إغلاق النقطة</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open()}
 async function saveClosePoint(f){const name=f.dataset.pn,sels=[...f.querySelectorAll('select[data-pcd]')];if(!f.querySelector('#e-sure').checked)return ferr('ضع علامة التأكيد أولاً.');
-  if(sels.some(x=>!x.value))return ferr('اختر نقطة جديدة لكل موظف.');const btn=f.querySelector('.btn.danger');btn.disabled=true;btn.textContent='جاري الإغلاق…';
+  if(sels.some(x=>!x.value))return ferr('اختر نقطة جديدة لكل موظف.');
+  const apend=aevs().filter(e=>e.pt===name&&e.status==='جديد').length,asum=astSum(astBal(name)),adest=f.querySelector('#pc-ast');if(apend)return ferr(`يوجد ${apend} طلب أصول معلق لهذه النقطة. احسمه أولاً من تبويب «أصول النقاط».`);
+  if((asum.g||asum.d)&&!(adest&&adest.value))return ferr('اختر النقطة التي ستُنقل إليها أصول هذه النقطة.');const btn=f.querySelector('.btn.danger');btn.disabled=true;btn.textContent='جاري الإغلاق…';
   try{const moved=[];for(const x of sels){const e=S.emps.get(x.dataset.pcd);await moveMany([x.dataset.pcd],x.value,pointInfo(x.value)||{},{focal:false});moved.push(`${e.name} ← ${x.value}`)}
-    await rpc('aei_set',{p:PIN,c:'point',i:name,d:{...(S.points.get(name)||{}),closed:true,closedAt:today()}});await refresh('emp');await refresh('point');
+    if(adest&&adest.value){const b=astBal(name),rows=Object.entries(b).filter(([k,x])=>x.g||x.d).map(([k,x])=>({item:k,g:x.g,d:x.d}));await axTransfer(name,adest.value,rows,today(),'إغلاق نقطة '+name);moved.push(`الأصول (${asum.g} صالح، ${asum.d} تالف) ← ${adest.value}`);await refresh('aev')}
+    await rpc('aei_set',{p:PIN,c:'point',i:name,d:{...(S.points.get(name)||{}),closed:true,closedAt:today()}});if(S.apin.has(name)){await rpc('aei_delete',{p:PIN,c:'apin',i:name});await refresh('apin')}await refresh('emp');await refresh('point');
     log('إغلاق نقطة',{id:'',name},moved.join(' | ')||'بدون موظفين');dlg.close();toast(`أُغلقت نقطة ${name}${moved.length?' ووُزّع '+moved.length+' موظف':''}`)}
   catch(e){btn.disabled=false;btn.textContent='إغلاق النقطة';ferr('لم يكتمل: '+e.message+'. راجع قاعدة البيانات، فقد يكون بعض الموظفين نُقلوا.')}}
+function astCloseBlock(name,dests){if(!isAdmin())return '';const pend=aevs().filter(e=>e.pt===name&&e.status==='جديد').length,s=astSum(astBal(name));
+  if(pend)return `<div class="note bad">يوجد ${pend} طلب أصول معلق لهذه النقطة. احسمه من تبويب «أصول النقاط» قبل الإغلاق.</div>`;
+  return s.g||s.d?`<fieldset><label class="wide">نقل أصول النقطة (صالح ${s.g}، تالف ${s.d}) إلى<select id="pc-ast" required>${opts(dests,'','— اختر النقطة —')}</select></label><div class="wide muted" style="font-size:12.5px">تُسجَّل كحركة نقل، ويُلغى رمز دخول أصول النقطة المغلقة.</div></fieldset>`:''}
 function editPoint(name){const r=pointRows().find(x=>x.name===name);if(!r)return;
   dlg.innerHTML=`<form id="ptf" data-id="${h(name)}">`+head('بيانات نقطة '+h(name))+`<div class="db"><div id="ferr"></div>
    <fieldset><legend>العنوان</legend>${inp('addr','عنوان النقطة (الشارع، أقرب معلم…)',r.addr,{wide:1})}</fieldset>
@@ -902,8 +938,8 @@ async function saveResEdit(f){const rid=f.dataset.rid,e=S.res.get(rid),o=formDat
   const LB={resignDate:'تاريخ الاستقالة',resignNote:'ملاحظات',repName:'اسم البديل',repId:'هوية البديل',repMobile:'جوال البديل',repPoint:'نقطة البديل',name:'الاسم',mobile:'الجوال',pay:'طريقة الراتب',iban:'الأيبان'},norm=(k,v)=>k==='mobile'||k==='repMobile'?mob(v||'').replace(/^0/,''):String(v??''),ch=Object.keys(LB).filter(k=>norm(k,e[k])!==norm(k,o[k]));
   if(!ch.length){dlg.close();return}const btn=f.querySelector('.pri');btn.disabled=true;
   try{await S.db.doc('resigned/'+rid).update(o);log('تعديل استقالة',{id:rid,name:o.name},ch.map(k=>`${LB[k]}: ${e[k]||'—'} ← ${o[k]||'—'}`).join(' | '));dlg.close();toast('حُفظت التعديلات')}catch(er){btn.disabled=false;ferr(er.message)}}
-const LG=[['emp','الموظفون','var(--brand)'],['res','الاستقالات','var(--bad)'],['leave','الإجازات','var(--t-cure)'],['req','الطلبات','var(--warn)'],['pt','النقاط','var(--t-prev)'],['sys','النظام','var(--muted)']];
-function logGroup(t){t=t||'';if(/نسخة|استعادة/.test(t))return 'sys';if(/إجازة/.test(t))return 'leave';if(/طلب|رفض تسجيل|رفض تعديل/.test(t))return 'req';if(/استقالة|إرجاع للعمل/.test(t))return 'res';if(/نقطة|لنقطة/.test(t))return 'pt';return 'emp'}
+const LG=[['emp','الموظفون','var(--brand)'],['ast','الأصول','var(--t-cash)'],['res','الاستقالات','var(--bad)'],['leave','الإجازات','var(--t-cure)'],['req','الطلبات','var(--warn)'],['pt','النقاط','var(--t-prev)'],['sys','النظام','var(--muted)']];
+function logGroup(t){t=t||'';if(/أصل|أصول/.test(t))return 'ast';if(/نسخة|استعادة/.test(t))return 'sys';if(/إجازة/.test(t))return 'leave';if(/طلب|رفض تسجيل|رفض تعديل/.test(t))return 'req';if(/استقالة|إرجاع للعمل/.test(t))return 'res';if(/نقطة|لنقطة/.test(t))return 'pt';return 'emp'}
 function logText(t){let pre='';t=String(t||'').replace(/^(طلب من الموظف) · /,(m,x)=>{pre=x;return ''});const parts=t.split(' | ').filter(Boolean);
   return parts.map(p=>{const m=p.match(/^(.{1,40}?):\s(.*?)\s←\s(.*)$/);if(m)return `<li><b>${h(m[1])}</b> <s>${h(m[2])}</s> ← <span class="nv">${h(m[3])}</span></li>`;
     const m2=p.match(/^(.{1,40}?):\s(.*)$/);return m2&&!/←/.test(p)?`<li><b>${h(m2[1])}</b> ${h(m2[2])}</li>`:`<li>${h(p)}</li>`}).join('')+(pre?`<li class="lgsrc">${h(pre)}</li>`:'')}
@@ -1150,6 +1186,345 @@ document.addEventListener('input',ev=>{const el=ev.target;
 document.addEventListener('change',ev=>{const el=ev.target;
   if(el.dataset&&el.dataset.newable&&el.value==='__new__'){const i=document.createElement('input');i.id=el.id;i.name=el.name;i.placeholder='اكتب القيمة الجديدة';i.required=el.required;el.replaceWith(i);i.focus();return}if(el.dataset&&el.dataset.lstatus)S.db.doc('leave/'+el.dataset.lstatus).update({status:el.value}).then(()=>toast('حُدّثت حالة الطلب'),e=>toast('لم تُحفظ: '+e.message))});
 dlg.addEventListener('click',ev=>{if(ev.target===dlg)dlg.close()});
+/* ---------- point assets (أصول النقاط) ---------- */
+const AT={'توريد':{c:'ok',ic:'📦',d:'أصول جديدة وصلت للنقطة',fx:q=>({dg:q})},
+ 'تلف':{c:'warn',ic:'⚠️',d:'أصل صالح أصبح تالفاً',fx:q=>({dg:-q,dd:q})},
+ 'إصلاح':{c:'ok',ic:'🔧',d:'أصل تالف أُصلح وعاد صالحاً',fx:q=>({dg:q,dd:-q})},
+ 'سرقة':{c:'bad',ic:'🚨',d:'أصل صالح سُرق من النقطة',fx:q=>({dg:-q,dl:q})},
+ 'فقد':{c:'bad',ic:'❓',d:'أصل صالح فُقد ولا يُعرف مكانه',fx:q=>({dg:-q,dl:q})},
+ 'سحب':{c:'mut',ic:'🗑️',d:'سحب أصل تالف من النقطة نهائياً',fx:q=>({dd:-q})}};
+const AT_ALL=[...Object.keys(AT),'افتتاحي','تصحيح','نقل صادر','نقل وارد'],ACATS=['أثاث','أجهزة','أخرى'],AST_ST=['جديد','معتمد','مرفوض','ملغى'];
+const atc=t=>AT[t]?AT[t].c:t==='افتتاحي'?'ok':t==='تصحيح'?'mut':'brand';
+const evBadge=t=>`<span class="axt axt-${atc(t)}">${h(t)}</span>`;
+const astSt=s=>`<span class="st st-${s==='معتمد'?'ok':s==='مرفوض'||s==='ملغى'?'no':'new'}">${h(s==='جديد'?'بانتظار الاعتماد':s||'—')}</span>`;
+const dxText=e=>{const p=[];if(+e.dg)p.push('صالح '+(e.dg>0?'+':'−')+Math.abs(e.dg));if(+e.dd)p.push('تالف '+(e.dd>0?'+':'−')+Math.abs(e.dd));if(+e.dl)p.push('مفقود '+(e.dl>0?'+':'−')+Math.abs(e.dl));return p.join(' · ')};
+const waUrl=(m,t)=>(m&&/^5[69]\d{7}$/.test(m)?'https://wa.me/970'+m:'https://wa.me/')+(t?'?text='+encodeURIComponent(t):'');
+const rid=n=>{const a=new Uint8Array(n||16);crypto.getRandomValues(a);return [...a].map(x=>'abcdefghijkmnpqrstuvwxyz23456789'[x%32]).join('')};
+/* admin data helpers */
+const aevs=()=>[...S.aev.values()],acatName=id=>(S.acat.get(id)||{}).name,evItem=e=>acatName(e.item)||e.itemName||'—';
+const pendAst=()=>aevs().filter(e=>e.status==='جديد'),newCats=()=>[...S.acat.entries()].filter(([k,v])=>v.status==='جديد');
+const isNewItem=e=>(S.acat.get(e.item)||{}).status==='جديد';
+const catList=()=>[...S.acat.entries()].filter(([k,v])=>v.status==='معتمد').map(([id,v])=>({id,...v})).sort((a,b)=>(a.ord||999)-(b.ord||999)||(a.name||'').localeCompare(b.name||'','ar'));
+function astBalAll(){const m={};for(const e of S.aev.values())if(e.status==='معتمد'){const p=m[e.pt]=m[e.pt]||{},x=p[e.item]=p[e.item]||{g:0,d:0,l:0};x.g+=+e.dg||0;x.d+=+e.dd||0;x.l+=+e.dl||0}return m}
+const astBal=pt=>astBalAll()[pt]||{},astSum=b=>Object.values(b).reduce((a,x)=>({g:a.g+x.g,d:a.d+x.d,l:a.l+x.l}),{g:0,d:0,l:0});
+const astPoints=()=>[...new Set([...allPoints().filter(p=>p!=='إداري'),...Object.entries(astBalAll()).filter(([p,b])=>{const s=astSum(b);return s.g||s.d}).map(([p])=>p)])].sort((a,b)=>a.localeCompare(b,'ar'));
+function ptLabel(p){const r=pointRows().find(x=>x.name===p),t=r?r.types:[],pv=t.includes('وقائي'),cu=t.includes('علاجي');return pv&&cu?'رصيد الوقائي – نقطة مشتركة':cu?'رصيد العلاجي':pv?'رصيد الوقائي':'رصيد النقطة'}
+const newEvId=()=>'e'+Date.now().toString(36)+rid(6);
+async function axPut(d){const id=newEvId();await rpc('aei_set',{p:PIN,c:'aev',i:id,d:{src:'إدارة',by:'الإدارة',status:'معتمد',ts:Date.now(),adm:Date.now(),date:today(),...d}});return id}
+function supSuggest(name){const n=nrm(name),w=n.split(' '),es=[...S.live.values()];let e=es.find(x=>nrm(x.name)===n);if(e)return mob(e.mobile);
+  const m=es.filter(x=>{const v=nrm(x.name).split(' ');return v[0]===w[0]&&v[v.length-1]===w[w.length-1]});return m.length===1?mob(m[0].mobile):''}
+function genCode(used){for(;;){const a=new Uint32Array(1);crypto.getRandomValues(a);const c=String(100000+a[0]%900000),d=[...c].map(Number);
+  if(new Set(c).size<4||d.every((x,i)=>!i||x===d[i-1]+1)||d.every((x,i)=>!i||x===d[i-1]-1)||used.has(c))continue;return c}}
+async function axEnsureCode(pt){if(S.apin.has(pt))return;const used=new Set([...S.apin.values()].map(x=>x.code));await rpc('aei_set',{p:PIN,c:'apin',i:pt,d:{code:genCode(used),ts:Date.now()}})}
+
+/* ---------- admin tab ---------- */
+function vAst(){const sum=$('.sum');if(sum)sum.hidden=true;const f=S.af=S.af||{sub:'',q:'',pt:'',type:'',st:'',m:'',region:'',sup:'',cat:''},pend=pendAst();
+  if(!f.sub)f.sub=pend.length?'req':'bal';
+  const tot={g:0,d:0,l:0};for(const p of Object.values(astBalAll())){const x=astSum(p);tot.g+=x.g;tot.d+=x.d;tot.l+=x.l}const cm=curMonth();
+  const sup=aevs().filter(e=>e.status==='معتمد'&&e.type==='توريد'&&(e.date||'').slice(0,7)===cm).reduce((a,e)=>a+(+e.q||0),0),noCode=astPoints().filter(p=>!S.apin.has(p)&&allPoints().includes(p)).length;
+  const kp=(v,l,s,hot)=>`<button class="kpi${hot&&v?' hot':''}" data-ax="sub" data-v="${s}"><b>${v}</b><span>${l}</span></button>`;
+  const tabs=[['req','الطلبات المعلقة',pend.length],['bal','الأرصدة'],['log','سجل الحركات'],['cat','قائمة الأصول',newCats().length],['pins','الرموز والمشرفون',noCode]];
+  $('#view').innerHTML=`<div class="kpis">${kp(tot.g,'أصل صالح (العدد الكلي)','bal')}${kp(tot.d,'تالف (خارج العدد)','bal',1)}${kp(tot.l,'مفقود ومسروق','log',1)}${kp(sup,'توريد هذا الشهر','log')}${kp(pend.length,'طلب بانتظار الاعتماد','req',1)}</div>
+   <div class="lgchips" role="tablist">${tabs.map(([k,l,n])=>`<button class="lgc${f.sub===k?' on':''}" data-ax="sub" data-v="${k}" role="tab" aria-selected="${f.sub===k}">${l}${n?` <b>${n}</b>`:''}</button>`).join('')}</div><div id="axv"></div>`;
+  ({req:axReq,bal:axBal,log:axLog,cat:axCat,pins:axPins})[f.sub]()}
+const axSel=(id,arr,v,blank,lab)=>`<select id="${id}" aria-label="${lab||blank}">${opts(arr,v,blank)}</select>`;
+function axReq(){const rs=pendAst().sort((a,b)=>(a.ts||0)-(b.ts||0));
+  $('#axv').innerHTML=rs.length?`<div class="hint"><span><b>${rs.length}</b> طلب بانتظار الاعتماد، الأقدم أولاً</span><span>تابِع مع مشرف النقطة ثم اعتمد أو ارفض. الرصيد لا يتغير قبل الاعتماد.</span></div>
+   <div class="tw"><table class="lvt"><thead><tr><th>النقطة</th><th>الحدث</th><th>الأصل</th><th>العدد</th><th>تاريخ الحدث</th><th>المسجّل</th><th>صورة</th><th>أُرسل في</th><th>إجراءات</th></tr></thead><tbody>${rs.map(e=>`<tr data-ax="ev" data-id="${h(e.id)}"><td class="nm">${h(e.pt)}<small class="muted">${h((pointInfo(e.pt)||{}).psup||'')}</small></td><td>${evBadge(e.type)}</td><td>${h(evItem(e))}${isNewItem(e)?' <span class="st st-new">أصل جديد</span>':''}</td><td class="num">${h(e.q)}</td><td class="num">${h(fd(e.date))}</td><td>${h(e.by||'—')}</td><td>${e.link?`<a href="${h(e.link)}" target="_blank" rel="noopener" data-ax="noop">عرض</a>`:'—'}</td><td class="num">${h(new Date(e.ts).toLocaleDateString('en-GB'))}</td><td><button class="btn sm pri" data-ax="ev" data-id="${h(e.id)}">مراجعة</button></td></tr>`).join('')}</tbody></table></div>`
+   :'<div class="empty">لا توجد طلبات أصول بانتظار الاعتماد.</div>'}
+function axBal(){const f=S.af,all=astBalAll(),qs=nrm(f.q).split(' ').filter(Boolean),pts0=astPoints();
+  const pts=pts0.filter(p=>{const i=pointInfo(p)||(S.points.get(p)||{});return(!f.region||i.region===f.region)&&(!f.sup||i.psup===f.sup)&&qs.every(w=>nrm(p+' '+(i.psup||'')+' '+(i.area||'')).includes(w))});
+  const cats=catList().filter(c=>!f.cat||c.cat===f.cat),used=cats.filter(c=>pts0.some(p=>{const x=(all[p]||{})[c.id];return x&&(x.g||x.d)})),cols=used.length?used:cats;
+  const T={},cell=(p,c)=>{const x=(all[p]||{})[c.id];if(!x||!(x.g||x.d))return '<td class="num muted">—</td>';const t=T[c.id]=T[c.id]||{g:0,d:0};t.g+=x.g;t.d+=x.d;return `<td class="num"><b>${x.g}</b>${x.d?`<small class="axd" title="تالف">${x.d}</small>`:''}</td>`};
+  let G=0,D=0;const rows=pts.map(p=>{const s=astSum(all[p]||{});G+=s.g;D+=s.d;return `<tr data-ax="pt" data-axp="${h(p)}"><td class="nm">${h(p)}<small class="muted">${h((pointInfo(p)||S.points.get(p)||{}).psup||'')}${S.points.get(p)&&S.points.get(p).closed?' · مغلقة':''}</small></td>${cols.map(c=>cell(p,c)).join('')}<td class="num"><b>${s.g}</b></td><td class="num">${s.d||'—'}</td></tr>`}).join('');
+  $('#axv').innerHTML=`<div class="filters"><input class="q" id="axf-q" type="search" placeholder="بحث باسم النقطة أو المشرف…" value="${h(f.q)}" aria-label="بحث في الأرصدة">${axSel('axf-region',uniq('region').filter(x=>x!=='إداري'),f.region,'كل المحافظات')}${axSel('axf-sup',uniq('psup').filter(x=>x!=='إداري'),f.sup,'كل المشرفين')}${axSel('axf-cat',ACATS,f.cat,'كل الفئات')}</div>
+   <div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:8px"><span class="hint" style="margin:0"><span><b>${pts.length}</b> نقطة</span><span>صالح <b>${G}</b></span><span>تالف <b>${D}</b></span><span>الرقم الصغير الأحمر = التالف (خارج العدد الكلي)</span></span>
+   <span class="acts"><button class="btn sm pri" data-ax="add">إضافة حركة</button><button class="btn sm" data-ax="move">نقل أصول بين نقاط</button><button class="btn sm" data-ax="import">استيراد رصيد افتتاحي</button><button class="btn sm" data-ax="export">تصدير Excel</button></span></div>
+   ${pts.length?`<div class="tw"><table class="axm"><thead><tr><th>النقطة</th>${cols.map(c=>`<th>${h(c.name)}</th>`).join('')}<th>الإجمالي الصالح</th><th>التالف</th></tr></thead><tbody>${rows}</tbody>
+   <tfoot><tr><td class="rn"></td><td>الإجمالي</td>${cols.map(c=>`<td class="num"><b>${(T[c.id]||{}).g||0}</b>${(T[c.id]||{}).d?`<small class="axd">${T[c.id].d}</small>`:''}</td>`).join('')}<td class="num"><b>${G}</b></td><td class="num">${D}</td></tr></tfoot></table></div>`:'<div class="empty">لا توجد نقاط مطابقة.</div>'}`}
+function axPoint(pt){const b=astBal(pt),s=astSum(b),ids=Object.keys(b).filter(k=>b[k].g||b[k].d||b[k].l).sort((x,y)=>((S.acat.get(x)||{}).ord||999)-((S.acat.get(y)||{}).ord||999)),evs=aevs().filter(e=>e.pt===pt).sort((a,c)=>(c.ts||0)-(a.ts||0)),pin=S.apin.get(pt),i=pointInfo(pt)||{};
+  dlg.innerHTML=head('أصول نقطة '+h(pt))+`<div class="db"><div class="esum"><div class="acts" style="align-items:center"><span class="chip">${h(ptLabel(pt))}</span>${evs.some(e=>e.status==='جديد')?`<span class="st st-new">${evs.filter(e=>e.status==='جديد').length} طلب معلق</span>`:''}</div><div class="muted">المشرف: ${h(i.psup||'—')} · صالح <b class="num" style="color:var(--fg)">${s.g}</b> · تالف <b class="num">${s.d}</b> · مفقود <b class="num">${s.l}</b></div></div>
+   <section class="esec"><h3>الرصيد المعتمد</h3>${ids.length?`<div class="tw"><table class="lvt" data-num="1"><thead><tr><th>الأصل</th><th>الفئة</th><th>الصالح</th><th>التالف</th><th>المفقود/المسروق</th></tr></thead><tbody>${ids.map(k=>`<tr style="cursor:default"><td class="nm">${h(acatName(k)||(evs.find(e=>e.item===k)||{}).itemName||'—')}</td><td>${h((S.acat.get(k)||{}).cat||'—')}</td><td class="num"><b>${b[k].g}</b></td><td class="num">${b[k].d||'—'}</td><td class="num">${b[k].l||'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="muted">لا يوجد رصيد معتمد.</div>'}</section>
+   <section class="esec"><h3>آخر الحركات</h3>${evs.length?`<div class="tw"><table class="lvt" data-num="1"><thead><tr><th>التاريخ</th><th>الحدث</th><th>الأصل</th><th>العدد</th><th>الحالة</th></tr></thead><tbody>${evs.slice(0,25).map(e=>`<tr data-ax="ev" data-id="${h(e.id)}"><td class="num">${h(fd(e.date))}</td><td>${evBadge(e.type)}</td><td>${h(evItem(e))}</td><td class="num">${h(e.q)}</td><td>${astSt(e.status)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="muted">لا توجد حركات.</div>'}</section>
+   <section class="esec"><h3>رمز دخول النقطة</h3><div>${pin?`<b class="num axcodev">${h(pin.code)}</b> <button class="btn sm" type="button" data-copy="${h(pin.code)}">نسخ</button>`:'<span class="muted">لا يوجد رمز بعد.</span> <button class="btn sm" type="button" data-ax="gen1" data-axp="'+h(pt)+'">توليد رمز</button>'}</div></section></div>
+   <div class="df"><div><button class="btn pri" data-ax="add" data-axp="${h(pt)}">إضافة حركة</button><button class="btn" data-ax="move" data-axp="${h(pt)}">نقل أصولها</button></div><div><button class="btn" data-act="close">إغلاق</button></div></div>`;open()}
+function axLog(){const f=S.af,qs=nrm(f.q).split(' ').filter(Boolean),all=aevs(),months=[...new Set(all.map(e=>(e.date||'').slice(0,7)).filter(Boolean))].sort().reverse();
+  const rs=all.filter(e=>(!f.pt||e.pt===f.pt)&&(!f.type||e.type===f.type)&&(!f.st||e.status===f.st)&&(!f.m||(e.date||'').slice(0,7)===f.m)&&qs.every(w=>nrm([e.pt,evItem(e),e.by,e.note,e.type].join(' ')).includes(w))).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.ts||0)-(a.ts||0));
+  $('#axv').innerHTML=`<div class="filters"><input class="q" id="axf-q" type="search" placeholder="بحث بالنقطة، الأصل، المسجّل، الملاحظة…" value="${h(f.q)}" aria-label="بحث في الحركات">${axSel('axf-pt',[...new Set(all.map(e=>e.pt))].sort((a,b)=>a.localeCompare(b,'ar')),f.pt,'كل النقاط')}${axSel('axf-type',AT_ALL,f.type,'كل الأحداث')}${axSel('axf-st',AST_ST,f.st,'كل الحالات')}<select id="axf-m" aria-label="الشهر"><option value="">كل الأشهر</option>${months.map(m=>`<option value="${m}"${f.m===m?' selected':''}>${MN[+m.slice(5)-1]} ${m.slice(0,4)}</option>`).join('')}</select></div>
+   <div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:8px"><span class="hint" style="margin:0"><span>المعروض <b>${rs.length}</b> من <b>${all.length}</b> حركة</span>${['توريد','تلف','سرقة','فقد'].map(t=>{const n=rs.filter(e=>e.type===t&&e.status==='معتمد').reduce((a,e)=>a+(+e.q||0),0);return n?`<span>${t} <b>${n}</b></span>`:''}).join('')}<span>التاريخ = تاريخ الحدث</span></span><span class="acts"><button class="btn sm" data-ax="export">تصدير Excel</button></span></div>
+   ${rs.length?`<div class="tw"><table class="lvt"><thead><tr><th>تاريخ الحدث</th><th>النقطة</th><th>الحدث</th><th>الأصل</th><th>العدد</th><th>الأثر على الرصيد</th><th>المسجّل</th><th>الحالة</th></tr></thead><tbody>${rs.slice(0,600).map(e=>`<tr data-ax="ev" data-id="${h(e.id)}"><td class="num">${h(fd(e.date))}</td><td class="nm">${h(e.pt)}${e.to||e.from?`<small class="muted">${e.to?'إلى '+h(e.to):'من '+h(e.from)}</small>`:''}</td><td>${evBadge(e.type)}</td><td>${h(evItem(e))}</td><td class="num">${h(e.q)}</td><td class="num">${e.status==='معتمد'?h(dxText(e)):'—'}</td><td>${h(e.by||'—')}</td><td>${astSt(e.status)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">لا توجد حركات مطابقة.</div>'}`}
+function axCat(){const all=astBalAll(),tot={},pc={};for(const [p,b] of Object.entries(all))for(const [k,x] of Object.entries(b)){const t=tot[k]=tot[k]||{g:0,d:0};t.g+=x.g;t.d+=x.d;if(x.g||x.d)pc[k]=(pc[k]||0)+1}
+  const rs=[...S.acat.entries()].filter(([k,v])=>['معتمد','جديد','مخفي'].includes(v.status)).map(([id,v])=>({id,...v})).sort((a,b)=>(a.status==='جديد'?0:1)-(b.status==='جديد'?0:1)||(a.status==='مخفي'?1:0)-(b.status==='مخفي'?1:0)||(a.ord||999)-(b.ord||999)||(a.name||'').localeCompare(b.name||'','ar'));
+  $('#axv').innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:8px"><span class="hint" style="margin:0"><span><b>${rs.filter(x=>x.status==='معتمد').length}</b> أصل في القائمة</span>${newCats().length?`<span style="color:var(--warn)"><b>${newCats().length}</b> أصل جديد مقترح من النقاط</span>`:''}<span>هذه القائمة تظهر للموظفين عند تسجيل أي حدث</span></span><span class="acts"><button class="btn sm pri" data-ax="catnew">إضافة أصل للقائمة</button></span></div>
+   <div class="tw"><table class="lvt"><thead><tr><th>الأصل</th><th>الفئة</th><th>الحالة</th><th>نقاط فيها رصيد</th><th>الصالح</th><th>التالف</th><th>إجراءات</th></tr></thead><tbody>${rs.map(c=>`<tr data-ax="cat" data-id="${h(c.id)}"${c.status==='مخفي'?' class="axhid"':''}><td class="nm">${h(c.name)}${c.status==='جديد'&&c.pt?`<small class="muted">اقترحته نقطة ${h(c.pt)}${c.by?' · '+h(c.by):''}</small>`:''}</td><td>${h(c.cat||'—')}</td><td>${c.status==='جديد'?'<span class="st st-new">بانتظار الاعتماد</span>':c.status==='مخفي'?'<span class="st st-no">مخفي</span>':'<span class="st st-ok">معتمد</span>'}</td><td class="num">${pc[c.id]||0}</td><td class="num">${(tot[c.id]||{}).g||0}</td><td class="num">${(tot[c.id]||{}).d||0}</td><td><button class="btn sm${c.status==='جديد'?' pri':''}" data-ax="cat" data-id="${h(c.id)}">${c.status==='جديد'?'مراجعة':'تعديل'}</button></td></tr>`).join('')}</tbody></table></div>`}
+function axPins(){const pts=allPoints().filter(p=>p!=='إداري'),miss=pts.filter(p=>!S.apin.has(p)),sm=S.meta.get('supmob')||{},sups=[...new Set([...uniq('psup'),...[...S.points.values()].map(x=>x.psup||'')])].filter(x=>x&&x!=='إداري').sort((a,b)=>a.localeCompare(b,'ar'));
+  $('#axv').innerHTML=`<section class="esec"><h3>رموز دخول النقاط</h3><div class="muted" style="font-size:13px;margin-bottom:8px">كل نقطة لها رمز من 6 أرقام لصفحة <b>أصول النقاط</b>. أرسل لكل نقطة رمزها فقط. تجديد الرمز يعطّل القديم فوراً، وإغلاق النقطة يلغي رمزها.</div>
+   <div class="acts" style="margin-bottom:8px">${miss.length?`<button class="btn sm pri" data-ax="genall">توليد الرموز الناقصة (${miss.length})</button>`:''}<button class="btn sm" data-link="assets">نسخ رابط صفحة الأصول</button><button class="btn sm" data-ax="copyall">نسخ كل الرموز كنص</button></div>
+   <div class="tw"><table class="lvt"><thead><tr><th>النقطة</th><th>المشرف</th><th>الرمز</th><th>آخر تجديد</th><th>إجراءات</th></tr></thead><tbody>${pts.map(p=>{const c=S.apin.get(p);return `<tr style="cursor:default"><td class="nm">${h(p)}</td><td>${h((pointInfo(p)||{}).psup||'—')}</td><td>${c?`<b class="num axcodev">${h(c.code)}</b>`:'<span class="st st-new">بدون رمز</span>'}</td><td class="num">${c&&c.ts?h(new Date(c.ts).toLocaleDateString('en-GB')):'—'}</td><td><div class="acts">${c?`<button class="btn sm" data-copy="${h(c.code)}">نسخ</button><button class="btn sm" data-ax="regen" data-axp="${h(p)}">تجديد</button>`:`<button class="btn sm" data-ax="gen1" data-axp="${h(p)}">توليد</button>`}</div></td></tr>`}).join('')}</tbody></table></div></section>
+   <section class="esec" style="margin-top:16px"><h3>أرقام جوال المشرفين</h3><div class="muted" style="font-size:13px;margin-bottom:8px">يظهر الرقم للموظف في صفحة الأصول ليتواصل مع مشرفه، ويُستخدم لزر واتساب. الرقم المقترح مأخوذ من سجل المشرف في قاعدة الموظفين إن وُجد.</div>
+   <form id="axsf"><div class="axsups">${sups.map((s,i)=>`<label>${h(s)}<input name="s${i}" data-sup="${h(s)}" dir="ltr" inputmode="tel" placeholder="${h(supSuggest(s)||'059xxxxxxx')}" value="${h(sm[s]?mob(sm[s]):supSuggest(s))}"></label>`).join('')||'<div class="muted">لا يوجد مشرفون.</div>'}</div><div class="acts" style="margin-top:10px"><button class="btn pri">حفظ أرقام المشرفين</button></div></form></section>`}
+
+/* review / approve / reject / cancel */
+function axEv(id){const e=S.aev.get(id);if(!e)return;const b=astBal(e.pt)[e.item]||{g:0,d:0,l:0},it=S.acat.get(e.item)||{},pend=e.status==='جديد',nw=pend&&it.status==='جديد';
+  const kv=(l,v,w)=>`<div${w?' class="wide"':''}><dt>${l}</dt><dd>${v}</dd></div>`;
+  dlg.innerHTML=`<form id="axrv" data-id="${h(id)}">`+head(`${h(e.type)} · ${h(evItem(e))} · نقطة ${h(e.pt)}`)+`<div class="db"><div id="ferr"></div>
+   <div class="esum"><div class="acts" style="align-items:center">${evBadge(e.type)}${astSt(e.status)}${e.src==='إدارة'?'<span class="chip">من الإدارة</span>':'<span class="chip">من النقطة</span>'}</div><div class="muted">سُجّل <span class="num">${h(new Date(e.ts).toLocaleString('en-GB'))}</span>${e.adm&&!pend?` · قرار الإدارة <span class="num">${h(new Date(e.adm).toLocaleString('en-GB'))}</span>`:''}</div></div>
+   <section class="esec"><h3>تفاصيل الحدث</h3><dl class="kv">${kv('النقطة',h(e.pt))+kv('الأصل',h(evItem(e))+(nw?' <span class="st st-new">أصل جديد</span>':''))+kv('العدد',`<span class="num">${h(e.q)}</span>${e.q0?` <span class="muted">(طُلب ${h(e.q0)})</span>`:''}`)+kv('تاريخ الحدث',`<span class="num">${h(fd(e.date))}</span>`)+kv('المسجّل',h(e.by||'—'))+(e.to?kv('إلى نقطة',h(e.to)):'')+(e.from?kv('من نقطة',h(e.from)):'')+(e.status==='معتمد'?kv('الأثر على الرصيد',h(dxText(e))):'')+kv('الملاحظة',h(e.note||'—'),1)+(e.link?kv('صورة',`<a href="${h(e.link)}" target="_blank" rel="noopener">فتح رابط الصورة</a>`,1):'')+(e.why?kv(e.status==='معتمد'?'ملاحظة الاعتماد':'سبب الرفض / الإلغاء',h(e.why),1):'')}</dl></section>
+   <section class="esec"><h3>رصيد هذا الأصل في النقطة الآن</h3><dl class="kv">${kv('الصالح',`<span class="num">${b.g}</span>`)+kv('التالف',`<span class="num">${b.d}</span>`)+kv('المفقود/المسروق',`<span class="num">${b.l}</span>`)}${pend?`<div class="wide"><dt>بعد الاعتماد</dt><dd id="ax-after"></dd></div>`:''}</dl></section>
+   ${nw?`<section class="esec"><h3>أصل جديد غير موجود في القائمة</h3><fieldset><label class="chk wide"><input type="radio" name="nmode" value="new" checked> اعتماده كأصل جديد في القائمة</label>${inp('nname','اسم الأصل',it.name)}${sel('ncat','الفئة',ACATS,it.cat||'أخرى')}
+     <label class="chk wide"><input type="radio" name="nmode" value="merge"> هو نفس أصل موجود في القائمة (دمج)</label><label>الأصل الموجود<select id="e-nmerge" name="nmerge"><option value="">—</option>${catList().map(c=>`<option value="${h(c.id)}">${h(c.name)}</option>`).join('')}</select></label></fieldset></section>`:''}
+   ${pend?`<fieldset>${inp('q','العدد المعتمد (يمكن تصحيحه)',e.q,{type:'number',ltr:1})}<label class="wide">ملاحظة الاعتماد أو سبب الرفض<textarea id="e-why" name="why" maxlength="500"></textarea></label></fieldset>`:''}
+   ${e.status==='معتمد'?`<fieldset><label class="wide">سبب الإلغاء (مطلوب عند إلغاء الحركة)${e.pair?' · تُلغى معها حركة النقل المقابلة':''}<textarea id="e-why" name="why" maxlength="500"></textarea></label></fieldset>`:''}</div>
+   <div class="df"><div>${pend?'<button class="btn pri">اعتماد</button>':''}<button class="btn" type="button" data-act="close">إغلاق</button></div><div>${pend?'<button class="btn danger" type="button" data-ax="rej">رفض الطلب</button>':''}${e.status==='معتمد'?'<button class="btn danger" type="button" data-ax="cancel">إلغاء الحركة</button>':''}</div></div></form>`;open();if(pend)axAfter()}
+function axTarget(f,e){const m=f.querySelector('input[name=nmode]:checked');return m&&m.value==='merge'?(f.querySelector('#e-nmerge').value||e.item):e.item}
+function axAfter(){const f=$('#axrv'),out=$('#ax-after');if(!f||!out)return;const e=S.aev.get(f.dataset.id);if(!e)return;const q=parseInt(f.querySelector('#e-q').value,10)||0,it=axTarget(f,e),b=astBal(e.pt)[it]||{g:0,d:0,l:0},dx=AT[e.type].fx(q),g=b.g+(dx.dg||0),d=b.d+(dx.dd||0),l=b.l+(dx.dl||0),bad=g<0||d<0;
+  out.innerHTML=`<span>صالح ${b.g} ← <b>${g}</b> · تالف ${b.d} ← <b>${d}</b>${dx.dl?` · مفقود ${b.l} ← <b>${l}</b>`:''}</span>${bad?'<div class="note bad" style="margin-top:6px">الرصيد المعتمد لا يكفي لهذا العدد. صحّح العدد أو ارفض الطلب.</div>':''}`}
+async function axApprove(f){const id=f.dataset.id,btn=f.querySelector('.pri');btn.disabled=true;
+  try{await refresh('aev');await refresh('acat')}catch(x){}
+  const e=S.aev.get(id),fail=m=>{btn.disabled=false;btn.textContent='اعتماد';ferr(m)};if(!e||e.status!=='جديد'){dlg.close();return toast('هذا الطلب حُسم مسبقاً')}
+  const q=parseInt(f.querySelector('#e-q').value,10);if(!(q>=1&&q<=5000))return fail('أدخل عدداً صحيحاً بين 1 و 5000.');
+  const it=S.acat.get(e.item)||{},why=f.querySelector('#e-why').value.trim();let item=e.item,iname=evItem(e),op=null;
+  if(it.status==='جديد'){const mode=(f.querySelector('input[name=nmode]:checked')||{}).value;
+    if(mode==='merge'){const t=f.querySelector('#e-nmerge').value;if(!t)return fail('اختر الأصل الموجود للدمج.');item=t;iname=acatName(t);op={merge:t}}
+    else{const nn=f.querySelector('#e-nname').value.replace(/\s+/g,' ').trim(),nc=f.querySelector('#e-ncat').value||'أخرى';if(nn.length<2)return fail('اكتب اسم الأصل.');
+      const dup=catList().find(c=>nrm(c.name)===nrm(nn));if(dup)return fail(`يوجد أصل بنفس الاسم في القائمة (${dup.name}). اختر «دمج» معه.`);iname=nn;op={name:nn,cat:nc}}}
+  else if(it.status&&it.status!=='معتمد'&&it.status!=='مخفي')return fail('الأصل المرتبط بهذا الطلب لم يعد في القائمة. ارفض الطلب واطلب من النقطة إعادة تسجيله.');
+  const dx=AT[e.type].fx(q),b=astBal(e.pt)[item]||{g:0,d:0,l:0};
+  if(b.g+(dx.dg||0)<0||b.d+(dx.dd||0)<0)return fail(`لا يمكن الاعتماد: الرصيد المعتمد لهذا الأصل (صالح ${b.g}، تالف ${b.d}) لا يكفي لهذا العدد. صحّح العدد أو ارفض الطلب.`);
+  btn.textContent='جاري الاعتماد…';
+  try{if(op&&op.merge)await axMergeItem(e.item,op.merge);else if(op)await rpc('aei_update',{p:PIN,c:'acat',i:e.item,d:{status:'معتمد',name:op.name,cat:op.cat,ord:900}});
+    await rpc('aei_update',{p:PIN,c:'aev',i:id,d:{status:'معتمد',q,q0:q!==+e.q?+e.q:null,item,itemName:iname,dg:dx.dg||0,dd:dx.dd||0,dl:dx.dl||0,why,adm:Date.now()}});
+    await refresh('acat');await refresh('aev');log('اعتماد حركة أصول',{id:'',name:e.pt},`${e.type}: ${iname} × ${q}${q!==+e.q?` (طُلب ${e.q})`:''} | المسجّل: ${e.by||'—'}${op&&op.name?' | أصل جديد أُضيف للقائمة':''}${op&&op.merge?' | دُمج مع '+iname:''}${why?' | ملاحظة: '+why:''}`);dlg.close();toast('اعتُمدت الحركة وتحدّث الرصيد')}
+  catch(x){fail('لم يُحفظ: '+x.message)}}
+async function axMergeItem(from,to){const nm=acatName(to);for(const e of aevs().filter(x=>x.item===from))await rpc('aei_update',{p:PIN,c:'aev',i:e.id,d:{item:to,itemName:nm}});
+  await rpc('aei_update',{p:PIN,c:'acat',i:from,d:{status:'مدمج',into:to}})}
+async function axReject(btn){const f=btn.closest('form'),e=S.aev.get(f.dataset.id),why=f.querySelector('#e-why').value.trim();if(!e)return;if(why.length<3)return ferr('اكتب سبب الرفض ليظهر للنقطة.');
+  btn.disabled=true;try{await rpc('aei_update',{p:PIN,c:'aev',i:e.id,d:{status:'مرفوض',why,adm:Date.now()}});
+    if(isNewItem(e)&&!aevs().some(x=>x.id!==e.id&&x.item===e.item&&(x.status==='جديد'||x.status==='معتمد')))await rpc('aei_update',{p:PIN,c:'acat',i:e.item,d:{status:'مرفوض'}});
+    await refresh('aev');await refresh('acat');log('رفض حركة أصول',{id:'',name:e.pt},`${e.type}: ${evItem(e)} × ${e.q} | السبب: ${why}`);dlg.close();toast('رُفض الطلب')}
+  catch(x){btn.disabled=false;ferr('لم يُحفظ: '+x.message)}}
+async function axCancel(btn){const f=btn.closest('form'),e=S.aev.get(f.dataset.id),why=f.querySelector('#e-why').value.trim();if(!e)return;if(why.length<3)return ferr('اكتب سبب الإلغاء.');
+  if(!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='تأكيد الإلغاء';return}
+  const legs=[e,...(e.pair&&S.aev.get(e.pair)&&S.aev.get(e.pair).status==='معتمد'?[S.aev.get(e.pair)]:[])];
+  for(const x of legs){const b=astBal(x.pt)[x.item]||{g:0,d:0};if(b.g-(+x.dg||0)<0||b.d-(+x.dd||0)<0)return ferr(`لا يمكن الإلغاء: سيصبح رصيد ${evItem(x)} في نقطة ${x.pt} سالباً بسبب حركات لاحقة.`)}
+  btn.disabled=true;try{for(const x of legs)await rpc('aei_update',{p:PIN,c:'aev',i:x.id,d:{status:'ملغى',why,adm:Date.now()}});
+    await refresh('aev');log('إلغاء حركة أصول',{id:'',name:e.pt},`${e.type}: ${evItem(e)} × ${e.q} | السبب: ${why}`);dlg.close();toast('أُلغيت الحركة')}
+  catch(x){btn.disabled=false;ferr('لم يُحفظ: '+x.message)}}
+
+/* admin: add movement / correction */
+function axAdd(pt){const pts=astPoints(),T=[...Object.keys(AT),'تصحيح'];
+  dlg.innerHTML=`<form id="axaf">`+head('إضافة حركة أصول من الإدارة')+`<div class="db"><div id="ferr"></div><div class="muted" style="font-size:13px">الحركة التي تضيفها الإدارة تُعتمد مباشرة. «تصحيح» يضبط الرصيد على أرقام جديدة مع سبب إلزامي.</div>
+   <fieldset><label>النقطة<select id="e-pt" name="pt" required>${opts(pts,pt||'','—')}</select></label><label>الحدث<select id="e-type" name="type">${opts(T,'توريد')}</select></label>
+    <label class="wide">الأصل<select id="e-item" name="item" required><option value="">—</option>${catList().map(c=>`<option value="${h(c.id)}">${h(c.name)}</option>`).join('')}</select></label>
+    <div class="wide muted" id="ax-cur" style="font-size:13px"></div>
+    <label class="axq">العدد<input id="e-q" name="q" type="number" min="1" max="5000" value="1" dir="ltr"></label>
+    <label class="axfix" hidden>الصالح الصحيح<input id="e-ng" name="ng" type="number" min="0" dir="ltr"></label><label class="axfix" hidden>التالف الصحيح<input id="e-nd" name="nd" type="number" min="0" dir="ltr"></label>
+    ${inp('date','تاريخ الحدث',today(),{type:'date',req:1})}<label class="wide">ملاحظة / سبب<textarea id="e-note" name="note" maxlength="500"></textarea></label></fieldset></div>
+   <div class="df"><div><button class="btn pri">حفظ واعتماد</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open();axAddSync()}
+function axAddSync(){const f=$('#axaf');if(!f)return;const fix=f.querySelector('#e-type').value==='تصحيح',pt=f.querySelector('#e-pt').value,it=f.querySelector('#e-item').value,b=pt&&it?(astBal(pt)[it]||{g:0,d:0,l:0}):null;
+  f.querySelectorAll('.axfix').forEach(x=>x.hidden=!fix);f.querySelector('.axq').hidden=fix;
+  if(fix&&b){const g=f.querySelector('#e-ng'),d=f.querySelector('#e-nd');if(g.value==='')g.value=b.g;if(d.value==='')d.value=b.d}
+  f.querySelector('#ax-cur').textContent=b?`الرصيد المعتمد الآن: صالح ${b.g} · تالف ${b.d} · مفقود ${b.l}`:''}
+async function axAddSave(f){const o=formData(f),fix=o.type==='تصحيح';if(!o.pt)return ferr('اختر النقطة.');if(!o.item)return ferr('اختر الأصل.');if(!o.date)return ferr('أدخل التاريخ.');
+  const b=astBal(o.pt)[o.item]||{g:0,d:0,l:0};let dx,q;
+  if(fix){const g=parseInt(o.ng,10),d=parseInt(o.nd,10);if(!(g>=0)||!(d>=0))return ferr('أدخل الأرقام الصحيحة للصالح والتالف.');if(o.note.length<3)return ferr('اكتب سبب التصحيح.');dx={dg:g-b.g,dd:d-b.d};if(!dx.dg&&!dx.dd)return ferr('الأرقام مطابقة للرصيد الحالي، لا يوجد ما يُصحَّح.');q=Math.abs(dx.dg)+Math.abs(dx.dd)}
+  else{q=parseInt(o.q,10);if(!(q>=1&&q<=5000))return ferr('أدخل عدداً صحيحاً.');dx=AT[o.type].fx(q);if(b.g+(dx.dg||0)<0||b.d+(dx.dd||0)<0)return ferr(`الرصيد لا يكفي (صالح ${b.g}، تالف ${b.d}).`)}
+  const btn=f.querySelector('.pri');btn.disabled=true;
+  try{await axPut({pt:o.pt,item:o.item,itemName:acatName(o.item),type:o.type,q,date:o.date,note:o.note,dg:dx.dg||0,dd:dx.dd||0,dl:dx.dl||0});await refresh('aev');
+    log('حركة أصول من الإدارة',{id:'',name:o.pt},`${o.type}: ${acatName(o.item)} | ${dxText(dx)}${o.note?' | '+o.note:''}`);dlg.close();toast('حُفظت الحركة')}
+  catch(x){btn.disabled=false;ferr('لم تُحفظ: '+x.message)}}
+
+/* admin: transfer between points */
+function axMove(from){const pts=astPoints();
+  dlg.innerHTML=`<form id="axmf">`+head('نقل أصول بين نقطتين')+`<div class="db"><div id="ferr"></div><div class="muted" style="font-size:13px">يُخصم العدد من النقطة الأولى ويُضاف للثانية مباشرة، ويُسجَّل كحركتي «نقل صادر» و«نقل وارد».</div>
+   <fieldset><label>من نقطة<select id="e-from" name="from" required>${opts(pts,from||'','—')}</select></label><label>إلى نقطة<select id="e-to" name="to" required>${opts(allPoints().filter(p=>p!=='إداري'&&!(S.points.get(p)||{}).closed),'','—')}</select></label>${inp('date','تاريخ النقل',today(),{type:'date',req:1})}${inp('note','ملاحظة (اختياري)','',{})}</fieldset>
+   <div id="ax-mv"></div></div><div class="df"><div><button class="btn pri">تنفيذ النقل</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open();axMoveRows()}
+function axMoveRows(){const f=$('#axmf');if(!f)return;const from=f.querySelector('#e-from').value,b=from?astBal(from):{},ids=Object.keys(b).filter(k=>b[k].g||b[k].d);
+  $('#ax-mv').innerHTML=!from?'':ids.length?`<div class="tw"><table class="lvt" data-num="1"><thead><tr><th>الأصل</th><th>الصالح المتاح</th><th>ينقل صالح</th><th>التالف المتاح</th><th>ينقل تالف</th></tr></thead><tbody>${ids.map(k=>`<tr style="cursor:default"><td class="nm">${h(acatName(k)||k)}</td><td class="num">${b[k].g}</td><td><input type="number" min="0" max="${b[k].g}" value="${b[k].g}" data-mg="${h(k)}" dir="ltr" style="width:90px"></td><td class="num">${b[k].d}</td><td><input type="number" min="0" max="${b[k].d}" value="${b[k].d}" data-md="${h(k)}" dir="ltr" style="width:90px"></td></tr>`).join('')}</tbody></table></div>`:'<div class="muted">لا يوجد رصيد في هذه النقطة.</div>'}
+async function axTransfer(from,to,rows,date,note){for(const r of rows){const a=newEvId(),b=newEvId(),base={item:r.item,itemName:acatName(r.item)||r.item,q:r.g+r.d,date,note};
+    await rpc('aei_set',{p:PIN,c:'aev',i:a,d:{...base,src:'إدارة',by:'الإدارة',status:'معتمد',ts:Date.now(),adm:Date.now(),pt:from,type:'نقل صادر',to,pair:b,dg:-r.g,dd:-r.d,dl:0}});
+    await rpc('aei_set',{p:PIN,c:'aev',i:b,d:{...base,src:'إدارة',by:'الإدارة',status:'معتمد',ts:Date.now(),adm:Date.now(),pt:to,type:'نقل وارد',from,pair:a,dg:r.g,dd:r.d,dl:0}})}}
+async function axMoveSave(f){const o=formData(f);if(!o.from||!o.to)return ferr('اختر النقطتين.');if(o.from===o.to)return ferr('اختر نقطتين مختلفتين.');
+  const b=astBal(o.from),rows=[];for(const x of f.querySelectorAll('input[data-mg]')){const k=x.dataset.mg,g=parseInt(x.value||'0',10),d=parseInt((f.querySelector(`input[data-md="${CSS.escape(k)}"]`)||{}).value||'0',10),c=b[k]||{g:0,d:0};
+    if(!(g>=0&&g<=c.g&&d>=0&&d<=c.d))return ferr(`العدد المنقول من ${acatName(k)} أكبر من المتاح.`);if(g||d)rows.push({item:k,g,d})}
+  if(!rows.length)return ferr('لا يوجد ما يُنقل.');const btn=f.querySelector('.pri');btn.disabled=true;btn.textContent='جاري النقل…';
+  try{await axTransfer(o.from,o.to,rows,o.date||today(),o.note||'');await refresh('aev');log('نقل أصول بين نقاط',{id:'',name:o.from},`إلى ${o.to}: ${rows.map(r=>`${acatName(r.item)} ${r.g}${r.d?' + تالف '+r.d:''}`).join('، ')}`);dlg.close();toast('نُقلت الأصول')}
+  catch(x){btn.disabled=false;btn.textContent='تنفيذ النقل';ferr('توقف النقل: '+x.message+'. راجع سجل الحركات.')}}
+
+/* admin: catalog */
+function axCatEdit(id){const c=id?S.acat.get(id):null,nw=c&&c.status==='جديد',others=catList().filter(x=>x.id!==id);
+  dlg.innerHTML=`<form id="axcf" data-id="${h(id||'')}">`+head(!c?'إضافة أصل إلى القائمة':nw?'مراجعة أصل جديد مقترح':'تعديل أصل: '+h(c.name))+`<div class="db"><div id="ferr"></div>
+   ${nw?`<div class="note">اقترحته نقطة ${h(c.pt||'—')}${c.by?' · '+h(c.by):''}. عند اعتماده يظهر لكل النقاط. إن كان نفس أصل موجود اختر الدمج، فتنتقل حركاته إليه.</div>`:''}
+   <fieldset>${inp('name','اسم الأصل',c?c.name:'',{req:1})}${sel('cat','الفئة',ACATS,c?c.cat||'أخرى':'أثاث')}${c&&!nw?sel('status','الحالة',['معتمد','مخفي'],c.status):''}${c?`<label>دمج في أصل آخر (اختياري)<select id="e-into" name="into"><option value="">— بدون دمج —</option>${others.map(x=>`<option value="${h(x.id)}">${h(x.name)}</option>`).join('')}</select></label>`:''}</fieldset>
+   ${c&&!nw?'<div class="muted" style="font-size:13px">الأصل المخفي لا يظهر للنقاط عند تسجيل حدث جديد، ويبقى رصيده وحركاته كما هي. الأصول لا تُحذف للحفاظ على السجل.</div>':''}</div>
+   <div class="df"><div><button class="btn pri">${nw?'اعتماد':'حفظ'}</button><button class="btn" type="button" data-act="close">إلغاء</button></div>${nw?'<div><button class="btn danger" type="button" data-ax="catrej">رفض الاقتراح</button></div>':''}</div></form>`;open()}
+async function axCatSave(f){const id=f.dataset.id,o=formData(f),c=id?S.acat.get(id):null,name=o.name.replace(/\s+/g,' ').trim();if(name.length<2)return ferr('اكتب اسم الأصل.');
+  const btn=f.querySelector('.pri');btn.disabled=true;
+  try{if(o.into){if(!btn.dataset.sure){btn.disabled=false;btn.dataset.sure=1;btn.textContent='تأكيد الدمج';return ferr(`سيُدمج «${c.name}» في «${acatName(o.into)}» وتنتقل كل حركاته إليه. اضغط «تأكيد الدمج».`)}
+      await axMergeItem(id,o.into);log('دمج أصل',{id:'',name:c.name},`دُمج في ${acatName(o.into)}`)}
+    else{const dup=catList().find(x=>x.id!==id&&nrm(x.name)===nrm(name));if(dup){btn.disabled=false;return ferr(`يوجد أصل بنفس الاسم (${dup.name}). استخدم الدمج.`)}
+      if(c){await rpc('aei_update',{p:PIN,c:'acat',i:id,d:{name,cat:o.cat,status:c.status==='جديد'?'معتمد':(o.status||c.status),ord:c.ord||900}});
+        for(const e of aevs().filter(x=>x.item===id&&x.itemName!==name))await rpc('aei_update',{p:PIN,c:'aev',i:e.id,d:{itemName:name}});log(c.status==='جديد'?'اعتماد أصل جديد':'تعديل أصل',{id:'',name},`الفئة: ${o.cat}${o.status?' | الحالة: '+o.status:''}`)}
+      else{await rpc('aei_set',{p:PIN,c:'acat',i:'c'+Date.now().toString(36)+rid(4),d:{name,cat:o.cat,status:'معتمد',ord:900,ts:Date.now()}});log('إضافة أصل للقائمة',{id:'',name},'الفئة: '+o.cat)}}
+    await refresh('acat');await refresh('aev');dlg.close();toast('حُفظت قائمة الأصول')}
+  catch(x){btn.disabled=false;ferr('لم يُحفظ: '+x.message)}}
+async function axCatReject(btn){const f=btn.closest('form'),id=f.dataset.id,c=S.acat.get(id);if(!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='تأكيد الرفض (تُرفض طلباته المعلقة)';return}
+  btn.disabled=true;try{for(const e of aevs().filter(x=>x.item===id&&x.status==='جديد'))await rpc('aei_update',{p:PIN,c:'aev',i:e.id,d:{status:'مرفوض',why:'الأصل المقترح غير معتمد في القائمة',adm:Date.now()}});
+    await rpc('aei_update',{p:PIN,c:'acat',i:id,d:{status:'مرفوض'}});await refresh('acat');await refresh('aev');log('رفض أصل مقترح',{id:'',name:c.name},'من نقطة '+(c.pt||'—'));dlg.close();toast('رُفض الأصل المقترح')}
+  catch(x){btn.disabled=false;ferr('لم يُحفظ: '+x.message)}}
+
+/* admin: codes & supervisors */
+async function axGen(pts,btn){if(btn)btn.disabled=true;try{for(const p of pts)await axEnsureCode(p);await refresh('apin');log('توليد رموز الأصول',{id:'',name:'النقاط'},pts.join('، '));toast(`وُلّد ${pts.length} رمز`)}catch(x){if(btn)btn.disabled=false;toast('لم يكتمل: '+x.message)}}
+async function axRegen(btn){const pt=btn.dataset.axp;if(!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='تأكيد (يتعطل القديم)';return}btn.disabled=true;
+  try{const used=new Set([...S.apin.values()].map(x=>x.code));await rpc('aei_set',{p:PIN,c:'apin',i:pt,d:{code:genCode(used),ts:Date.now()}});await refresh('apin');log('تجديد رمز أصول نقطة',{id:'',name:pt},'رمز جديد');toast('جُدّد رمز '+pt)}catch(x){btn.disabled=false;toast('لم يُحفظ: '+x.message)}}
+function axCopyAll(){const t=allPoints().filter(p=>p!=='إداري'&&S.apin.has(p)).map(p=>`${p}: ${S.apin.get(p).code}`).join('\n');if(!t)return toast('لا توجد رموز بعد');navigator.clipboard?.writeText(t).then(()=>toast('نُسخت كل الرموز'),()=>toast('تعذّر النسخ'))}
+async function axSupSave(f){const d={};for(const x of f.querySelectorAll('input[data-sup]')){const v=x.value.replace(/\D/g,'');if(!v)continue;if(!/^0?5[69]\d{7}$/.test(v))return toast('رقم غير صحيح للمشرف '+x.dataset.sup);d[x.dataset.sup]=v.slice(-9)}
+  const btn=f.querySelector('.pri');btn.disabled=true;try{await rpc('aei_set',{p:PIN,c:'meta',i:'supmob',d});await refresh('meta');log('أرقام المشرفين',{id:'',name:'الأصول'},Object.keys(d).length+' رقم');toast('حُفظت أرقام المشرفين')}catch(x){btn.disabled=false;toast('لم تُحفظ: '+x.message)}}
+
+/* admin: excel export */
+function axExport(){if(!window.XLSX)return toast('تعذّر تحميل مكتبة التصدير. تحقق من الاتصال.');const all=astBalAll(),pts=astPoints(),cats=catList(),wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};
+  const r1=[['النقطة','المشرف','المحافظة','الأصل','الفئة','الصالح (العدد الكلي)','التالف','المفقود/المسروق']];for(const p of pts){const i=pointInfo(p)||{};for(const [k,x] of Object.entries(all[p]||{}))if(x.g||x.d||x.l)r1.push([p,i.psup||'',i.region||'',acatName(k)||k,(S.acat.get(k)||{}).cat||'',x.g,x.d,x.l])}
+  const used=cats.filter(c=>pts.some(p=>{const x=(all[p]||{})[c.id];return x&&(x.g||x.d)})),r2=[['النقطة',...used.map(c=>c.name),'الإجمالي الصالح','التالف']];
+  for(const p of pts){const s=astSum(all[p]||{});r2.push([p,...used.map(c=>((all[p]||{})[c.id]||{}).g||0),s.g,s.d])}
+  const f=S.af||{},evs=aevs().filter(e=>!f.m||(e.date||'').slice(0,7)===f.m).sort((a,b)=>(b.date||'').localeCompare(a.date||'')),r3=[['تاريخ الحدث','النقطة','الحدث','الأصل','العدد','الأثر على الرصيد','المسجّل','الحالة','الملاحظة','رابط الصورة','المصدر','سبب الرفض/الإلغاء']];
+  for(const e of evs)r3.push([e.date||'',e.pt,e.type,evItem(e),+e.q||0,e.status==='معتمد'?dxText(e):'',e.by||'',e.status,e.note||'',e.link||'',e.src||'',e.status!=='معتمد'?e.why||'':''])
+  for(const [n,a,w] of [['الأرصدة',r1,[22,18,14,24,10,16,10,14]],['ملخص النقاط',r2,[22,...used.map(()=>14),14,10]],['الحركات',r3,[12,20,10,22,8,22,22,14,30,30,10,26]]]){const ws=XLSX.utils.aoa_to_sheet(a);ws['!cols']=w.map(x=>({wch:x}));XLSX.utils.book_append_sheet(wb,ws,n)}
+  try{const u=URL.createObjectURL(new Blob([XLSX.write(wb,{type:'array',bookType:'xlsx'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),a=document.createElement('a');a.href=u;a.download=`أصول النقاط ${today()}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);toast('تم التنزيل')}catch(x){toast('تعذّر التصدير: '+(x.message||x))}}
+
+/* admin: opening balance import */
+let AXIM=null;
+function axImport(){AXIM=null;dlg.innerHTML=head('استيراد رصيد افتتاحي من Excel')+`<div class="db"><div class="muted" style="font-size:13px;line-height:1.9">يقبل ملفين: <b>كشف الأصول</b> بصيغة الموارد البشرية (صف لكل قطعة: اسم الأصل، الوحدة/المخيم، اسم المخيم الحالي، حالة الأصل، الأصل موجود)، أو <b>ملخص</b> بأعمدة: النقطة، الأصل، صالح، تالف.<br>القطع «معطل» تُحسب تالفاً، و«فقد» أو «الأصل موجود = No» لا تدخل الرصيد. ستطابق بعدها أسماء النقاط والأصول يدوياً قبل الحفظ.</div>
+   <label class="wide" style="margin-top:10px">ملف Excel<input id="ax-file" type="file" accept=".xlsx,.xls"></label><div id="ax-imp"></div></div>`;open()}
+const axStrip=s=>nrm(s).replace(/^(نقطه|مخيم)\s+/,'').replace(/\s*-\s*(علاجي|وقائي)$/,'').trim();
+function axGuessItem(name,desc){const n=nrm(name+' '+desc),nn=nrm(name),by=x=>(catList().find(c=>nrm(c.name)===nrm(x))||{}).id||'';
+  if(/كرسي/.test(nn))return by('كرسي بلاستيك');if(/طاول/.test(nn))return /خشب/.test(n)?by('طاولة خشب'):by('طاولة بلاستيك قابلة للطي');if(/مكتب/.test(nn))return by('مكتب خشب');if(/ستار/.test(nn))return by('ستارة طبية');
+  if(/lab|lap|لاب/.test(nn))return by('لابتوب');if(/tab|تابلت/.test(nn))return by('تابلت');if(/جوال|موبايل|phone|mobile/.test(nn))return by('جوال');return(catList().find(c=>nrm(c.name)===nn)||{}).id||''}
+function axGuessPt(raw){const s=axStrip(raw),pts=allPoints().filter(p=>p!=='إداري');return pts.find(p=>nrm(p)===s)||pts.find(p=>axStrip(p)===s)||pts.find(p=>s&&(s.includes(nrm(p))||nrm(p).includes(s)))||''}
+async function axParse(el){const box=$('#ax-imp'),file=el.files&&el.files[0];AXIM=null;if(!file)return;if(!window.XLSX){box.innerHTML='<div class="note bad">تعذّر تحميل مكتبة Excel.</div>';return}
+  try{const wb=XLSX.read(await file.arrayBuffer(),{type:'array'}),groups={};let mode='',rows=0,skipped=0,lost=0;
+    for(const sn of wb.SheetNames){const a=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:''});let hi=-1;for(let i=0;i<Math.min(a.length,12);i++){const t=a[i].map(x=>String(x));if(t.some(x=>/اسم الأصل/.test(x))||t.some(x=>/^\s*الأصل\s*$/.test(x))&&t.some(x=>/صالح/.test(x))){hi=i;break}}if(hi<0)continue;
+      const H=a[hi].map(x=>String(x).replace(/\s+/g,' ').trim()),col=re=>H.findIndex(x=>re.test(x)),sum=col(/صالح/)>=0;
+      const C=sum?{pt:col(/النقطة/),it:col(/^الأصل$/),g:col(/صالح/),d:col(/تالف/)}:{it:col(/اسم الأصل/),desc:col(/وصف الأصل/),cur:col(/المخيم الحالي/),unit:col(/الوحدة/),cond:col(/Condition/i),ex:col(/الأصل موجود/)};
+      if(!sum&&(C.it<0||(C.cur<0&&C.unit<0)))continue;mode=sum?'ملخص':'كشف تفصيلي';
+      for(const r of a.slice(hi+1)){const it=String(r[C.it]||'').trim();if(!it)continue;rows++;
+        const raw=sum?String(r[C.pt]||'').trim():(String(C.cur>=0?r[C.cur]:'').trim()||String(C.unit>=0?r[C.unit]:'').trim());if(!raw){skipped++;continue}
+        let g=0,d=0;if(sum){g=parseInt(r[C.g],10)||0;d=C.d>=0?parseInt(r[C.d],10)||0:0}else{const cond=String(C.cond>=0?r[C.cond]:''),ex=String(C.ex>=0?r[C.ex]:'');if(/^\s*no?\s*$/i.test(ex)||/فقد|مفقود|سرق/.test(cond)){lost++;continue}if(/معطل|تالف|مكسور/.test(cond))d=1;else g=1}
+        const desc=sum?'':String(C.desc>=0?r[C.desc]:''),ik=/طاول/.test(nrm(it))&&/خشب/.test(nrm(desc+' '+it))?it+' (خشب)':it,k=raw+'\u0001'+ik,x=groups[k]=groups[k]||{raw,ik,it,desc,g:0,d:0};x.g+=g;x.d+=d}}
+    const gs=Object.values(groups);if(!gs.length){box.innerHTML='<div class="note bad" style="margin-top:10px">لم أجد في الملف أعمدة الأصول المطلوبة.</div>';return}
+    const pr=[...new Set(gs.map(x=>x.raw))],ir=[...new Set(gs.map(x=>x.ik))];AXIM={file:file.name,gs,pmap:Object.fromEntries(pr.map(p=>[p,axGuessPt(p)])),imap:Object.fromEntries(ir.map(i=>{const x=gs.find(z=>z.ik===i);return[i,axGuessItem(x.it,(/خشب/.test(i)?'خشب ':'')+x.desc)||'__new']}))};
+    const pts=allPoints().filter(p=>p!=='إداري'),cl=catList();
+    box.innerHTML=`<div class="note" style="margin-top:10px">${h(mode)} · <b class="num">${rows}</b> صف${lost?` · <b class="num">${lost}</b> مفقود/غير موجود لن يدخل الرصيد`:''}${skipped?` · <b class="num">${skipped}</b> بدون نقطة`:''}</div>
+     <section class="esec"><h3>مطابقة النقاط (${pr.length})</h3><div class="axmap">${pr.map((p,i)=>`<label><span>${h(p)} <small class="muted num">${gs.filter(x=>x.raw===p).reduce((a,x)=>a+x.g+x.d,0)}</small></span><select data-impp="${i}">${opts(pts,AXIM.pmap[p],'— تجاهل —')}</select></label>`).join('')}</div></section>
+     <section class="esec"><h3>مطابقة الأصول (${ir.length})</h3><div class="axmap">${ir.map((it,i)=>`<label><span>${h(it)} <small class="muted num">${gs.filter(x=>x.ik===it).reduce((a,x)=>a+x.g+x.d,0)}</small></span><select data-impi="${i}"><option value="">— تجاهل —</option>${cl.map(c=>`<option value="${h(c.id)}"${AXIM.imap[it]===c.id?' selected':''}>${h(c.name)}</option>`).join('')}<option value="__new"${AXIM.imap[it]==='__new'?' selected':''}>＋ أصل جديد بنفس الاسم</option></select></label>`).join('')}</div></section>
+     <div id="ax-imsum"></div><label class="wide" style="margin-top:10px">للتأكيد اكتب كلمة <b>استيراد</b><input id="ax-imok" autocomplete="off"></label><div class="acts" style="margin-top:8px"><button class="btn pri" data-ax="imgo">حفظ الرصيد الافتتاحي</button></div><div id="ax-imst" class="muted" style="font-size:13px;margin-top:6px"></div>`;axImSum()}
+  catch(x){box.innerHTML=`<div class="note bad" style="margin-top:10px">تعذّرت قراءة الملف: ${h(x.message||x)}</div>`}}
+function axImRows(){if(!AXIM)return[];const pr=Object.keys(AXIM.pmap),ir=Object.keys(AXIM.imap);document.querySelectorAll('select[data-impp]').forEach(s=>AXIM.pmap[pr[+s.dataset.impp]]=s.value);document.querySelectorAll('select[data-impi]').forEach(s=>AXIM.imap[ir[+s.dataset.impi]]=s.value);
+  const out={};for(const x of AXIM.gs){const p=AXIM.pmap[x.raw],it=AXIM.imap[x.ik];if(!p||!it)continue;const key=it==='__new'?'__new:'+x.ik:it,k=p+'\u0001'+key,o=out[k]=out[k]||{pt:p,item:key,name:it==='__new'?x.it:acatName(it),g:0,d:0};o.g+=x.g;o.d+=x.d}return Object.values(out).filter(o=>o.g||o.d)}
+function axImSum(){const el=$('#ax-imsum');if(!el)return;const rs=axImRows(),pts=[...new Set(rs.map(r=>r.pt))],had=pts.filter(p=>aevs().some(e=>e.pt===p&&e.type==='افتتاحي'&&e.status==='معتمد'));
+  el.innerHTML=`<div class="hint" style="margin-top:10px"><span><b>${pts.length}</b> نقطة</span><span><b>${rs.length}</b> بند</span><span>صالح <b>${rs.reduce((a,r)=>a+r.g,0)}</b></span><span>تالف <b>${rs.reduce((a,r)=>a+r.d,0)}</b></span></div>${had.length?`<div class="note bad">نقاط لها رصيد افتتاحي سابق وسيُضاف عليه: ${had.map(h).join('، ')}. إن كان الاستيراد مكرراً ألغِ حركات «افتتاحي» القديمة أولاً من سجل الحركات.</div>`:''}`}
+async function axImGo(btn){const rs=axImRows(),st=$('#ax-imst');if(($('#ax-imok').value||'').trim()!=='استيراد')return toast('اكتب كلمة «استيراد» للتأكيد');if(!rs.length)return toast('لا يوجد ما يُستورد بعد المطابقة');
+  btn.disabled=true;let n=0;const made={};
+  try{for(const r of rs){let it=r.item;if(it.startsWith('__new:')){const nm=r.name.replace(/\s+/g,' ').trim(),ex=catList().find(c=>nrm(c.name)===nrm(nm));if(ex)it=ex.id;else if(made[nm])it=made[nm];else{it='c'+Date.now().toString(36)+rid(4);await rpc('aei_set',{p:PIN,c:'acat',i:it,d:{name:nm,cat:'أخرى',status:'معتمد',ord:900,ts:Date.now()}});made[nm]=it;await refresh('acat')}}
+      await axPut({pt:r.pt,item:it,itemName:acatName(it)||r.name,type:'افتتاحي',q:r.g+r.d,dg:r.g,dd:r.d,dl:0,by:'استيراد',note:'استيراد من '+AXIM.file});n++;if(st)st.textContent=`جاري الحفظ ${n} / ${rs.length}…`}
+    await refresh('aev');log('استيراد رصيد أصول افتتاحي',{id:'',name:'الأصول'},`${AXIM.file} | ${n} بند | ${[...new Set(rs.map(r=>r.pt))].length} نقطة`);dlg.close();toast(`استُورد ${n} بند`)}
+  catch(x){btn.disabled=false;if(st)st.textContent=`توقف بعد ${n} بند: ${x.message}`;toast('توقف الاستيراد: '+x.message)}}
+
+/* ---------- public page /assets ---------- */
+let AST=null;
+const astSS={get(){try{return JSON.parse(sessionStorage.getItem('ast')||'null')}catch(e){return null}},set(v){try{v?sessionStorage.setItem('ast',JSON.stringify(v)):sessionStorage.removeItem('ast')}catch(e){}}};
+const astQ={get(){try{return JSON.parse(localStorage.getItem('astq')||'[]')}catch(e){return[]}},set(a){try{localStorage.setItem('astq',JSON.stringify(a))}catch(e){}}};
+const astLS=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k)||'';localStorage.setItem(k,v)}catch(e){return ''}};
+async function renderAssets(){S.astPage=1;const sv=astSS.get();
+  if(sv&&!AST){app.innerHTML='<div class="empty">جاري الدخول…</div>';try{const r=await rpc('aei_ast_get',{pt:sv.pt,code:sv.code});if(r&&r.ok){AST={pt:sv.pt,code:sv.code,d:r};astFlush();return astHome()}}catch(e){}astSS.set(null)}
+  if(AST)return astHome();app.innerHTML='<div class="empty">جاري تحميل النقاط…</div>';let pts;
+  try{pts=await rpc('aei_ast_points',{})}catch(e){app.innerHTML=`<div class="page"><div class="okbox"><div class="note bad">تعذّر تحميل الصفحة: ${h(e.message)}</div><button class="btn" data-act="home">رجوع</button></div></div>`;return}
+  const last=astLS('ast-pt');
+  app.innerHTML=`<div class="page"><form id="axlf"><div class="dh"><h2>أصول النقاط</h2><button class="btn sm" type="button" data-act="home">رجوع</button></div><div class="db"><div class="muted" style="margin-bottom:10px">اختر نقطتك وأدخل رمز الدخول المكوّن من 6 أرقام. الرمز تحصل عليه من الإدارة أو مشرف النقطة.</div><div id="ferr"></div>
+   <fieldset><label>النقطة<select id="e-pt" name="pt" required>${opts(pts||[],pts&&pts.includes(last)?last:'','— اختر النقطة —')}</select></label><label>رمز الدخول<input id="e-code" name="code" class="axcode" inputmode="numeric" autocomplete="off" maxlength="6" required dir="ltr" placeholder="••••••"></label></fieldset>
+   ${pts&&pts.length?'':'<div class="note">لم تُفعَّل رموز الدخول للنقاط بعد. راجع الإدارة.</div>'}</div>
+   <div class="df"><div><button class="btn pri">دخول</button><button class="btn" type="button" data-act="home">إلغاء</button></div></div></form></div>`}
+async function astLogin(f){const o=formData(f),code=o.code.replace(/\D/g,'');if(!o.pt)return ferr('اختر النقطة.');if(!/^\d{6}$/.test(code))return ferr('الرمز 6 أرقام.');
+  const btn=f.querySelector('.pri');btn.disabled=true;btn.textContent='جاري التحقق…';
+  try{const r=await rpc('aei_ast_get',{pt:o.pt,code});if(!r||!r.ok){btn.disabled=false;btn.textContent='دخول';return ferr(r&&r.msg||'تعذّر الدخول.')}
+    AST={pt:o.pt,code,d:r};astSS.set({pt:o.pt,code});astLS('ast-pt',o.pt);astHome();astFlush()}
+  catch(e){btn.disabled=false;btn.textContent='دخول';ferr(e.message)}}
+async function astReload(show){if(!AST)return;try{const r=await rpc('aei_ast_get',{pt:AST.pt,code:AST.code});if(r&&r.ok){AST.d=r;if(show&&AST.view==='home'&&!dlg.open)astHome()}else if(r&&!r.ok){AST=null;astSS.set(null);toast(r.msg||'انتهت الجلسة');renderAssets()}}catch(e){}}
+function astName(id){const d=AST.d,i=(d.items||[]).find(x=>x.id===id);return i?i.name:((d.events||[]).find(e=>e.item===id)||{}).itemName||'—'}
+function astHome(){AST.view='home';const d=AST.d,b=d.bal||{},ord=(d.items||[]).map(i=>i.id),ids=Object.keys(b).filter(k=>b[k].g||b[k].d||b[k].l).sort((x,y)=>(ord.indexOf(x)+1||999)-(ord.indexOf(y)+1||999));
+  const tot=ids.reduce((a,k)=>({g:a.g+b[k].g,d:a.d+b[k].d,l:a.l+b[k].l}),{g:0,d:0,l:0}),evs=d.events||[],pend=evs.filter(e=>e.status==='جديد').length,q=astQ.get().filter(x=>x.pt===AST.pt),tel=d.smob?'0'+d.smob:'';
+  app.innerHTML=`<div class="page axp"><div class="okbox axhd"><div class="axtop"><div><div class="muted" style="font-size:13px">أصول النقاط</div><h2 style="margin:0">نقطة ${h(d.point)}</h2></div><button class="btn sm" data-ax="pout">خروج</button></div>
+   <div class="axsup"><span>مشرف النقطة: <b>${h(d.sup||'—')}</b>${tel?` · <span class="num">${tel}</span>`:''}</span>${tel?`<span class="acts"><a class="btn sm" href="tel:${tel}">اتصال</a><a class="btn sm" href="${waUrl(d.smob,'')}" target="_blank" rel="noopener">واتساب</a></span>`:''}</div>
+   <button class="btn pri axbig" data-ax="pnew">＋ تسجيل حدث: توريد، تلف، سرقة، فقد…</button></div>
+   ${q.length?`<div class="note" style="margin-top:12px">${q.length} طلب محفوظ على هذا الجهاز ولم يصل بعد بسبب الاتصال، وسيُرسل تلقائياً. <button class="btn sm" data-ax="flush">إعادة المحاولة الآن</button></div>`:''}
+   <section class="esec axsec"><h3>${h(d.label)} <span class="muted" style="font-weight:400;font-size:13px">· المعتمد من الإدارة فقط</span></h3>
+   ${ids.length?`<div class="tw"><table class="lvt axbt" data-num="1"><thead><tr><th>الأصل</th><th>العدد الكلي</th><th>تالف *</th><th>مفقود *</th></tr></thead><tbody>${ids.map(k=>`<tr style="cursor:default"><td class="nm">${h(astName(k))}</td><td class="num"><b>${b[k].g}</b></td><td class="num">${b[k].d||'—'}</td><td class="num">${b[k].l||'—'}</td></tr>`).join('')}</tbody><tfoot><tr><td>الإجمالي</td><td class="num"><b>${tot.g}</b></td><td class="num">${tot.d}</td><td class="num">${tot.l}</td></tr></tfoot></table></div><div class="muted" style="font-size:12.5px;margin-top:6px">العدد الكلي = الصالح فقط. * التالف والمفقود/المسروق غير محسوبين ضمن العدد الكلي.</div>`:'<div class="muted">لا يوجد رصيد معتمد لهذه النقطة بعد.</div>'}</section>
+   <section class="esec axsec"><h3>الطلبات والحركات ${pend?`<span class="st st-new">${pend} بانتظار الاعتماد</span>`:''}</h3>${evs.length?`<ul class="axev">${evs.map(e=>`<li><div>${evBadge(e.type)} <b>${h(e.itemName||astName(e.item))}</b> × <span class="num">${h(e.q)}</span>${e.to?` <span class="muted">إلى ${h(e.to)}</span>`:''}${e.from?` <span class="muted">من ${h(e.from)}</span>`:''}</div><div class="muted"><span class="num">${h(fd(e.date))}</span>${e.by?' · '+h(e.by):''}</div>${astSt(e.status)}${e.why&&(e.status==='مرفوض'||e.status==='ملغى')?`<div class="axwhy">السبب: ${h(e.why)}</div>`:''}</li>`).join('')}</ul>`:'<div class="muted">لا توجد طلبات بعد.</div>'}</section></div>`}
+function astNew(){AST.view='new';const d=AST.d,items=d.items||[],grp=ACATS.map(c=>[c,items.filter(i=>(i.cat||'أخرى')===c)]).filter(x=>x[1].length),me=astLS('ast-by:'+AST.pt);
+  app.innerHTML=`<div class="page"><form id="axef"><div class="dh"><h2>تسجيل حدث · نقطة ${h(d.point)}</h2><button class="btn sm" type="button" data-ax="phome">رجوع</button></div><div class="db"><div id="ferr"></div>
+   <fieldset class="axtypes"><legend>ماذا حدث؟</legend>${Object.entries(AT).map(([t,x],i)=>`<label class="axty axt-${x.c}"><input type="radio" name="type" value="${t}"${i?'':' checked'}><span><b>${x.ic} ${t}</b><small>${x.d}</small></span></label>`).join('')}</fieldset>
+   <fieldset><label class="wide">الأصل<select id="e-item" name="item" required><option value="">— اختر الأصل —</option>${grp.map(([c,is])=>`<optgroup label="${c}">${is.map(i=>`<option value="${h(i.id)}">${h(i.name)}</option>`).join('')}</optgroup>`).join('')}<option value="__new">＋ إضافة أصل جديد غير موجود في القائمة</option></select></label>
+    <div class="wide axnew" id="ax-new" hidden><fieldset>${inp('newName','اسم الأصل الجديد','',{})}${sel('newCat','الفئة',ACATS,'أخرى')}<div class="wide" id="ax-sim"></div><div class="wide muted" style="font-size:12.5px">الأصل الجديد يُسجَّل بحدث «توريد» فقط، ويظهر في القائمة بعد اعتماد الإدارة.</div></fieldset></div>
+    <div class="wide muted" id="ax-cur" style="font-size:13px"></div>
+    <label>العدد<span class="qty"><button type="button" class="btn" data-ax="qm" aria-label="إنقاص">−</button><input id="e-q" name="q" type="number" min="1" max="5000" value="1" inputmode="numeric" dir="ltr" required><button type="button" class="btn" data-ax="qp" aria-label="زيادة">+</button></span></label>
+    ${inp('date','تاريخ الحدث',today(),{type:'date',req:1})}
+    <label>اسمك (من يسجّل)<select id="e-by" name="by" required><option value="">— اختر اسمك —</option>${(d.staff||[]).map(n=>`<option${n===me?' selected':''}>${h(n)}</option>`).join('')}<option value="__other"${me&&!(d.staff||[]).includes(me)?' selected':''}>اسم آخر…</option></select></label>
+    <label id="ax-byo"${me&&!(d.staff||[]).includes(me)?'':' hidden'}>اكتب اسمك<input id="e-byo" name="byo" maxlength="80" value="${h(me&&!(d.staff||[]).includes(me)?me:'')}"></label>
+    <label class="wide">ملاحظة (اختياري): ماذا حدث بالتفصيل؟<textarea id="e-note" name="note" maxlength="500"></textarea></label>
+    <label class="wide">رابط صورة على Google Drive (اختياري)<input id="e-link" name="link" dir="ltr" inputmode="url" placeholder="https://drive.google.com/…"><small class="muted">تأكد أن الرابط مفتوح لمن لديه الرابط. يمكنك بدلاً من ذلك إرسال الصورة للمشرف على واتساب بعد الحفظ.</small></label></fieldset></div>
+   <div class="df"><div><button class="btn pri">إرسال للاعتماد</button><button class="btn" type="button" data-ax="phome">إلغاء</button></div></div></form></div>`;scrollTo(0,0);astSync()}
+function astSync(){const f=$('#axef');if(!f)return;const it=f.querySelector('#e-item').value,nw=it==='__new',t=(f.querySelector('input[name=type]:checked')||{}).value,b=(AST.d.bal||{})[it]||{g:0,d:0,l:0};
+  f.querySelector('#ax-new').hidden=!nw;if(nw&&t!=='توريد'){const r=f.querySelector('input[name=type][value="توريد"]');r.checked=true}
+  f.querySelector('#ax-byo').hidden=f.querySelector('#e-by').value!=='__other';
+  const need=t==='تلف'||t==='سرقة'||t==='فقد'?['الصالح',b.g]:t==='إصلاح'||t==='سحب'?['التالف',b.d]:null;
+  f.querySelector('#ax-cur').innerHTML=it&&!nw?`الرصيد المعتمد لهذا الأصل: صالح <b class="num">${b.g}</b> · تالف <b class="num">${b.d}</b>${need?` · الحد الأقصى لهذا الحدث <b class="num">${need[1]}</b> (${need[0]})`:''}`:''}
+function astSim(el){const box=$('#ax-sim'),v=nrm(el.value);if(!box)return;if(v.length<2){box.innerHTML='';return}
+  const lev=(a,b)=>{const m=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=m[0];m[0]=i;for(let j=1;j<=b.length;j++){const t=m[j];m[j]=Math.min(m[j]+1,m[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return m[b.length]};
+  const hit=(AST.d.items||[]).filter(i=>{const n=nrm(i.name);return n.includes(v)||v.includes(n)||lev(n,v)<=2||n.split(' ')[0]===v.split(' ')[0]}).slice(0,4);
+  box.innerHTML=hit.length?`<div class="note">هل تقصد أصلاً موجوداً؟ ${hit.map(i=>`<button type="button" class="btn sm" data-ax="pick" data-id="${h(i.id)}">${h(i.name)}</button>`).join(' ')}</div>`:''}
+async function astSubmit(f){const o=formData(f),t=(f.querySelector('input[name=type]:checked')||{}).value,nw=o.item==='__new',q=parseInt(o.q,10),by=o.by==='__other'?(o.byo||'').trim():o.by;
+  if(!t)return ferr('اختر نوع الحدث.');if(!o.item)return ferr('اختر الأصل.');if(nw&&(o.newName||'').trim().length<2)return ferr('اكتب اسم الأصل الجديد.');
+  if(!(q>=1&&q<=5000))return ferr('العدد غير صحيح.');if(!o.date)return ferr('أدخل تاريخ الحدث.');if(!by||by.length<3)return ferr('اختر اسمك أو اكتبه.');
+  if(o.link&&!/^https:\/\/(drive|docs)\.google\.com\//i.test(o.link))return ferr('رابط الصورة يجب أن يبدأ بـ https://drive.google.com');
+  if(!nw){const b=(AST.d.bal||{})[o.item]||{g:0,d:0},mx=t==='تلف'||t==='سرقة'||t==='فقد'?b.g:t==='إصلاح'||t==='سحب'?b.d:Infinity;if(q>mx)return ferr(`العدد أكبر من المسجّل في النقطة (${mx}). إن كان الرصيد غير صحيح تواصل مع مشرفك.`)}
+  astLS('ast-by:'+AST.pt,by);const d={k:rid(20),type:t,q,date:o.date,by,note:o.note||'',link:o.link||'',...(nw?{newName:o.newName.trim(),newCat:o.newCat||'أخرى'}:{item:o.item})},iname=nw?o.newName.trim():astName(o.item);
+  const btn=f.querySelector('.pri');btn.disabled=true;btn.textContent='جاري الإرسال…';
+  try{const r=await rpc('aei_ast_submit',{pt:AST.pt,code:AST.code,d});if(!r||!r.ok){btn.disabled=false;btn.textContent='إرسال للاعتماد';return ferr(r&&r.msg||'تعذّر الإرسال.')}
+    await astReload(false);astDone(t,iname,q,o.date,by,o.note,o.link,false)}
+  catch(e){if(e&&e.code==='network'){const a=astQ.get();a.push({pt:AST.pt,code:AST.code,d,iname,ts:Date.now()});astQ.set(a);astDone(t,iname,q,o.date,by,o.note,o.link,true)}
+    else{btn.disabled=false;btn.textContent='إرسال للاعتماد';ferr(e.message||'تعذّر الإرسال.')}}}
+function astDone(t,iname,q,date,by,note,link,queued){AST.view='done';const d=AST.d,ph=t==='تلف'||t==='سرقة'||t==='فقد';
+  const msg=`بلاغ أصول – نقطة ${d.point}\nالحدث: ${t}\nالأصل: ${iname}\nالعدد: ${q}\nتاريخ الحدث: ${fd(date)}\nالمسجّل: ${by}${note?'\nالملاحظة: '+note:''}${link?'\nرابط الصورة: '+link:''}\n\nالطلب مسجّل في النظام بانتظار الاعتماد.`;
+  app.innerHTML=`<div class="page"><div class="okbox"><h2 style="margin:0">${queued?'حُفظ الطلب على هذا الجهاز':'تم إرسال الطلب للاعتماد'}</h2><div>${evBadge(t)} <b>${h(iname)}</b> × <span class="num">${q}</span> · <span class="num">${h(fd(date))}</span></div>
+   ${queued?'<div class="note">لا يوجد اتصال الآن. سيُرسل الطلب تلقائياً عند عودة الإنترنت وأنت على هذه الصفحة. لا تسجّله مرة ثانية.</div>':'<div class="muted">الرصيد لا يتغير قبل اعتماد الإدارة. تابع حالة الطلب من صفحة أصول النقطة.</div>'}
+   <div class="note axwa"><b>أبلغ مشرف النقطة${d.sup?' ('+h(d.sup)+')':''} على واتساب</b>${ph?'<br>أرفق صورة الأصل في المحادثة بعد فتحها.':''}<div class="acts" style="margin-top:8px"><a class="btn pri" href="${waUrl(d.smob,msg)}" target="_blank" rel="noopener">إرسال للمشرف عبر واتساب</a></div>${d.smob?'':'<div class="muted" style="font-size:12.5px;margin-top:4px">رقم المشرف غير مسجّل، اختر المحادثة يدوياً في واتساب.</div>'}</div>
+   <div class="acts"><button class="btn" data-ax="pnew">تسجيل حدث آخر</button><button class="btn" data-ax="phome">العودة لأصول النقطة</button></div></div></div>`;scrollTo(0,0)}
+let astBusy=false;
+async function astFlush(manual){if(astBusy)return;const a=astQ.get();if(!a.length)return;astBusy=true;let sent=0,left=[];
+  try{for(let i=0;i<a.length;i++){const x=a[i];try{const r=await rpc('aei_ast_submit',{pt:x.pt,code:x.code,d:x.d});if(r&&r.ok)sent++;else toast('لم يُقبل طلب محفوظ ('+x.iname+'): '+(r&&r.msg||''),6000)}
+      catch(e){if(e&&e.code==='network'){left=a.slice(i);break}toast('لم يُقبل طلب محفوظ: '+(e.message||''),6000)}}}
+  finally{astQ.set(left);astBusy=false}
+  if(sent){toast(`أُرسل ${sent} طلب محفوظ`);await astReload(true)}else if(manual)toast(left.length?'لا يزال الاتصال غير متاح':'لا توجد طلبات محفوظة')}
+addEventListener('online',()=>astFlush());
+setInterval(()=>{if(AST&&!document.hidden){astFlush();if(AST.view==='home')astReload(true)}},60000);
+
+/* events */
+document.addEventListener('submit',ev=>{const f=ev.target,id=f.getAttribute('id');const fn={axlf:astLogin,axef:astSubmit,axrv:axApprove,axaf:axAddSave,axmf:axMoveSave,axcf:axCatSave,axsf:axSupSave}[id];if(fn){ev.preventDefault();fn(f)}});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-ax]');if(!t)return;const a=t.dataset.ax,d=t.dataset;if(a==='noop')return;
+  if(a==='sub'){S.af.sub=d.v;vAst()}
+  else if(a==='ev')axEv(d.id); else if(a==='rej')axReject(t); else if(a==='cancel')axCancel(t); else if(a==='pt')axPoint(d.axp);
+  else if(a==='add')axAdd(d.axp||''); else if(a==='move')axMove(d.axp||''); else if(a==='import')axImport(); else if(a==='imgo')axImGo(t); else if(a==='export')axExport();
+  else if(a==='cat')axCatEdit(d.id); else if(a==='catnew')axCatEdit(''); else if(a==='catrej')axCatReject(t);
+  else if(a==='genall')axGen(allPoints().filter(p=>p!=='إداري'&&!S.apin.has(p)),t); else if(a==='gen1')axGen([d.axp],t).then(()=>{if(dlg.open)axPoint(d.axp)}); else if(a==='regen')axRegen(t); else if(a==='copyall')axCopyAll();
+  else if(a==='pgo')go('assets'); else if(a==='pout'){AST=null;astSS.set(null);renderAssets()} else if(a==='pnew')astNew(); else if(a==='phome')astHome(); else if(a==='flush')astFlush(true);
+  else if(a==='qm'||a==='qp'){const i=$('#e-q');i.value=Math.max(1,(parseInt(i.value,10)||1)+(a==='qp'?1:-1))}
+  else if(a==='pick'){const s=$('#e-item');s.value=d.id;astSync()}});
+document.addEventListener('input',ev=>{const el=ev.target;
+  if(el.id&&el.id.startsWith('axf-')){const k=el.id.slice(4);S.af[k]=el.value;({bal:axBal,log:axLog})[S.af.sub]?.();if(k==='q'){const q=$('#axf-q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}return}
+  if(el.id==='ax-file')return axParse(el);if(el.dataset&&(el.dataset.impp!==undefined||el.dataset.impi!==undefined))return axImSum();
+  const f=el.form;if(!f)return;
+  if(f.id==='axef'){if(el.id==='e-newName')astSim(el);astSync()}
+  else if(f.id==='axrv')axAfter(); else if(f.id==='axaf'){if(el.id==='e-pt'||el.id==='e-item'||el.id==='e-type'){f.querySelectorAll('#e-ng,#e-nd').forEach(x=>x.value='');axAddSync()}}
+  else if(f.id==='axmf'&&el.id==='e-from')axMoveRows()});
 </script>
 </body>
 </html>
