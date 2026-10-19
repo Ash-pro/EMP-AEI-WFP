@@ -1926,7 +1926,7 @@ async function tkEdit(){const t=dlg.open&&TK.cur&&TK.edit?TK.cur:null,hd=head(t?
     <label class="wide">التفاصيل والمطلوب<textarea name="details" rows="4" maxlength="4000">${h(t?t.details:'')}</textarea></label>
     <label>الأولوية<select name="priority">${Object.entries(TK_PR).map(([k,[l]])=>`<option value="${k}"${(t?t.priority:'normal')===k?' selected':''}>${l}</option>`).join('')}</select></label>
     <label>تاريخ الاستحقاق (اختياري)<input type="date" name="due" value="${h(t&&t.due||'')}"></label>
-    <label>النقطة (اختياري)<select name="point"><option value="">—</option>${pts.map(p=>`<option${t&&t.point===p?' selected':''}>${h(p)}</option>`).join('')}</select></label></fieldset>
+    <label>النقطة (اختياري)<select name="point"><option value="">—</option><option${t&&t.point==='كافة النقاط'?' selected':''}>كافة النقاط</option>${pts.map(p=>`<option${t&&t.point===p?' selected':''}>${h(p)}</option>`).join('')}</select></label></fieldset>
     <div><div class="tk-lbl">إسناد إلى المشرفين</div><div class="eclist">${sup.map(ck).join('')}${oth.length?`<div class="muted" style="font-size:12.5px;padding-top:8px">حسابات أخرى</div>${oth.map(ck).join('')}`:''}</div>
     ${t?'<div class="muted" style="font-size:12.5px;margin-top:6px">لا يمكن إزالة مشرف بدأ العمل على المهمة.</div>':''}</div></div>
     <div class="df"><div><button class="btn pri">${t?'حفظ التعديل':'إنشاء وإسناد'}</button><button class="btn" type="button" ${t?'data-tk="reload"':'data-act="close"'}>رجوع</button></div></div></form>`;
