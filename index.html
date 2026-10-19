@@ -393,7 +393,7 @@ tr.axhid td{opacity:.55}
 .tk-det{white-space:pre-line;line-height:1.8;margin:0;background:var(--sunk);padding:10px 12px;border-radius:var(--r);overflow-wrap:anywhere}
 .tk-sec{margin:0;font-size:15px}
 .tk-sum{margin-top:14px}.tk-sum summary{cursor:pointer;font-weight:600;font-size:14px;padding:6px 0}
-@media (max-width:640px){.tk-list{grid-template-columns:1fr}.tk-rp{grid-template-columns:1fr}.tk-top{align-items:stretch}.tk-top>.btn{width:100%}}
+@media (max-width:640px){.tk-list{grid-template-columns:1fr}.tk-rp{grid-template-columns:1fr}.tk-top{align-items:stretch}.tk-top>.acts,.tk-top>.acts .btn{flex:1}}
 @media print{.tk-f,.tk-rv{display:none}}
 </style>
 </head>
@@ -1849,7 +1849,7 @@ function tkAdmin(v){const f=TK.f,L=TK.list,open=L.filter(t=>t.status==='open'),A
   const per={};L.filter(t=>t.status!=='cancelled').forEach(t=>t.asg.forEach(a=>{const p=per[a.username]=per[a.username]||{n:a.sup||a.name,o:0,nw:0,lt:0,rv:0,dn:0,st:0,pg:[]};
     if(a.status==='done')p.dn++;else if(t.status==='open'){p.o++;p.pg.push(a.progress);if(a.status==='new')p.nw++;if(a.status==='review')p.rv++;if(t.overdue)p.lt++;if(tkStale(t,a))p.st++}}));
   const pr=Object.entries(per).sort((a,b)=>a[1].n.localeCompare(b[1].n,'ar')),red=n=>n?` style="color:var(--bad);font-weight:700"`:'';
-  v.innerHTML=`<div class="tk-top">${tkScope()||'<span></span>'}<button class="btn pri" data-tk="new">مهمة جديدة</button></div>
+  v.innerHTML=`<div class="tk-top">${tkScope()||'<span></span>'}<div class="acts"><button class="btn" data-tk="xls">تصدير تقرير Excel</button><button class="btn pri" data-tk="new">مهمة جديدة</button></div></div>
    <div class="kpis">${K.map(([k,n,l,c])=>`<div class="kpi ${c}${f.st===k?' on':''}" data-tk="st" data-v="${k}" role="button" tabindex="0"><b class="num">${n}</b><span>${l}</span></div>`).join('')}</div>
    <div class="filters"><input class="q" id="tkf-q" type="search" placeholder="بحث بالعنوان، التفاصيل، النقطة، المشرف…" value="${h(f.q)}" aria-label="بحث في المهام">
     <select id="tkf-st" aria-label="الحالة">${[['open','المفتوحة'],['new','لم تُستلم'],['review','بانتظار الاعتماد'],['late','المتأخرة'],['stale','بدون تحديث 48 ساعة'],['closed','المكتملة'],['cancelled','الملغاة'],['all','كل المهام']].map(([k,l])=>`<option value="${k}"${f.st===k?' selected':''}>${l}</option>`).join('')}</select>
@@ -1869,7 +1869,7 @@ function tkSup(v){const f=TK.f,L=TK.list.filter(t=>t.status!=='cancelled'&&tkMin
   L.forEach(t=>{const a=tkMine(t);(a.status==='new'||a.status==='returned'?G.act:a.status==='done'||t.status==='closed'?G.done:G.run).push(t)});
   if(!f.vs)f.vs=G.act.length?'act':'run';
   const seg=[['act','بحاجة لإجراء'],['run','جارية'],['done','منجزة']];
-  v.innerHTML=`${isAdmin()?`<div class="tk-top">${tkScope()}<button class="btn pri" data-tk="new">مهمة جديدة</button></div>`:''}
+  v.innerHTML=`${isAdmin()?`<div class="tk-top">${tkScope()}<div class="acts"><button class="btn" data-tk="xls">تصدير تقرير Excel</button><button class="btn pri" data-tk="new">مهمة جديدة</button></div></div>`:''}
    <div class="lgchips" role="tablist" style="margin-top:12px">${seg.map(([k,l])=>`<button type="button" class="lgc${f.vs===k?' on':''}" data-tk="vs" data-v="${k}">${l} <b>${G[k].length}</b></button>`).join('')}</div>
    <div class="tk-list">${G[f.vs].map(t=>{const a=tkMine(t);return `<article class="tk-card${t.unread?' un':''}${t.overdue?' late':''}" data-tk="open" data-id="${t.id}" tabindex="0">
      <div class="tk-h"><b class="tk-t">${h(t.title)}</b>${tkPr(t.priority)}${tkSt(a.status)}${t.unread?'<span class="tk-dot" title="تحديث جديد"></span>':''}</div>
@@ -1937,8 +1937,95 @@ async function tkSave(f){const g=n=>f.elements[n].value,users=[...f.querySelecto
   try{const id=await rpc('aei_task_save',{p:PIN,i:f.dataset.id?+f.dataset.id:null,d:{title:g('title'),details:g('details'),priority:g('priority'),due:g('due')||null,point:g('point'),users}});
     toast(f.dataset.id?'حُفظت المهمة':'أُنشئت المهمة وأُسندت');TK.edit=false;TK.at=0;tkLoad(true);tkBadge();await tkOpen(id)}catch(e){b.disabled=false;ferr(e.message)}}
 
+/* ---------- تقرير المهام (Excel) ---------- */
+const tkP2=v=>String(v).padStart(2,'0'),tkIso=d=>d.getFullYear()+'-'+tkP2(d.getMonth()+1)+'-'+tkP2(d.getDate());
+function tkXDlg(){const n=new Date();
+  dlg.innerHTML=`<form id="tkxf">`+head('تصدير تقرير المهام')+`<div class="db"><div id="ferr"></div>
+   <div class="muted" style="font-size:13px;line-height:1.8">ملخص إنجاز للأرشفة والإرسال للإدارة: المؤشرات العامة، أداء كل مشرف ونسبة إنجازه، سجل المهام والإسنادات. لا يتضمن تفاصيل المهام ولا الملاحظات والردود.</div>
+   <fieldset><label>الفترة<select name="per" id="tkx-per"><option value="m">الشهر الحالي</option><option value="pm">الشهر السابق</option><option value="w">آخر 7 أيام</option><option value="c">فترة مخصصة</option><option value="all">كل المهام</option></select></label>
+    <label>من<input type="date" name="from" id="tkx-from" value="${tkIso(new Date(n.getFullYear(),n.getMonth(),1))}" disabled></label>
+    <label>إلى<input type="date" name="to" id="tkx-to" value="${tkIso(n)}" disabled></label></fieldset>
+   <label class="chk"><input type="checkbox" name="canc"> إظهار المهام الملغاة في سجل المهام</label>
+   <div class="muted" style="font-size:12.5px">يشمل التقرير كل مهمة جرى العمل عليها خلال الفترة: أُنشئت فيها، أو كانت مفتوحة خلالها ولو أُنشئت قبلها. الحالة والنسب كما هي لحظة إصدار التقرير.</div></div>
+   <div class="df"><div><button class="btn pri">تنزيل التقرير</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open()}
+function tkXPer(){const s=$('#tkx-per'),a=$('#tkx-from'),b=$('#tkx-to');if(!s)return;const n=new Date(),v=s.value;a.disabled=b.disabled=v!=='c';
+  if(v==='m'){a.value=tkIso(new Date(n.getFullYear(),n.getMonth(),1));b.value=tkIso(n)}
+  else if(v==='pm'){a.value=tkIso(new Date(n.getFullYear(),n.getMonth()-1,1));b.value=tkIso(new Date(n.getFullYear(),n.getMonth(),0))}
+  else if(v==='w'){a.value=tkIso(new Date(n.getFullYear(),n.getMonth(),n.getDate()-6));b.value=tkIso(n)}}
+function tkRange(f){const v=f.elements.per.value,day=s=>{const [y,m,d]=String(s).split('-').map(Number);return new Date(y,(m||1)-1,d||1)},fm=s=>s.split('-').reverse().join('/');
+  if(v==='all')return {a:0,b:Infinity,l:'كل المهام',t:'كل المهام حتى تاريخه'};
+  const fa=f.elements.from.value,fb=f.elements.to.value;if(!fa||!fb)return ferr('حدّد تاريخ البداية والنهاية.');if(fa>fb)return ferr('تاريخ البداية بعد تاريخ النهاية.');
+  const a=+day(fa),b=+day(fb)+864e5-1,n=new Date(),l=v==='m'?`شهر ${tkP2(n.getMonth()+1)}.${n.getFullYear()}`:v==='pm'?(()=>{const d=new Date(n.getFullYear(),n.getMonth()-1,1);return `شهر ${tkP2(d.getMonth()+1)}.${d.getFullYear()}`})():`${fm(fa)} - ${fm(fb)}`.replace(/\//g,'.');
+  return {a,b,l,t:`من ${fm(fa)} إلى ${fm(fb)}`}}
+async function tkExport(f){if(!window.XLSX)return ferr('تعذّر تحميل مكتبة التصدير. تحقق من الاتصال.');const R=tkRange(f);if(!R)return;
+  const btn=f.querySelector('.btn.pri'),reset=()=>{btn.disabled=false;btn.textContent='تنزيل التقرير'};btn.disabled=true;btn.textContent='جاري تجهيز التقرير…';
+  let X,U;try{[X,U]=await Promise.all([rpc('aei_task_export',{p:PIN}),rpc('aei_task_users',{p:PIN}).catch(()=>[])])}catch(e){reset();return ferr(e.message)}
+  const ms=v=>v?Date.parse(v):0,nm=new Map();(TK.list||[]).forEach(t=>(t.asg||[]).forEach(a=>nm.set(a.username,a.sup||a.name)));(U||[]).forEach(u=>nm.set(u.username,u.sup||u.name));
+  const who=u=>nm.get(u)||u||'—',today=tkIso(new Date()),dIso=t=>t?tkIso(new Date(t)):'',dS=t=>t?dIso(t).split('-').reverse().join('/'):'',dT=t=>t?new Date(t).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+  const day=s=>s?String(s).split('-').reverse().join('/'):'',avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null,r1=x=>x==null?'—':Math.round(x*10)/10,P=x=>x==null?'—':{pct:x};
+  const AS=new Map(),UA=new Map(),UT=new Map();(X.asg||[]).forEach(a=>{if(!AS.has(a.task_id))AS.set(a.task_id,[]);AS.get(a.task_id).push(a)});
+  (X.upd||[]).forEach(u=>{if(u.asg_id!=null){if(!UA.has(u.asg_id))UA.set(u.asg_id,[]);UA.get(u.asg_id).push(u)}if(!UT.has(u.task_id))UT.set(u.task_id,[]);UT.get(u.task_id).push(u)});
+  const asOf=t=>AS.get(t.id)||[],ua=a=>UA.get(a.id)||[];
+  const endOf=t=>{if(t.status==='closed'){const d=asOf(t).map(a=>ms(a.done_at)).filter(Boolean);return d.length?Math.max(...d):ms(t.updated_at)}
+    if(t.status==='cancelled'){const c=(UT.get(t.id)||[]).filter(u=>u.type==='cancelled').map(u=>ms(u.at));return c.length?Math.max(...c):ms(t.updated_at)}return Infinity};
+  const T=(X.tasks||[]).filter(t=>ms(t.created_at)<=R.b&&endOf(t)>=R.a).sort((a,b)=>a.id-b.id);if(!T.length){reset();return ferr('لا توجد مهام ضمن هذه الفترة.')}
+  const L=T.filter(t=>t.status!=='cancelled'),A=L.flatMap(t=>asOf(t).map(a=>({t,a})));
+  const lateA=(t,a)=>!!t.due&&(a.status==='done'?dIso(ms(a.done_at))>t.due:today>t.due),onTime=(t,a)=>a.status==='done'&&!!t.due&&dIso(ms(a.done_at))<=t.due;
+  const recvH=a=>a.received_at?(ms(a.received_at)-ms(a.created_at))/36e5:null,doneD=a=>a.done_at?(ms(a.done_at)-ms(a.created_at))/864e5:null;
+  const nRet=a=>ua(a).filter(u=>u.type==='returned').length,nPrg=a=>ua(a).filter(u=>u.type==='progress').length,lastA=a=>{const z=ua(a).map(u=>ms(u.at));return z.length?Math.max(...z):0};
+  const tPr=t=>{const z=asOf(t);return z.length?Math.round(avg(z.map(a=>a.progress))):0},tEnd=t=>t.status==='closed'?endOf(t):0;
+  const tLate=t=>t.status==='open'&&!!t.due&&today>t.due,tOn=t=>t.status!=='closed'||!t.due?null:dIso(tEnd(t))<=t.due;
+  const xs=(rows,cols,merges)=>{const pc=[],aoa=rows.map((r,i)=>r.map((v,j)=>{if(v&&typeof v==='object'&&'pct' in v){pc.push([i,j]);return v.pct}return v??''}));
+    const ws=XLSX.utils.aoa_to_sheet(aoa);pc.forEach(([r,c])=>{const k=XLSX.utils.encode_cell({r,c});if(ws[k]&&typeof ws[k].v==='number')ws[k].z='0%'});ws['!cols']=cols.map(w=>({wch:w}));if(merges)ws['!merges']=merges;return ws};
+  const PRL={urgent:'عاجلة',high:'مهمة',normal:'عادية'},TSL={open:'مفتوحة',closed:'مكتملة',cancelled:'ملغاة'},ASL={new:'لم تُستلم',received:'مستلمة',in_progress:'قيد التنفيذ',review:'بانتظار الاعتماد',done:'معتمدة',returned:'مُرجعة'};
+  const withDue=A.filter(x=>x.t.due&&x.a.status==='done'),cl=L.filter(t=>t.status==='closed'),clDue=cl.filter(t=>t.due);
+
+  // 1) الملخص
+  const S1=[['تقرير إنجاز المهام — مشروع AEI–WFP'],['جمعية أرض الإنسان · برنامج الأغذية العالمي'],[],
+    ['الفترة',R.t],['تاريخ الإصدار',dT(Date.now())],['أعدّه',S.user?S.user.name:''],['ملاحظة','الحالة والنسب كما هي لحظة إصدار التقرير'],[],
+    ['المؤشرات العامة'],
+    ['إجمالي المهام خلال الفترة',L.length],['أُنشئت خلال الفترة',L.filter(t=>ms(t.created_at)>=R.a).length],['مُرحّلة من فترة سابقة',L.filter(t=>ms(t.created_at)<R.a).length],
+    ['المهام المكتملة (معتمدة بالكامل)',cl.length],['المهام المفتوحة',L.filter(t=>t.status==='open').length],['منها متأخرة عن موعد الاستحقاق',L.filter(tLate).length],['المهام الملغاة',T.length-L.length],
+    ['نسبة المهام المكتملة',P(L.length?cl.length/L.length:null)],['متوسط نسبة الإنجاز العامة',P(A.length?avg(A.map(x=>x.a.progress))/100:null)],
+    ['نسبة الالتزام بموعد الاستحقاق (للمهام المكتملة)',P(clDue.length?clDue.filter(t=>tOn(t)).length/clDue.length:null)],[],
+    ['الإسنادات'],
+    ['إجمالي الإسنادات للمشرفين',A.length],['معتمدة',A.filter(x=>x.a.status==='done').length],['بانتظار الاعتماد',A.filter(x=>x.a.status==='review').length],
+    ['قيد التنفيذ',A.filter(x=>['received','in_progress'].includes(x.a.status)).length],['مُرجعة حالياً للمشرف',A.filter(x=>x.a.status==='returned').length],['لم تُستلم بعد',A.filter(x=>x.a.status==='new').length],
+    ['إجمالي مرات الإرجاع للتصحيح',A.reduce((s,x)=>s+nRet(x.a),0)],['متوسط مدة الاستلام (ساعة)',r1(avg(A.map(x=>recvH(x.a)).filter(v=>v!=null)))],['متوسط مدة الإنجاز حتى الاعتماد (يوم)',r1(avg(A.map(x=>doneD(x.a)).filter(v=>v!=null)))],[],
+    ['التوزيع حسب الأولوية','عدد المهام','المكتملة','المتأخرة'],
+    ...['urgent','high','normal'].map(k=>{const z=L.filter(t=>t.priority===k);return [PRL[k],z.length,z.filter(t=>t.status==='closed').length,z.filter(tLate).length]}),[],
+    ['التوزيع حسب النقطة','عدد المهام','المكتملة','متوسط الإنجاز']];
+  const pts=new Map();L.forEach(t=>{const k=t.point||'بدون نقطة';if(!pts.has(k))pts.set(k,[]);pts.get(k).push(t)});
+  [...pts.entries()].sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],'ar')).forEach(([k,z])=>S1.push([k,z.length,z.filter(t=>t.status==='closed').length,P(avg(z.map(tPr))/100)]));
+  S1.push([],['اعتماد الإدارة'],['الاسم',''],['التوقيع',''],['التاريخ','']);
+
+  // 2) أداء المشرفين
+  const per=new Map();A.forEach(x=>{const u=x.a.username;if(!per.has(u))per.set(u,[]);per.get(u).push(x)});
+  const pRow=(n,z)=>{const dn=z.filter(x=>x.a.status==='done'),dd=dn.filter(x=>x.t.due),lt=Math.max(0,...z.map(x=>lastA(x.a)));
+    return [n,z.length,dn.length,z.filter(x=>x.a.status==='review').length,z.filter(x=>['received','in_progress'].includes(x.a.status)).length,z.filter(x=>x.a.status==='returned').length,z.filter(x=>x.a.status==='new').length,
+      z.filter(x=>x.a.status!=='done'&&lateA(x.t,x.a)).length,P(z.length?avg(z.map(x=>x.a.progress))/100:null),P(z.length?dn.length/z.length:null),P(dd.length?dd.filter(x=>onTime(x.t,x.a)).length/dd.length:null),
+      r1(avg(z.map(x=>recvH(x.a)).filter(v=>v!=null))),r1(avg(z.map(x=>doneD(x.a)).filter(v=>v!=null))),z.reduce((s,x)=>s+nRet(x.a),0),z.reduce((s,x)=>s+nPrg(x.a),0),lt?dT(lt):'—']};
+  const S2=[['المشرف','المهام المسندة','معتمدة','بانتظار الاعتماد','قيد التنفيذ','مُرجعة حالياً','لم تُستلم','متأخرة (غير منجزة)','متوسط نسبة الإنجاز','نسبة المعتمد من المسند','الالتزام بالموعد','متوسط مدة الاستلام (ساعة)','متوسط مدة الإنجاز (يوم)','مرات الإرجاع','تحديثات الإنجاز','آخر نشاط'],
+    ...[...per.entries()].map(([u,z])=>pRow(who(u),z)).sort((a,b)=>String(a[0]).localeCompare(String(b[0]),'ar')),pRow('الإجمالي',A)];
+
+  // 3) سجل المهام
+  const S3=[['رقم المهمة','العنوان','الأولوية','النقطة','أنشأها','تاريخ الإنشاء','تاريخ الاستحقاق','الحالة','المشرفون المسند لهم','عدد المشرفين','المعتمد منهم','نسبة الإنجاز','تاريخ الإغلاق','الالتزام بالموعد','آخر تحديث'],
+    ...(f.elements.canc.checked?T:L).map(t=>{const z=asOf(t),lu=(UT.get(t.id)||[]).map(u=>ms(u.at)),on=tOn(t);
+      return [t.id,t.title,PRL[t.priority]||t.priority,t.point||'',who(t.created_by),dS(ms(t.created_at)),day(t.due),(TSL[t.status]||t.status)+(tLate(t)?' · متأخرة':''),z.map(a=>who(a.username)).join('، '),z.length,z.filter(a=>a.status==='done').length,
+        P(tPr(t)/100),t.status==='closed'?dS(tEnd(t)):'',on==null?(tLate(t)?'متأخرة':'—'):on?'في الموعد':'بعد الموعد',lu.length?dT(Math.max(...lu)):'']})];
+
+  // 4) الإسنادات
+  const S4=[['رقم المهمة','العنوان','المشرف','الحالة','نسبة الإنجاز','تاريخ الإسناد','تاريخ الاستلام','تاريخ الاعتماد','مدة الاستلام (ساعة)','مدة الإنجاز (يوم)','مرات الإرجاع','تحديثات الإنجاز','الالتزام بالموعد'],
+    ...A.slice().sort((x,y)=>x.t.id-y.t.id||who(x.a.username).localeCompare(who(y.a.username),'ar')).map(({t,a})=>[t.id,t.title,who(a.username),ASL[a.status]||a.status,P(a.progress/100),dS(ms(a.created_at)),dS(ms(a.received_at)),dS(ms(a.done_at)),
+      r1(recvH(a)),r1(doneD(a)),nRet(a),nPrg(a),!t.due?'—':a.status==='done'?(onTime(t,a)?'في الموعد':'بعد الموعد'):(today>t.due?'متأخرة':'ضمن الموعد')])];
+
+  xSave([['الملخص',xs(S1,[44,22,14,16],[{s:{r:0,c:0},e:{r:0,c:3}},{s:{r:1,c:0},e:{r:1,c:3}}])],['أداء المشرفين',xs(S2,[22,12,10,14,12,12,11,14,14,16,13,16,16,11,13,18])],
+    ['سجل المهام',xs(S3,[10,40,10,16,14,13,13,18,34,10,10,11,13,13,18])],['الإسنادات',xs(S4,[10,40,20,16,11,13,13,13,14,14,11,13,13])]],
+    `تقرير المهام - ${R.l} - ${xDate()}.xlsx`,`نُزّل تقرير ${L.length} مهمة`);
+  dlg.close()}
+
 document.addEventListener('submit',ev=>{const f=ev.target,id=f.id||'';if(!/^tk/.test(id))return;ev.preventDefault();
-  if(id==='tkef')return tkSave(f);
+  if(id==='tkef')return tkSave(f);if(id==='tkxf')return tkExport(f);
   const a=+f.dataset.a,n=f.elements.n?f.elements.n.value.trim():'',b=f.querySelector('button:not([type=button])');
   if(id.startsWith('tkpf-')){const v=+f.elements.v.value;if(n.length<2)return toast('اكتب ملاحظة توضح ما تم إنجازه');
     return tkAct('aei_task_progress',{a_id:a,v,n},v===100?'أُرسلت المهمة للاعتماد':'حُفظ التحديث',b,()=>tkDraft.set('p'+a,''))}
@@ -1950,6 +2037,7 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tk]');if
   if(k==='approve')return tkAct('aei_task_review',{a_id:+d.a,ok:true,n:''},'اعتُمد الإنجاز',t);
   if(k==='retform')return tkRetForm(t);
   if(k==='reload'){TK.edit=false;return tkOpen(TK.cur.id)}
+  if(k==='xls')return tkXDlg();
   if(k==='new'){TK.edit=false;TK.cur=null;return tkEdit()}
   if(k==='edit'){TK.edit=true;return tkEdit()}
   if(k==='cancel'){if(!t.dataset.sure){t.dataset.sure=1;t.textContent='تأكيد إلغاء المهمة';return}return tkAct('aei_task_cancel',{i:TK.cur.id,cancel:true,n:''},'أُلغيت المهمة',t)}
@@ -1966,7 +2054,7 @@ document.addEventListener('input',ev=>{const el=ev.target;
   if(el.id==='tkf-q'){TK.f.q=el.value;return tkView()}
   if(el.dataset&&el.dataset.draft)return tkDraft.set(el.dataset.draft,el.value);
   if(el.id&&el.id.startsWith('tkp-')){const a=el.id.slice(4),o=$('#tkpv-'+a),b=$('#tkpb-'+a);if(o)o.textContent=el.value+'%';if(b)b.textContent=+el.value===100?'إرسال للاعتماد':'حفظ التحديث'}});
-document.addEventListener('change',ev=>{const m={'tkf-st':'st','tkf-who':'who','tkf-pr':'pr'}[ev.target.id];if(m){TK.f[m]=ev.target.value;tkView()}});
+document.addEventListener('change',ev=>{if(ev.target.id==='tkx-per')return tkXPer();const m={'tkf-st':'st','tkf-who':'who','tkf-pr':'pr'}[ev.target.id];if(m){TK.f[m]=ev.target.value;tkView()}});
 setInterval(()=>{if(!S.user||document.hidden)return;tkBadge();if(S.tab==='tasks'&&!dlg.open)tkLoad()},60000);
 
 </script>
