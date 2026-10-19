@@ -349,6 +349,52 @@ tr.axhid td{opacity:.55}
 .axsups{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 14px}.axsups label{display:grid;gap:4px;font-size:14px}
 .axwa{justify-self:stretch}.axev li>.acts{grid-row:1/3;grid-column:2}.axreq{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;margin-top:12px}.axcnt input{width:76px;text-align:center}.axcnt td,.axcnt th{padding-inline:8px}tr.axdiff td{background:var(--warn-soft)}.axbt th,.axbt td{padding-inline:8px}.axbt td.num{text-align:center}
 @media(max-width:560px){.axtypes{grid-template-columns:1fr 1fr!important}.axty small{display:none}.axsec{padding:12px}}
+
+/* ===== المهام ===== */
+.tk-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-block:12px 4px}
+.tk-top .lgchips{margin:0}
+.kpi[data-tk]{cursor:pointer;transition:border-color .12s}.kpi[data-tk]:hover,.kpi[data-tk].on{border-color:var(--brand)}
+.kpi.bad b{color:var(--bad)}
+.tk-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px;margin-top:10px}
+.tk-card{background:var(--surface);border:1px solid var(--line);border-inline-start:4px solid var(--line);border-radius:var(--r);padding:12px 14px;display:grid;gap:8px;cursor:pointer;align-content:start;min-width:0}
+.tk-card:hover,.tk-card:focus-visible{border-color:var(--brand);outline:none}
+.tk-card.un{border-inline-start-color:var(--brand)}.tk-card.late{border-inline-start-color:var(--bad)}.tk-card.off{opacity:.7}
+.tk-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}.tk-t{font-size:15px;line-height:1.5;flex:1 1 170px;min-width:0;overflow-wrap:anywhere}
+.tk-m{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12.5px;color:var(--muted)}
+.tk-late{color:var(--bad);font-weight:700}
+.tk-d{margin:0;font-size:13.5px;color:var(--muted);line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line}
+.tk-p{display:flex;align-items:center;gap:8px}
+.tk-bar{flex:1;height:8px;background:var(--sunk);border-radius:99px;overflow:hidden;min-width:60px}.tk-bar i{display:block;height:100%;background:var(--brand);border-radius:inherit;transition:width .2s}
+.tk-pc{font-size:12.5px;min-width:38px;text-align:end}
+.tk-as{display:flex;flex-wrap:wrap;gap:6px}.tk-a{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;background:var(--sunk);border-radius:99px;padding:2px 10px 2px 4px}
+[dir=rtl] .tk-a{padding:2px 4px 2px 10px}.tk-a.stale{box-shadow:inset 0 0 0 1px var(--bad)}.tk-a .st{padding:1px 8px;font-size:11.5px}
+.tk-pr{font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:4px;background:var(--sunk);color:var(--muted);white-space:nowrap}.tk-pr.tk-hi{background:var(--warn-soft);color:var(--warn)}.tk-pr.tk-ur{background:var(--bad-soft);color:var(--bad)}
+.tk-dot{width:9px;height:9px;border-radius:50%;background:var(--brand);flex:none}
+.st.tk-s1{background:var(--brand-soft);color:var(--brand)}.st.tk-s2{background:color-mix(in srgb,var(--t-adm) 16%,transparent);color:var(--t-adm)}
+.tk-big{min-height:44px;width:100%}
+.tk-asg{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:grid;gap:10px}
+.tk-asg.me{border-color:var(--brand)}
+.tk-asg h3{margin:0;font-size:15px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.tk-asg h3 small{font-weight:400;color:var(--muted);font-size:12.5px}
+.tk-f{display:grid;gap:8px}
+.tk-f input[type=range]{border:0;padding:0;background:none;accent-color:var(--brand);height:28px;margin-top:4px}
+.tk-rp{grid-template-columns:1fr auto;align-items:end}.tk-rp textarea{min-height:44px}
+.tk-rv{display:flex;flex-wrap:wrap;gap:8px}
+.tk-tl{list-style:none;margin:0;padding:0}
+.tk-tl li{position:relative;border-inline-start:2px solid var(--line);margin-inline-start:6px;padding:4px 16px 14px 0;font-size:13.5px}
+[dir=rtl] .tk-tl li{padding:4px 16px 14px 0}
+.tk-tl li:last-child{border-color:transparent}
+.tk-tl li::before{content:"";position:absolute;inset-inline-start:-7px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--surface);border:2px solid var(--muted)}
+.tk-tl li.k-progress::before{border-color:var(--brand)}.tk-tl li.k-approved::before{border-color:var(--ok);background:var(--ok)}.tk-tl li.k-returned::before{border-color:var(--bad);background:var(--bad)}.tk-tl li.k-reply::before{border-color:var(--t-adm);background:var(--t-adm)}
+.tk-tl .w{color:var(--muted);font-size:12px;margin-inline-start:6px;font-family:var(--mono)}
+.tk-tl .n{margin-top:4px;white-space:pre-line;background:var(--sunk);border-radius:var(--r);padding:6px 10px;line-height:1.7;overflow-wrap:anywhere}
+.tk-lbl{font-weight:600;font-size:14px;margin-bottom:6px}
+.tk-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px 14px;font-size:14px;font-weight:600}.tk-meta span{color:var(--muted);display:block;font-size:12px;font-weight:400}
+.tk-det{white-space:pre-line;line-height:1.8;margin:0;background:var(--sunk);padding:10px 12px;border-radius:var(--r);overflow-wrap:anywhere}
+.tk-sec{margin:0;font-size:15px}
+.tk-sum{margin-top:14px}.tk-sum summary{cursor:pointer;font-weight:600;font-size:14px;padding:6px 0}
+@media (max-width:640px){.tk-list{grid-template-columns:1fr}.tk-rp{grid-template-columns:1fr}.tk-top{align-items:stretch}.tk-top>.btn{width:100%}}
+@media print{.tk-f,.tk-rv{display:none}}
 </style>
 </head>
 <body>
@@ -437,7 +483,7 @@ const DB={doc(path){const [c,i]=path.split('/');return{set:d=>rpc('aei_set',{p:P
 setInterval(()=>{if(!document.hidden&&!dlg.open&&S.ready)Object.keys(subs).forEach(c=>refresh(c).catch(()=>{}))},30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.ready&&!dlg.open)Object.keys(subs).forEach(c=>refresh(c).catch(()=>{}))});
 const isAdmin=()=>S.role==='admin',isSuper=()=>S.role==='admin'&&!!S.sup;
-const setMe=r=>{S.role=r.role;S.sup=!!r.super;S.user=r.user?{u:r.user,name:r.name||r.user}:null};
+const setMe=r=>{S.role=r.role;S.sup=!!r.super;S.user=r.user?{u:r.user,name:r.name||r.user,sup:r.sup||''}:null};
 const ROUTES={assets:()=>renderAssets(),register:()=>renderReg(),leave:()=>renderLeave(),edit:()=>renderSelf(),resign:()=>renderResign(),login:()=>renderLock()},WEB=/^https?:$/.test(location.protocol);
 function routeName(){const p=location.pathname.replace(/\/+$/,'').split('/').pop(),hsh=location.hash.slice(1);return ROUTES[hsh]?hsh:WEB&&ROUTES[p]?p:''}
 function routeUrl(n){return WEB?location.origin+'/'+n:location.href.split('#')[0]+'#'+n}
@@ -461,7 +507,7 @@ function renderHome(){document.body.classList.remove('ro');
    <section class="hcard"><h2>تعديل بيانات الموظف</h2><p>للموظفين والمتطوعين والأمن. تحقّق من هويتك ثم عدّل بياناتك، ويُعتمد التعديل بعد موافقة الإدارة.</p><button class="btn pri" data-act="self">تعديل بياناتي</button><button class="lnk" type="button" data-link="edit">نسخ رابط الصفحة</button></section>
    <section class="hcard"><h2>طلب استقالة</h2><p>للموظفين والمتطوعين والأمن. تحقّق من هويتك وقدّم طلبك، ويُعتمد بعد مراجعة الإدارة.</p><button class="btn pri" data-act="resign">تقديم طلب استقالة</button><button class="lnk" type="button" data-link="resign">نسخ رابط الصفحة</button></section>
    <section class="hcard"><h2>أصول النقاط</h2><p>لطاقم النقاط. اعرض أصول نقطتك وسجّل التوريد والتلف والسرقة والفقد برمز النقطة، ويُعتمد كل حدث بعد متابعة المشرف.</p><button class="btn pri" data-ax="pgo">أصول نقطتي</button><button class="lnk" type="button" data-link="assets">نسخ رابط الصفحة</button></section>
-   <section class="hcard"><h2>دخول النظام</h2><p>للمشرفين والإدارة. عرض بيانات الموظفين والنقاط وطلبات الإجازة باستخدام رمز PIN.</p><button class="btn" data-act="login">دخول برمز PIN</button><button class="lnk" type="button" data-link="login">نسخ رابط الصفحة</button></section></div>
+   <section class="hcard"><h2>دخول النظام</h2><p>للمشرفين والإدارة. عرض بيانات الموظفين والنقاط ومتابعة المهام، باسم المستخدم وكلمة المرور.</p><button class="btn" data-act="login">دخول النظام</button><button class="lnk" type="button" data-link="login">نسخ رابط الصفحة</button></section></div>
    <ul class="hfeat"><li><b>قاعدة بيانات موحدة</b>بحث وفلترة حسب النطاق والنقطة والمشرف</li><li><b>عرض حسب النقاط والمشرفين</b>طاقم كل نقطة والفوكال بوينت</li><li><b>الإجازات والاستقالات</b>سجل واحد يُصدَّر إلى Excel</li></ul></div>`}
 let LISTS=null;
 async function renderLeave(){app.innerHTML='<div class="empty">جاري تحميل النموذج…</div>';
@@ -653,15 +699,12 @@ async function setLeave(v){const i=v.lastIndexOf('|'),id=v.slice(0,i),st=v.slice
   try{await S.db.doc('leave/'+id).update({status:st});log('حالة إجازة',{id:x.id,name:x.name},`${x.status||'جديد'} ← ${st}`);if(dlg.open)dlg.close();toast(st==='موافق عليه'?'تمت الموافقة على الإجازة':st==='مرفوض'?'رُفض طلب الإجازة':'أُعيد الطلب إلى «جديد»')}catch(e){toast('لم تُحفظ: '+e.message)}}
 async function delLeave(btn){if(!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='تأكيد الحذف';return}
   try{await S.db.doc('leave/'+btn.dataset.ldel).delete();if(dlg.open)dlg.close();toast('حُذف الطلب')}catch(e){toast('لم يُحذف: '+e.message)}}
-function renderLock(msg){const m=S.lm||'user';app.innerHTML=`<div class="lock"><form id="lockf"><img class="lg xl" src="/logo.png" width="256" height="256" alt="شعار جمعية أرض الإنسان وبرنامج الأغذية العالمي – الموارد البشرية"><h1>سجل موظفي AEI – WFP</h1>
-  <div class="lgchips" role="tablist"><button type="button" class="lgc${m==='user'?' on':''}" data-act="lmode" data-v="user">دخول الإدارة</button><button type="button" class="lgc${m==='pin'?' on':''}" data-act="lmode" data-v="pin">رمز العرض (للمشرفين)</button></div>
-  ${m==='user'?`<label>اسم المستخدم<input id="lu" class="lin" dir="ltr" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="30" value="${h(S.lu||'')}"></label><label>كلمة المرور<input id="lp" class="lin" dir="ltr" type="password" autocomplete="current-password" maxlength="60"></label>`:`<div class="muted">أدخل رمز العرض لمشاهدة البيانات.</div><input id="pin" inputmode="numeric" type="password" autocomplete="off" maxlength="20" aria-label="رمز العرض">`}
-  ${msg?`<div class="note bad">${h(msg)}</div>`:''}<div class="acts"><button class="btn pri" id="go">دخول</button><button class="btn" type="button" data-act="home">رجوع</button></div></form></div>`;$(m==='user'?(S.lu?'#lp':'#lu'):'#pin').focus()}
-async function submitLock(){const go=$('#go'),busy=()=>{go.disabled=true;go.textContent='جاري التحقق…'};
-  if((S.lm||'user')==='user'){const u=$('#lu').value.trim(),pw=$('#lp').value;if(!u||!pw)return;S.lu=u;busy();
-    try{const r=await rpc('aei_user_login',{u,pw});if(r&&r.ok){PIN=r.token;setMe(r);ss.set(PIN);S.lu='';start()}else renderLock(r&&r.msg||'اسم المستخدم أو كلمة المرور غير صحيحة')}catch(e){renderLock(e.message)}return}
-  const p=$('#pin').value.trim();if(!p)return;busy();
-  try{const r=await rpc('aei_me',{p});if(r&&r.role==='view'){PIN=p;setMe(r);ss.set(p);start()}else renderLock(r?'دخول الإدارة يتم باسم المستخدم وكلمة المرور من تبويب «دخول الإدارة».':'الرمز غير صحيح.')}catch(e){renderLock(e.message)}}
+function renderLock(msg){app.innerHTML=`<div class="lock"><form id="lockf"><img class="lg xl" src="/logo.png" width="256" height="256" alt="شعار جمعية أرض الإنسان وبرنامج الأغذية العالمي – الموارد البشرية"><h1>سجل موظفي AEI – WFP</h1>
+  <div class="muted">دخول الإدارة والمشرفين باسم المستخدم وكلمة المرور.</div>
+  <label>اسم المستخدم<input id="lu" class="lin" dir="ltr" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="30" value="${h(S.lu||'')}"></label><label>كلمة المرور<input id="lp" class="lin" dir="ltr" type="password" autocomplete="current-password" maxlength="60"></label>
+  ${msg?`<div class="note bad">${h(msg)}</div>`:''}<div class="acts"><button class="btn pri" id="go">دخول</button><button class="btn" type="button" data-act="home">رجوع</button></div></form></div>`;$(S.lu?'#lp':'#lu').focus()}
+async function submitLock(){const go=$('#go'),u=$('#lu').value.trim(),pw=$('#lp').value;if(!u||!pw)return;S.lu=u;go.disabled=true;go.textContent='جاري التحقق…';
+  try{const r=await rpc('aei_user_login',{u,pw});if(r&&r.ok){PIN=r.token;setMe(r);ss.set(PIN);S.lu='';start()}else renderLock(r&&r.msg||'اسم المستخدم أو كلمة المرور غير صحيحة')}catch(e){renderLock(e.message)}}
 const BK_COLLS=[['emp','الموظفون'],['resigned','الاستقالات'],['leave','الإجازات'],['reg','طلبات التسجيل'],['upd','طلبات التعديل'],['resreq','طلبات الاستقالة'],['point','بيانات النقاط'],['plan','الخطط الأسبوعية'],['snap','الأرشيف الشهري'],['log','سجل التعديلات'],['acat','قائمة الأصول'],['aev','حركات الأصول'],['apin','رموز أصول النقاط'],['areq','طلبات جرد الأصول']],BK_DAYS=7;
 const bkTs=()=>{const m=S.meta.get('backup');return m&&m.ts||0},bkDays=()=>bkTs()?Math.floor((Date.now()-bkTs())/864e5):null,bkDue=()=>isAdmin()&&(bkDays()===null||bkDays()>=BK_DAYS),
   bkLabel=()=>bkTs()?`آخر نسخة احتياطية: ${new Date(bkTs()).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}`:'لم تُؤخذ نسخة احتياطية بعد';
@@ -675,9 +718,10 @@ function backupDlg(){const m=S.meta.get('backup')||{};
     <input type="file" id="bk-file" accept=".json,application/json" aria-label="ملف النسخة الاحتياطية"><div id="bkprev"></div></section></div>`;open()}
 async function backupNow(btn){const st=$('#bkst');btn.disabled=true;const data={},counts={};
   try{for(const [c,l] of BK_COLLS.filter(x=>x[0]!=='log'||isSuper())){if(st)st.textContent='جاري جمع: '+l+'…';const rows=await rpc('aei_list',{p:PIN,c});data[c]=rows||[];counts[c]=data[c].length}
-    const now=new Date(),file={app:'AEI-WFP',version:1,created:now.toISOString(),counts,data},d2=n=>String(n).padStart(2,'0'),name=`AEI-WFP نسخة احتياطية ${d2(now.getDate())}.${d2(now.getMonth()+1)}.${now.getFullYear()}.json`;
+    let tasks=null;try{if(st)st.textContent='جاري جمع: المهام…';tasks=await rpc('aei_task_export',{p:PIN});counts.tasks=(tasks.tasks||[]).length}catch(e){}
+    const now=new Date(),file={app:'AEI-WFP',version:1,created:now.toISOString(),counts,data,tasks},d2=n=>String(n).padStart(2,'0'),name=`AEI-WFP نسخة احتياطية ${d2(now.getDate())}.${d2(now.getMonth()+1)}.${now.getFullYear()}.json`;
     const u=URL.createObjectURL(new Blob([JSON.stringify(file)],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);
-    await rpc('aei_set',{p:PIN,c:'meta',i:'backup',d:{ts:Date.now(),by:S.role||'admin',counts}});await refresh('meta');log('نسخة احتياطية',{id:'',name:'النظام'},Object.entries(counts).map(([k,v])=>`${(BK_COLLS.find(x=>x[0]===k)||[k,k])[1]}: ${v}`).join(' | '));
+    await rpc('aei_set',{p:PIN,c:'meta',i:'backup',d:{ts:Date.now(),by:S.role||'admin',counts}});await refresh('meta');log('نسخة احتياطية',{id:'',name:'النظام'},Object.entries(counts).map(([k,v])=>`${(BK_COLLS.find(x=>x[0]===k)||[k,k==='tasks'?'المهام':k])[1]}: ${v}`).join(' | '));
     dlg.close();toast('نُزّلت النسخة الاحتياطية: '+name)}
   catch(e){btn.disabled=false;if(st)st.textContent='';toast('تعذّر أخذ النسخة: '+e.message)}}
 let BKF=null;
@@ -693,7 +737,7 @@ async function bkRestore(btn){if(!BKF)return;const cs=[...document.querySelector
     log('استعادة نسخة احتياطية',{id:'',name:'النظام'},`نسخة ${BKF.created.slice(0,10)} · ${cs.map(c=>(BK_COLLS.find(x=>x[0]===c)||[c,c])[1]).join('، ')} · ${n} سجل`);dlg.close();toast(`استُعيد ${n} سجل`)}
   catch(e){btn.disabled=false;if(st)st.textContent=`توقفت بعد ${n} سجل: ${e.message}`;toast('توقفت الاستعادة: '+e.message)}}
 function bkNag(){if(!bkDue())return;try{if(sessionStorage.getItem('bknag'))return;sessionStorage.setItem('bknag','1')}catch(e){}setTimeout(()=>toast(bkDays()===null?'تذكير: لم تُؤخذ نسخة احتياطية من البيانات بعد. اضغط «نسخة احتياطية» في الأعلى.':`تذكير: مرّ ${bkDays()} يوماً على آخر نسخة احتياطية. اضغط «نسخة احتياطية» في الأعلى.`,9000),1200)}
-function start(){document.body.classList.toggle('ro',!isAdmin());S.tab=isAdmin()?'home':'db';
+function start(){document.body.classList.toggle('ro',!isAdmin());S.tab=isAdmin()?'home':S.user?'tasks':'db';if(S.user)tkBadge();
   app.innerHTML='<div class="empty">جاري تحميل بيانات الموظفين…</div>';
   unsub=S.db.collection('emp').limit(1000).onSnapshot(snap=>{S.live=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));S.ready=true;applyMonth();render()},
     e=>{app.innerHTML=`<div class="empty">تعذّر تحميل البيانات: ${h(e.message||e.code)}</div>`});
@@ -720,18 +764,18 @@ function filtered(){const f=S.f,qs=nrm(f.q).split(' ').filter(Boolean);
 function render(){const n=S.emps.size, bad=all().filter(e=>issues(e).length).length;
   const keep=document.activeElement?.id, pos=document.activeElement?.selectionStart;
   app.innerHTML=`<header class="top"><div class="bar"><div class="brand"><img class="lg" src="/logo.png" width="256" height="256" alt="شعار جمعية أرض الإنسان وبرنامج الأغذية العالمي – الموارد البشرية"><div><h1>سجل موظفي AEI – WFP</h1><div class="sub">جمعية أرض الإنسان · مشروع الغذاء العالمي</div></div></div>
-   <div class="acts"><label class="mon">الشهر<select id="g-month" aria-label="الشهر">${[...monthList(),'all'].map(m=>`<option value="${m}"${m===selMonth()?' selected':''}>${mLabel(m)}</option>`).join('')}</select></label><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm${bkDue()?' due':''}" data-act="backup" title="${h(bkLabel())}">نسخة احتياطية</button>${isSuper()?'<button class="btn adm" data-act="users">مدراء النظام</button>':''}${S.user?`<button class="btn adm" data-act="mypw">كلمة المرور</button><span class="uchip" title="المستخدم الحالي">${isSuper()?'مدير أعلى':'مدير'} · <b>${h(S.user.name)}</b></span>`:''}<button class="btn" data-act="logout">تسجيل الخروج</button></div></div>
+   <div class="acts"><label class="mon">الشهر<select id="g-month" aria-label="الشهر">${[...monthList(),'all'].map(m=>`<option value="${m}"${m===selMonth()?' selected':''}>${mLabel(m)}</option>`).join('')}</select></label><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm${bkDue()?' due':''}" data-act="backup" title="${h(bkLabel())}">نسخة احتياطية</button>${isSuper()?'<button class="btn adm" data-act="users">المستخدمون</button>':''}${S.user?`<button class="btn" data-act="mypw">كلمة المرور</button><span class="uchip" title="المستخدم الحالي">${isSuper()?'مدير أعلى':isAdmin()?'مدير':'مشرف'} · <b>${h(S.user.name)}</b></span>`:''}<button class="btn" data-act="logout">تسجيل الخروج</button></div></div>
    <div class="tabs" role="tablist">${(()=>{const nl=[...S.leaves.values()].filter(x=>x.status==='جديد').length,adm=isAdmin(),
-     G=[['',[['home','الرئيسية',0,1]]],['البيانات',[['db','قاعدة البيانات'],['points','التوزيع حسب النقاط'],['pts','بيانات النقاط'],['sups','حسب المشرفين']]],['الدوام',[['plan','الخطة الأسبوعية']]],['الأصول',[['ast','أصول النقاط',pendAst().length,1]]],
+     G=[['',[['home','الرئيسية',0,1]]],['المتابعة',[['tasks','المهام',TK.badge.total||0,3]]],['البيانات',[['db','قاعدة البيانات'],['points','التوزيع حسب النقاط'],['pts','بيانات النقاط'],['sups','حسب المشرفين']]],['الدوام',[['plan','الخطة الأسبوعية']]],['الأصول',[['ast','أصول النقاط',pendAst().length,1]]],
         ['الطلبات',[['leave','الإجازات',nl],['reg','طلبات التسجيل',newRegs().length,1],['upd','طلبات التعديل',newUpds().length,1]]],['السجلات',[['res','الاستقالات',newRReqs().length,1],['log','سجل التعديلات',0,2]]]];
-     return G.map(([g,ts])=>[g,ts.filter(t=>t[3]===2?isSuper():adm||!t[3])]).filter(x=>x[1].length).map(([g,ts])=>`<div class="tg" role="presentation">${g?`<span class="tgl">${g}</span>`:''}${ts.map(([k,l,n])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}${n?`<span class="bdg" aria-label="${n} طلب جديد">${n>99?'99+':n}</span>`:''}</button>`).join('')}</div>`).join('')})()}</div></header>
+     return G.map(([g,ts])=>[g,ts.filter(t=>t[3]===2?isSuper():t[3]===3?!!S.user:adm||!t[3])]).filter(x=>x[1].length).map(([g,ts])=>`<div class="tg" role="presentation">${g?`<span class="tgl">${g}</span>`:''}${ts.map(([k,l,n])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}${n?`<span class="bdg" aria-label="${n} طلب جديد">${n>99?'99+':n}</span>`:''}</button>`).join('')}</div>`).join('')})()}</div></header>
    <div class="sum"><span><b>${n}</b> موظف</span>${trStats(all())}
    <span><b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة</span>${mRes().length?`<span><b>${mRes().length}</b> استقالة</span>`:''}${mLeaves().length?`<span><b>${mLeaves().length}</b> إجازة</span>`:''}${[...S.leaves.values()].some(x=>x.status==='جديد')?`<span><b>${[...S.leaves.values()].filter(x=>x.status==='جديد').length}</b> طلب إجازة جديد</span>`:''}${bad?`<span style="color:var(--warn)"><b>${bad}</b> بحاجة لمراجعة</span>`:''}</div>
    ${isArch()?`<div class="note">أرشيف ${mLabel(selMonth())}: بيانات الموظفين كما كانت في نهاية ذلك الشهر، للعرض والتصدير فقط. للتعديل ارجع إلى الشهر الحالي.</div>`:''}
    <main id="view"></main>`;
-  if(!n&&S.tab!=='res'&&S.tab!=='log'&&S.tab!=='leave'&&S.tab!=='plan'&&S.tab!=='reg'&&S.tab!=='upd'&&S.tab!=='ast'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
+  if(!n&&S.tab!=='tasks'&&S.tab!=='res'&&S.tab!=='log'&&S.tab!=='leave'&&S.tab!=='plan'&&S.tab!=='reg'&&S.tab!=='upd'&&S.tab!=='ast'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
   if(S.tab==='log'&&!isSuper())S.tab=isAdmin()?'home':'db';
-  ({home:vHome,plan:vPlan,db:vDb,points:vPoints,pts:vPts,sups:vSups,leave:vLeave,reg:vReg,upd:vUpd,res:vRes,log:vLog,ast:vAst})[S.tab]();
+  ({tasks:vTasks,home:vHome,plan:vPlan,db:vDb,points:vPoints,pts:vPts,sups:vSups,leave:vLeave,reg:vReg,upd:vUpd,res:vRes,log:vLog,ast:vAst})[S.tab]();
   if(keep){const el=document.getElementById(keep);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(e){}}}}
 function vDb(){const f=S.f,rows=filtered();
   $('#view').innerHTML=`<div class="filters">
@@ -1128,14 +1172,15 @@ async function saveFocal(f){const id=f.dataset.id,e=S.emps.get(id);if(!e)return 
   catch(err){btn.disabled=false;toast('لم يُحفظ: '+(err.message||err.code))}}
 function pinDlg(){dlg.innerHTML=`<form id="pinf">`+head('تغيير رمز العرض (للمشرفين)')+`<div class="db"><div id="ferr"></div><div class="muted" style="font-size:13px">رمز العرض يفتح البيانات للمشاهدة فقط. بعد تغييره وزّع الرمز الجديد على المشرفين.</div><fieldset>${inp('new','الرمز الجديد (6 خانات على الأقل)','',{type:'password',ltr:1,req:1})}</fieldset></div><div class="df"><div><button class="btn pri">حفظ الرمز</button><button class="btn" type="button" data-act="users">رجوع</button></div></div></form>`;open()}
 /* ---------- admin accounts (super admin only) ---------- */
-async function usersDlg(){const hd=head('مدراء النظام');dlg.innerHTML=hd+'<div class="db"><div class="empty">جاري التحميل…</div></div>';open();
+async function usersDlg(){const hd=head('المستخدمون');dlg.innerHTML=hd+'<div class="db"><div class="empty">جاري التحميل…</div></div>';open();
   try{S.users=await rpc('aei_users_list',{p:PIN})||[]}catch(e){dlg.innerHTML=hd+`<div class="db"><div class="note bad">${h(e.message)}</div></div>`;return}
-  dlg.innerHTML=hd+`<div class="db"><div class="muted" style="font-size:13px">المدير الأعلى يرى سجل التعديلات ويدير هذه الحسابات ورمز العرض. باقي المدراء لهم كل صلاحيات الإدارة عدا ذلك. كل عملية تُسجَّل في السجل باسم منفّذها.</div>
-   <div class="tw"><table><thead><tr><th>اسم المستخدم</th><th>الاسم</th><th>الصلاحية</th><th>الحالة</th><th>آخر دخول</th><th></th></tr></thead><tbody>${S.users.map(x=>`<tr style="cursor:default"><td class="num">${h(x.username)}</td><td class="nm">${h(x.name||'—')}</td><td>${x.super?'<span class="fp" style="margin:0">مدير أعلى</span>':'مدير'}</td><td>${!x.active?'<span class="st st-no">معطّل</span>':x.locked?'<span class="st st-new">مقفل مؤقتاً</span>':'<span class="st st-ok">مفعّل</span>'}</td><td class="num">${x.last_login?h(new Date(x.last_login).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})):'—'}</td><td><button class="btn sm" data-act="uedit" data-u="${h(x.username)}">تعديل</button></td></tr>`).join('')}</tbody></table></div></div>
-   <div class="df"><div><button class="btn pri" data-act="unew">إضافة مدير</button><button class="btn" data-act="pin">تغيير رمز العرض</button></div></div>`}
+  dlg.innerHTML=hd+`<div class="db"><div class="muted" style="font-size:13px">المدير الأعلى يرى سجل التعديلات ويدير الحسابات. المدير له كل صلاحيات الإدارة عدا ذلك. المشرف يرى البيانات للعرض فقط ويستلم المهام المسندة له ويتابعها. كل عملية تُسجَّل باسم منفّذها.</div>
+   <div class="tw"><table><thead><tr><th>اسم المستخدم</th><th>الاسم</th><th>الصلاحية</th><th>المشرف المرتبط</th><th>الحالة</th><th>آخر دخول</th><th></th></tr></thead><tbody>${S.users.map(x=>`<tr style="cursor:default"><td class="num">${h(x.username)}</td><td class="nm">${h(x.name||'—')}</td><td>${x.super?'<span class="fp" style="margin:0">مدير أعلى</span>':x.role==='view'?'مشرف (عرض + مهام)':'مدير'}</td><td>${h(x.sup||'—')}</td><td>${!x.active?'<span class="st st-no">معطّل</span>':x.locked?'<span class="st st-new">مقفل مؤقتاً</span>':'<span class="st st-ok">مفعّل</span>'}</td><td class="num">${x.last_login?h(new Date(x.last_login).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})):'—'}</td><td><button class="btn sm" data-act="uedit" data-u="${h(x.username)}">تعديل</button></td></tr>`).join('')}</tbody></table></div></div>
+   <div class="df"><div><button class="btn pri" data-act="unew">إضافة مستخدم</button></div></div>`}
 function userForm(un){const x=un?(S.users||[]).find(z=>z.username===un):null,me=!!(x&&S.user&&x.username===S.user.u);
-  dlg.innerHTML=`<form id="usrf" data-u="${h(x?x.username:'')}">`+head(x?'تعديل حساب: '+h(x.username):'إضافة مدير')+`<div class="db"><div id="ferr"></div><fieldset>${x?'':inp('username','اسم المستخدم (أحرف إنجليزية صغيرة وأرقام)','',{ltr:1,req:1})}${inp('name','الاسم الظاهر في سجل التعديلات',x?x.name:'',{req:1})}${inp('pw',x?'كلمة مرور جديدة (اتركها فارغة لإبقاء الحالية)':'كلمة المرور (6 خانات على الأقل)','',{type:'password',ltr:1,req:!x})}
-   <label>الصلاحية<select id="e-super" name="super"${me?' disabled':''}><option value="">مدير</option><option value="1"${x&&x.super?' selected':''}>مدير أعلى (السجل + الحسابات)</option></select></label>
+  dlg.innerHTML=`<form id="usrf" data-u="${h(x?x.username:'')}">`+head(x?'تعديل حساب: '+h(x.username):'إضافة مستخدم')+`<div class="db"><div id="ferr"></div><fieldset>${x?'':inp('username','اسم المستخدم (أحرف إنجليزية صغيرة وأرقام)','',{ltr:1,req:1})}${inp('name','الاسم الظاهر في سجل التعديلات',x?x.name:'',{req:1})}${inp('pw',x?'كلمة مرور جديدة (اتركها فارغة لإبقاء الحالية)':'كلمة المرور (6 خانات على الأقل)','',{type:'password',ltr:1,req:!x})}
+   <label>الصلاحية<select id="e-perm" name="perm"${me?' disabled':''}><option value="view"${!x||(x.role==='view')?' selected':''}>مشرف (عرض فقط + مهامه)</option><option value="admin"${x&&x.role!=='view'&&!x.super?' selected':''}>مدير</option><option value="super"${x&&x.super?' selected':''}>مدير أعلى (السجل + الحسابات)</option></select></label>
+   <label>المشرف المرتبط (لإسناد المهام)<select id="e-sup" name="sup">${opts(uniq('sup').filter(v=>v!=='إداري'),x?x.sup||'':'','—')}</select></label>
    <label>الحالة<select id="e-active" name="active"${me?' disabled':''}><option value="1">مفعّل</option><option value=""${x&&!x.active?' selected':''}>معطّل</option></select></label></fieldset>
    ${me?'<div class="muted" style="font-size:13px">لا يمكنك تعطيل حسابك أو تغيير صلاحيتك بنفسك.</div>':''}</div>
    <div class="df"><div><button class="btn pri">حفظ</button><button class="btn" type="button" data-act="users">رجوع</button></div>${x&&!me?`<div><button class="btn danger" type="button" data-act="udel" data-u="${h(x.username)}">حذف الحساب</button></div>`:''}</div></form>`;
@@ -1143,7 +1188,8 @@ function userForm(un){const x=un?(S.users||[]).find(z=>z.username===un):null,me=
 async function saveUser(f){const o=formData(f),isNew=!f.dataset.u,un=isNew?String(o.username||'').trim().toLowerCase():f.dataset.u;
   if(!/^[a-z0-9_.-]{3,30}$/.test(un))return ferr('اسم المستخدم: 3 إلى 30 خانة من أحرف إنجليزية صغيرة وأرقام.');
   if(o.pw&&o.pw.length<6)return ferr('كلمة المرور يجب أن تكون 6 خانات على الأقل.');
-  const d={name:o.name,super:!!o.super,active:!!o.active};if(o.pw)d.pw=o.pw;const b=f.querySelector('.btn.pri');b.disabled=true;
+  const cur=isNew?null:(S.users||[]).find(z=>z.username===un),me=!!(cur&&S.user&&un===S.user.u),perm=me?(cur.super?'super':cur.role||'admin'):o.perm||'view';
+  const d={name:o.name,role:perm==='view'?'view':'admin',super:perm==='super',active:me?true:!!o.active,sup:o.sup||''};if(o.pw)d.pw=o.pw;const b=f.querySelector('.btn.pri');b.disabled=true;
   try{await rpc('aei_user_save',{p:PIN,u:un,d,n:isNew});if(S.user&&un===S.user.u){S.user.name=o.name||un;render()}S.logDocs=null;toast(isNew?'أُضيف الحساب':'حُفظ الحساب');usersDlg()}catch(e){b.disabled=false;ferr('لم يُحفظ: '+e.message)}}
 async function delUser(btn){if(!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='تأكيد حذف الحساب نهائياً';return}
   btn.disabled=true;try{await rpc('aei_user_delete',{p:PIN,u:btn.dataset.u});S.logDocs=null;toast('حُذف الحساب');usersDlg()}catch(e){btn.disabled=false;ferr('لم يُحذف: '+e.message)}}
@@ -1763,6 +1809,166 @@ document.addEventListener('input',ev=>{const el=ev.target;
   if(f.id==='axef'){if(el.id==='e-newName')astSim(el);astSync()}
   else if(f.id==='axrv')axAfter(); else if(f.id==='axaf'){if(el.id==='e-pt'||el.id==='e-item'||el.id==='e-type'){f.querySelectorAll('#e-ng,#e-nd').forEach(x=>x.value='');axAddSync()}}
   else if(f.id==='axmf'&&el.id==='e-from')axMoveRows()});
+
+/* ===================== المهام ===================== */
+const TK={list:null,at:0,busy:false,err:'',cur:null,users:null,badge:{total:0},f:{q:'',st:'open',who:'',pr:'',scope:'all',vs:''}};
+const TK_AS={new:['جديدة','st-new'],received:['مستلمة','tk-s1'],in_progress:['قيد التنفيذ','tk-s1'],review:['بانتظار الاعتماد','tk-s2'],done:['معتمدة','st-ok'],returned:['مُرجعة','st-no']};
+const TK_TS={open:'مفتوحة',closed:'مكتملة',cancelled:'ملغاة'};
+const TK_PR={normal:['عادية',''],high:['مهمة','tk-hi'],urgent:['عاجلة','tk-ur']};
+const TK_EV={created:'أنشأ المهمة',assigned:'أسند المهمة إلى',unassigned:'أزال الإسناد عن',edited:'عدّل بيانات المهمة',received:'استلم المهمة',progress:'حدّث نسبة الإنجاز',reply:'كتب ردّاً',approved:'اعتمد الإنجاز',returned:'أرجع المهمة',cancelled:'ألغى المهمة',reopened:'أعاد فتح المهمة'};
+const tkD=ms=>ms?new Date(ms).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+const tkDay=s=>s?String(s).split('-').reverse().join('/'):'—';
+const tkSt=s=>{const x=TK_AS[s]||[s,''];return `<span class="st ${x[1]}">${x[0]}</span>`};
+const tkPr=p=>p&&p!=='normal'&&TK_PR[p]?`<span class="tk-pr ${TK_PR[p][1]}">${TK_PR[p][0]}</span>`:'';
+const tkBar=v=>`<span class="tk-bar" role="progressbar" aria-valuenow="${v}" aria-valuemin="0" aria-valuemax="100"><i style="width:${v}%"></i></span><b class="num tk-pc">${v}%</b>`;
+const tkMine=t=>(t.asg||[]).find(a=>a.mine);
+const tkStale=(t,a)=>t.status==='open'&&!['done','review'].includes(a.status)&&Date.now()-(a.last_at||t.created_at)>1728e5;
+const tkDraft={get(k){try{return localStorage.getItem('tkd-'+k)||''}catch(e){return ''}},set(k,v){try{v?localStorage.setItem('tkd-'+k,v):localStorage.removeItem('tkd-'+k)}catch(e){}}};
+
+async function tkBadge(){if(!S.user)return;try{const b=await rpc('aei_task_badge',{p:PIN})||{total:0};const ch=b.total!==TK.badge.total;TK.badge=b;if(ch&&S.ready&&!dlg.open)render()}catch(e){}}
+async function tkLoad(force){if(!S.user||TK.busy)return;if(!force&&TK.list&&Date.now()-TK.at<20000)return;TK.busy=true;
+  try{TK.list=await rpc('aei_task_list',{p:PIN})||[];TK.at=Date.now();TK.err=''}catch(e){TK.err=e.message}finally{TK.busy=false}
+  if(S.tab==='tasks'&&!dlg.open)tkView()}
+function vTasks(){if(!S.user){$('#view').innerHTML='<div class="empty">المهام تتطلب الدخول باسم المستخدم وكلمة المرور.</div>';return}tkView();tkLoad()}
+function tkView(){const v=$('#view');if(!v||S.tab!=='tasks')return;
+  if(!TK.list){v.innerHTML=TK.err?`<div class="note bad">تعذّر تحميل المهام: ${h(TK.err)}</div>`:'<div class="empty">جاري تحميل المهام…</div>';return}
+  const keep=document.activeElement&&document.activeElement.id,pos=document.activeElement&&document.activeElement.selectionStart;
+  if(isAdmin()&&TK.f.scope!=='mine')tkAdmin(v);else tkSup(v);
+  if(keep){const el=document.getElementById(keep);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(e){}}}}
+function tkScope(){const n=TK.list.filter(t=>t.status!=='cancelled'&&tkMine(t)).length;if(!isAdmin()||!n)return '';
+  return `<div class="lgchips" role="tablist"><button type="button" class="lgc${TK.f.scope!=='mine'?' on':''}" data-tk="scope" data-v="all">كل المهام</button><button type="button" class="lgc${TK.f.scope==='mine'?' on':''}" data-tk="scope" data-v="mine">المسندة لي <b>${n}</b></button></div>`}
+
+function tkAdmin(v){const f=TK.f,L=TK.list,open=L.filter(t=>t.status==='open'),A=open.flatMap(t=>t.asg.map(a=>({t,a})));
+  const FS={open:t=>t.status==='open',new:t=>t.status==='open'&&t.asg.some(a=>a.status==='new'),review:t=>t.status==='open'&&t.asg.some(a=>a.status==='review'),late:t=>t.overdue,
+    stale:t=>t.asg.some(a=>tkStale(t,a)),closed:t=>t.status==='closed',cancelled:t=>t.status==='cancelled',all:()=>true};
+  const qs=nrm(f.q).split(' ').filter(Boolean),hit=t=>{const s=nrm([t.title,t.details,t.point,'#'+t.id,...t.asg.map(a=>a.name+' '+(a.sup||''))].join(' '));return qs.every(w=>s.includes(w))};
+  const rows=L.filter(FS[f.st]||FS.open).filter(t=>(!f.who||t.asg.some(a=>a.username===f.who))&&(!f.pr||t.priority===f.pr)&&(!qs.length||hit(t)));
+  const who=[...new Map(L.flatMap(t=>t.asg).map(a=>[a.username,a.sup||a.name])).entries()].sort((a,b)=>a[1].localeCompare(b[1],'ar'));
+  const nNew=A.filter(x=>x.a.status==='new').length,nLate=open.filter(t=>t.overdue).length,nRev=A.filter(x=>x.a.status==='review').length,nStale=open.filter(t=>FS.stale(t)).length;
+  const K=[['open',open.length,'مهمة مفتوحة',''],['new',nNew,'إسناد لم يُستلم',nNew?'hot':''],['review',nRev,'بانتظار الاعتماد',nRev?'hot':''],['late',nLate,'مهمة متأخرة',nLate?'bad':''],['stale',nStale,'بدون تحديث 48 ساعة',nStale?'bad':''],['closed',L.filter(t=>t.status==='closed').length,'مهمة مكتملة','']];
+  const per={};L.filter(t=>t.status!=='cancelled').forEach(t=>t.asg.forEach(a=>{const p=per[a.username]=per[a.username]||{n:a.sup||a.name,o:0,nw:0,lt:0,rv:0,dn:0,st:0,pg:[]};
+    if(a.status==='done')p.dn++;else if(t.status==='open'){p.o++;p.pg.push(a.progress);if(a.status==='new')p.nw++;if(a.status==='review')p.rv++;if(t.overdue)p.lt++;if(tkStale(t,a))p.st++}}));
+  const pr=Object.entries(per).sort((a,b)=>a[1].n.localeCompare(b[1].n,'ar')),red=n=>n?` style="color:var(--bad);font-weight:700"`:'';
+  v.innerHTML=`<div class="tk-top">${tkScope()||'<span></span>'}<button class="btn pri" data-tk="new">مهمة جديدة</button></div>
+   <div class="kpis">${K.map(([k,n,l,c])=>`<div class="kpi ${c}${f.st===k?' on':''}" data-tk="st" data-v="${k}" role="button" tabindex="0"><b class="num">${n}</b><span>${l}</span></div>`).join('')}</div>
+   <div class="filters"><input class="q" id="tkf-q" type="search" placeholder="بحث بالعنوان، التفاصيل، النقطة، المشرف…" value="${h(f.q)}" aria-label="بحث في المهام">
+    <select id="tkf-st" aria-label="الحالة">${[['open','المفتوحة'],['new','لم تُستلم'],['review','بانتظار الاعتماد'],['late','المتأخرة'],['stale','بدون تحديث 48 ساعة'],['closed','المكتملة'],['cancelled','الملغاة'],['all','كل المهام']].map(([k,l])=>`<option value="${k}"${f.st===k?' selected':''}>${l}</option>`).join('')}</select>
+    <select id="tkf-who" aria-label="المشرف"><option value="">كل المشرفين</option>${who.map(([u,n])=>`<option value="${h(u)}"${f.who===u?' selected':''}>${h(n)}</option>`).join('')}</select>
+    <select id="tkf-pr" aria-label="الأولوية"><option value="">كل الأولويات</option>${Object.entries(TK_PR).map(([k,[l]])=>`<option value="${k}"${f.pr===k?' selected':''}>${l}</option>`).join('')}</select></div>
+   <div class="hint"><span>المعروض <b>${rows.length}</b> من <b>${L.length}</b> مهمة</span><span>اضغط على أي مهمة لعرض التفاصيل والمتابعة</span></div>
+   <div class="tk-list">${rows.map(tkCardA).join('')||'<div class="empty">لا توجد مهام مطابقة.</div>'}</div>
+   ${pr.length?`<details class="tk-sum"${S.tkSum?' open':''} id="tk-sum"><summary>متابعة المشرفين</summary><div class="tw"><table><thead><tr><th>المشرف</th><th>مفتوحة</th><th>لم تُستلم</th><th>بانتظار الاعتماد</th><th>متأخرة</th><th>بدون تحديث</th><th>معتمدة</th><th>متوسط الإنجاز</th></tr></thead><tbody>
+    ${pr.map(([u,p])=>`<tr data-tk="who" data-v="${h(u)}"><td class="nm">${h(p.n)}</td><td class="num">${p.o}</td><td class="num">${p.nw||'—'}</td><td class="num">${p.rv||'—'}</td><td class="num"${red(p.lt)}>${p.lt||'—'}</td><td class="num"${red(p.st)}>${p.st||'—'}</td><td class="num">${p.dn||'—'}</td><td class="num">${p.pg.length?Math.round(p.pg.reduce((a,b)=>a+b,0)/p.pg.length)+'%':'—'}</td></tr>`).join('')}</tbody></table></div></details>`:''}`}
+function tkCardA(t){return `<article class="tk-card${t.unread?' un':''}${t.overdue?' late':''}${t.status!=='open'?' off':''}" data-tk="open" data-id="${t.id}" tabindex="0">
+  <div class="tk-h"><b class="tk-t">${h(t.title)}</b>${tkPr(t.priority)}${t.status!=='open'?`<span class="st ${t.status==='closed'?'st-ok':'st-no'}">${TK_TS[t.status]}</span>`:''}${t.unread?'<span class="tk-dot" title="تحديث جديد"></span>':''}</div>
+  <div class="tk-m"><span class="num">#${t.id}</span>${t.point?`<span>${h(t.point)}</span>`:''}<span class="${t.overdue?'tk-late':''}">الاستحقاق: <span class="num">${tkDay(t.due)}</span>${t.overdue?' · متأخرة':''}</span><span>آخر تحديث: <span class="num">${tkD(t.last_at)}</span></span></div>
+  <div class="tk-p">${tkBar(t.progress)}</div>
+  <div class="tk-as">${t.asg.map(a=>`<span class="tk-a${tkStale(t,a)?' stale':''}"${tkStale(t,a)?' title="بدون تحديث منذ أكثر من 48 ساعة"':''}>${h(a.sup||a.name)} ${tkSt(a.status)} <b class="num">${a.progress}%</b></span>`).join('')}</div></article>`}
+
+function tkSup(v){const f=TK.f,L=TK.list.filter(t=>t.status!=='cancelled'&&tkMine(t)),G={act:[],run:[],done:[]};
+  L.forEach(t=>{const a=tkMine(t);(a.status==='new'||a.status==='returned'?G.act:a.status==='done'||t.status==='closed'?G.done:G.run).push(t)});
+  if(!f.vs)f.vs=G.act.length?'act':'run';
+  const seg=[['act','بحاجة لإجراء'],['run','جارية'],['done','منجزة']];
+  v.innerHTML=`${isAdmin()?`<div class="tk-top">${tkScope()}<button class="btn pri" data-tk="new">مهمة جديدة</button></div>`:''}
+   <div class="lgchips" role="tablist" style="margin-top:12px">${seg.map(([k,l])=>`<button type="button" class="lgc${f.vs===k?' on':''}" data-tk="vs" data-v="${k}">${l} <b>${G[k].length}</b></button>`).join('')}</div>
+   <div class="tk-list">${G[f.vs].map(t=>{const a=tkMine(t);return `<article class="tk-card${t.unread?' un':''}${t.overdue?' late':''}" data-tk="open" data-id="${t.id}" tabindex="0">
+     <div class="tk-h"><b class="tk-t">${h(t.title)}</b>${tkPr(t.priority)}${tkSt(a.status)}${t.unread?'<span class="tk-dot" title="تحديث جديد"></span>':''}</div>
+     <div class="tk-m">${t.point?`<span>${h(t.point)}</span>`:''}<span class="${t.overdue?'tk-late':''}">الاستحقاق: <span class="num">${tkDay(t.due)}</span>${t.overdue?' · متأخرة':''}</span><span>من: ${h(t.created_by_name||'—')}</span></div>
+     ${t.details?`<p class="tk-d">${h(t.details)}</p>`:''}<div class="tk-p">${tkBar(a.progress)}</div>
+     ${a.status==='new'?`<button class="btn pri tk-big" data-tk="recv" data-a="${a.id}">استلام المهمة</button>`:a.status==='returned'?'<div class="note bad">أُرجعت المهمة. افتحها لقراءة السبب وتحديث الإنجاز.</div>':''}</article>`}).join('')
+     ||`<div class="empty">${f.vs==='act'?'لا توجد مهام جديدة أو مُرجعة.':f.vs==='run'?'لا توجد مهام جارية.':'لا توجد مهام منجزة بعد.'}</div>`}</div>`}
+
+async function tkOpen(id,quiet){const hd=head('تفاصيل المهمة');if(!quiet){dlg.innerHTML=hd+'<div class="db"><div class="empty">جاري التحميل…</div></div>';open()}
+  try{TK.cur=await rpc('aei_task_get',{p:PIN,i:+id})}catch(e){dlg.innerHTML=hd+`<div class="db"><div class="note bad">${h(e.message)}</div></div>`;open();return}
+  tkDlg();if(!quiet){TK.at=0;tkBadge()}}
+function tkDlg(){const t=TK.cur,adm=isAdmin(),log=t.log||[],off=t.status==='cancelled',st=dlg.open?dlg.scrollTop:0;
+  const asg=a=>{const mine=a.mine,ret=a.status==='returned'?[...log].reverse().find(x=>x.asg_id===a.id&&x.type==='returned'):null;let act='';
+    if(!off){
+      if(mine&&a.status==='new')act=`<button class="btn pri tk-big" data-tk="recv" data-a="${a.id}">استلام المهمة</button>`;
+      else if(mine&&['received','in_progress','returned'].includes(a.status))act=`<form class="tk-f" id="tkpf-${a.id}" data-a="${a.id}">
+        <label>نسبة الإنجاز: <b class="num" id="tkpv-${a.id}" style="color:var(--fg);font-size:15px">${a.progress}%</b><input type="range" id="tkp-${a.id}" name="v" min="0" max="100" step="10" value="${a.progress}" aria-label="نسبة الإنجاز"></label>
+        <label>ما الذي تم إنجازه؟ (ملاحظة إلزامية)<textarea name="n" rows="3" maxlength="2000" data-draft="p${a.id}" required>${h(tkDraft.get('p'+a.id))}</textarea></label>
+        <div class="acts"><button class="btn pri" id="tkpb-${a.id}">${a.progress===100?'إرسال للاعتماد':'حفظ التحديث'}</button><span class="muted" style="font-size:12.5px;align-self:center">عند 100% تُرسل المهمة للإدارة للاعتماد.</span></div></form>`;
+      else if(mine&&a.status==='review')act='<div class="note">أرسلتَ المهمة للاعتماد، وستظهر نتيجة المراجعة هنا.</div>';
+      if(adm&&!mine&&a.status==='review')act+=`<div class="tk-rv" id="tkrv-${a.id}"><button class="btn pri" data-tk="approve" data-a="${a.id}">اعتماد الإنجاز</button><button class="btn danger" data-tk="retform" data-a="${a.id}">إرجاع للمشرف</button></div>`;
+      if(adm&&!mine&&a.status==='done')act+=`<div class="tk-rv" id="tkrv-${a.id}"><button class="btn sm" data-tk="retform" data-a="${a.id}">إعادة فتحها لهذا المشرف</button></div>`;
+      if(adm&&mine&&a.status==='review')act+='<div class="muted" style="font-size:13px">يعتمدها مدير آخر.</div>';
+      if(mine||adm)act+=`<form class="tk-f tk-rp" id="tkrf-${a.id}" data-a="${a.id}"><textarea name="n" rows="2" maxlength="2000" placeholder="${mine?'رد أو استفسار للإدارة…':'رد أو توجيه للمشرف…'}" data-draft="r${a.id}" aria-label="رد">${h(tkDraft.get('r'+a.id))}</textarea><button class="btn">إرسال رد</button></form>`}
+    return `<section class="tk-asg${mine?' me':''}"><h3>${h(a.sup||a.name)}${a.sup&&a.sup!==a.name?` <small>(${h(a.name)})</small>`:''} ${tkSt(a.status)}${tkStale(t,a)?'<span class="st st-no">بدون تحديث 48 ساعة</span>':''}</h3>
+      <div class="tk-p">${tkBar(a.progress)}</div>
+      <div class="tk-m"><span>الاستلام: <span class="num">${tkD(a.received_at)}</span></span><span>آخر تحديث: <span class="num">${tkD(a.last_at)}</span></span>${a.done_at?`<span>الاعتماد: <span class="num">${tkD(a.done_at)}</span></span>`:''}</div>
+      ${ret?`<div class="note bad"><b>سبب الإرجاع (${h(ret.by_name||'')}):</b> ${h(ret.note)}</div>`:''}${act}</section>`};
+  const ev=x=>{const to=x.to_name&&adm&&x.by_name!==x.to_name;return `<li class="k-${x.type}"><b>${h(x.by_name||x.by||'—')}</b> ${TK_EV[x.type]||x.type}${x.type==='assigned'&&x.to_name?' <b>'+h(x.to_name)+'</b>':''}${x.type==='unassigned'?' <b>'+h(x.note)+'</b>':''}${x.type==='progress'?` <b class="num">${x.p_from??0}% ← ${x.p_to}%</b>`:''}${to&&x.type!=='assigned'?` <span class="muted">(${h(x.to_name)})</span>`:''}<span class="w">${tkD(x.at)}</span>
+    ${x.note&&x.type!=='unassigned'?`<div class="n">${h(x.note)}</div>`:''}</li>`};
+  dlg.innerHTML=head(`مهمة <span class="num">#${t.id}</span>`)+`<div class="db">
+    <div class="tk-h"><b class="tk-t" style="font-size:18px">${h(t.title)}</b>${tkPr(t.priority)}<span class="st ${t.status==='closed'?'st-ok':t.status==='cancelled'?'st-no':'tk-s1'}">${TK_TS[t.status]}</span></div>
+    ${off?'<div class="note bad">هذه المهمة ملغاة.</div>':''}
+    <div class="tk-meta"><div><span>الاستحقاق</span><b class="num${t.overdue?' tk-late':''}">${tkDay(t.due)}${t.overdue?' · متأخرة':''}</b></div><div><span>النقطة</span>${h(t.point||'—')}</div><div><span>أنشأها</span>${h(t.created_by_name||'—')}</div><div><span>تاريخ الإنشاء</span><span class="num" style="color:var(--fg);font-size:13.5px;display:inline">${tkD(t.created_at)}</span></div>${adm?`<div><span>الإنجاز الكلي</span><b class="num">${t.progress}%</b></div>`:''}</div>
+    ${t.details?`<p class="tk-det">${h(t.details)}</p>`:''}
+    ${t.asg.map(asg).join('')}
+    <h3 class="tk-sec">سجل المتابعة</h3><ol class="tk-tl">${log.map(ev).join('')||'<li>لا يوجد</li>'}</ol></div>
+    ${adm?`<div class="df"><div>${!off&&t.status!=='closed'?`<button class="btn" data-tk="edit">تعديل / إسناد</button>`:''}${off?`<button class="btn" data-tk="reopen">إعادة فتح المهمة</button>`:t.status!=='closed'?`<button class="btn danger" data-tk="cancel">إلغاء المهمة</button>`:''}</div>${t.asg.every(a=>a.status==='new')?`<div><button class="btn danger" data-tk="del">حذف المهمة</button></div>`:''}</div>`:''}`;
+  open();dlg.scrollTop=st}
+function tkRetForm(b){const a=b.dataset.a,box=$('#tkrv-'+a);if(!box)return;
+  box.outerHTML=`<form class="tk-f" id="tkvf-${a}" data-a="${a}"><label>سبب الإرجاع (يظهر للمشرف)<textarea name="n" rows="2" maxlength="2000" required></textarea></label><div class="acts"><button class="btn danger">تأكيد الإرجاع</button><button class="btn" type="button" data-tk="reload">تراجع</button></div></form>`;
+  const ta=dlg.querySelector(`#tkvf-${a} textarea`);if(ta)ta.focus()}
+
+async function tkAct(fn,args,msg,btn,ok){if(btn)btn.disabled=true;
+  try{const r=await rpc(fn,{p:PIN,...args});if(ok)ok(r);if(msg)toast(msg);TK.at=0;tkLoad(true);tkBadge();if(dlg.open&&TK.cur&&fn!=='aei_task_delete')await tkOpen(TK.cur.id,true);return true}
+  catch(e){if(btn)btn.disabled=false;toast(e.message);return false}}
+async function tkEdit(){const t=dlg.open&&TK.cur&&TK.edit?TK.cur:null,hd=head(t?'تعديل المهمة والإسناد':'مهمة جديدة');
+  dlg.innerHTML=hd+'<div class="db"><div class="empty">جاري التحميل…</div></div>';open();
+  try{TK.users=await rpc('aei_task_users',{p:PIN})||[]}catch(e){dlg.innerHTML=hd+`<div class="db"><div class="note bad">${h(e.message)}</div></div>`;return}
+  const sel=new Set(t?t.asg.map(a=>a.username):[]),pts=uniq('point').filter(p=>p!=='إداري'),sup=TK.users.filter(u=>u.sup),oth=TK.users.filter(u=>!u.sup);
+  const ck=u=>{const lk=t&&t.asg.find(a=>a.username===u.username&&a.status!=='new');return `<label class="chk"><input type="checkbox" name="u" value="${h(u.username)}"${sel.has(u.username)?' checked':''}${lk?' disabled':''}> ${h(u.sup||u.name)}${u.sup&&u.sup!==u.name?` <small>${h(u.name)}</small>`:''}${lk?' <small>بدأ العمل</small>':''}</label>`};
+  dlg.innerHTML=`<form id="tkef" data-id="${t?t.id:''}">`+hd+`<div class="db"><div id="ferr"></div><fieldset>
+    <label class="wide">عنوان المهمة<input name="title" maxlength="200" required value="${h(t?t.title:'')}"></label>
+    <label class="wide">التفاصيل والمطلوب<textarea name="details" rows="4" maxlength="4000">${h(t?t.details:'')}</textarea></label>
+    <label>الأولوية<select name="priority">${Object.entries(TK_PR).map(([k,[l]])=>`<option value="${k}"${(t?t.priority:'normal')===k?' selected':''}>${l}</option>`).join('')}</select></label>
+    <label>تاريخ الاستحقاق (اختياري)<input type="date" name="due" value="${h(t&&t.due||'')}"></label>
+    <label>النقطة (اختياري)<select name="point"><option value="">—</option>${pts.map(p=>`<option${t&&t.point===p?' selected':''}>${h(p)}</option>`).join('')}</select></label></fieldset>
+    <div><div class="tk-lbl">إسناد إلى المشرفين</div><div class="eclist">${sup.map(ck).join('')}${oth.length?`<div class="muted" style="font-size:12.5px;padding-top:8px">حسابات أخرى</div>${oth.map(ck).join('')}`:''}</div>
+    ${t?'<div class="muted" style="font-size:12.5px;margin-top:6px">لا يمكن إزالة مشرف بدأ العمل على المهمة.</div>':''}</div></div>
+    <div class="df"><div><button class="btn pri">${t?'حفظ التعديل':'إنشاء وإسناد'}</button><button class="btn" type="button" ${t?'data-tk="reload"':'data-act="close"'}>رجوع</button></div></div></form>`;
+  open()}
+async function tkSave(f){const g=n=>f.elements[n].value,users=[...f.querySelectorAll('input[name=u]:checked')].map(x=>x.value);
+  if(g('title').trim().length<2)return ferr('أدخل عنوان المهمة.');if(!users.length)return ferr('اختر مشرفاً واحداً على الأقل.');
+  const b=f.querySelector('.btn.pri');b.disabled=true;
+  try{const id=await rpc('aei_task_save',{p:PIN,i:f.dataset.id?+f.dataset.id:null,d:{title:g('title'),details:g('details'),priority:g('priority'),due:g('due')||null,point:g('point'),users}});
+    toast(f.dataset.id?'حُفظت المهمة':'أُنشئت المهمة وأُسندت');TK.edit=false;TK.at=0;tkLoad(true);tkBadge();await tkOpen(id)}catch(e){b.disabled=false;ferr(e.message)}}
+
+document.addEventListener('submit',ev=>{const f=ev.target,id=f.id||'';if(!/^tk/.test(id))return;ev.preventDefault();
+  if(id==='tkef')return tkSave(f);
+  const a=+f.dataset.a,n=f.elements.n?f.elements.n.value.trim():'',b=f.querySelector('button:not([type=button])');
+  if(id.startsWith('tkpf-')){const v=+f.elements.v.value;if(n.length<2)return toast('اكتب ملاحظة توضح ما تم إنجازه');
+    return tkAct('aei_task_progress',{a_id:a,v,n},v===100?'أُرسلت المهمة للاعتماد':'حُفظ التحديث',b,()=>tkDraft.set('p'+a,''))}
+  if(id.startsWith('tkrf-')){if(!n)return toast('اكتب الرد');return tkAct('aei_task_reply',{a_id:a,n},'أُرسل الرد',b,()=>tkDraft.set('r'+a,''))}
+  if(id.startsWith('tkvf-')){if(n.length<2)return toast('اكتب سبب الإرجاع');return tkAct('aei_task_review',{a_id:a,ok:false,n},'أُرجعت المهمة للمشرف',b)}});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tk]');if(!t)return;const k=t.dataset.tk,d=t.dataset;
+  if(k==='open'){TK.edit=false;return tkOpen(d.id)}
+  if(k==='recv')return tkAct('aei_task_receive',{a_id:+d.a},'استُلمت المهمة. حدّث نسبة الإنجاز مع التقدم.',t);
+  if(k==='approve')return tkAct('aei_task_review',{a_id:+d.a,ok:true,n:''},'اعتُمد الإنجاز',t);
+  if(k==='retform')return tkRetForm(t);
+  if(k==='reload'){TK.edit=false;return tkOpen(TK.cur.id)}
+  if(k==='new'){TK.edit=false;TK.cur=null;return tkEdit()}
+  if(k==='edit'){TK.edit=true;return tkEdit()}
+  if(k==='cancel'){if(!t.dataset.sure){t.dataset.sure=1;t.textContent='تأكيد إلغاء المهمة';return}return tkAct('aei_task_cancel',{i:TK.cur.id,cancel:true,n:''},'أُلغيت المهمة',t)}
+  if(k==='reopen')return tkAct('aei_task_cancel',{i:TK.cur.id,cancel:false,n:''},'أُعيد فتح المهمة',t);
+  if(k==='del'){if(!t.dataset.sure){t.dataset.sure=1;t.textContent='تأكيد حذف المهمة نهائياً';return}
+    return tkAct('aei_task_delete',{i:TK.cur.id},'حُذفت المهمة',t,()=>{TK.cur=null;dlg.close()})}
+  if(k==='st'){TK.f.st=d.v;return tkView()}
+  if(k==='who'){TK.f.who=d.v;TK.f.st='open';tkView();return scrollTo({top:0,behavior:'smooth'})}
+  if(k==='scope'){TK.f.scope=d.v;return tkView()}
+  if(k==='vs'){TK.f.vs=d.v;return tkView()}});
+document.addEventListener('keydown',ev=>{if(ev.key!=='Enter'&&ev.key!==' ')return;const t=ev.target;if(t&&t.matches&&t.matches('[data-tk="open"],.kpi[data-tk]')){ev.preventDefault();t.click()}});
+document.addEventListener('toggle',ev=>{if(ev.target&&ev.target.id==='tk-sum')S.tkSum=ev.target.open},true);
+document.addEventListener('input',ev=>{const el=ev.target;
+  if(el.id==='tkf-q'){TK.f.q=el.value;return tkView()}
+  if(el.dataset&&el.dataset.draft)return tkDraft.set(el.dataset.draft,el.value);
+  if(el.id&&el.id.startsWith('tkp-')){const a=el.id.slice(4),o=$('#tkpv-'+a),b=$('#tkpb-'+a);if(o)o.textContent=el.value+'%';if(b)b.textContent=+el.value===100?'إرسال للاعتماد':'حفظ التحديث'}});
+document.addEventListener('change',ev=>{const m={'tkf-st':'st','tkf-who':'who','tkf-pr':'pr'}[ev.target.id];if(m){TK.f[m]=ev.target.value;tkView()}});
+setInterval(()=>{if(!S.user||document.hidden)return;tkBadge();if(S.tab==='tasks'&&!dlg.open)tkLoad()},60000);
+
 </script>
 <script>
 /* ---------- PWA: service worker + install button ---------- */
