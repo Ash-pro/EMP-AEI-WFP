@@ -447,7 +447,21 @@ body:has(.dash) .credit{margin-inline-start:var(--sw)}
 .snav-u div{min-width:0}.snav-u b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.snav-u span{font-size:12px;color:var(--muted)}
 .snav-f .ni{font-weight:500;font-size:13.5px;min-height:34px;padding-block:6px}
 .snav-f .ni.out{color:var(--bad)}
-.snav-ov{display:none}.snav .only-m{display:none}
+.snav-ov{display:none}
+.u-legend{display:grid;gap:6px;font-size:13px;color:var(--muted);margin:0;padding:0;list-style:none}.u-legend li{display:flex;gap:8px;align-items:baseline}
+.rchip{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:99px;white-space:nowrap;flex:none}
+.rchip.r-super{background:var(--brand);color:var(--brand-fg)}.rchip.r-admin{background:var(--t-adm-bg);color:var(--t-adm)}.rchip.r-view{background:var(--t-prev-bg);color:var(--t-prev)}
+.u-sum{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13.5px;color:var(--muted)}.u-sum b{color:var(--fg);font-size:16px}
+.ulist{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:10px}
+.ucard{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:10px;background:var(--surface);align-content:start}
+.ucard.off{opacity:.62}.ucard.me{border-color:var(--brand)}
+.uc-h{display:flex;align-items:center;gap:10px}
+.uc-h .av{width:38px;height:38px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-weight:700;flex:none}
+.uc-h>div{flex:1;min-width:0}.uc-h b{display:block;font-size:15px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.uc-h .num{font-size:12.5px;color:var(--muted)}
+.uc-kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:5px 14px;margin:0;font-size:13.5px}.uc-kv dt{color:var(--muted)}.uc-kv dd{margin:0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.uc-kv .nolink{color:var(--warn);font-weight:600}.uc-kv dd.num{text-align:end}.uc-kv .dim{color:var(--muted);font-weight:400}
+.uc-f{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.fhint{font-size:12.5px;color:var(--muted);grid-column:1/-1;margin-top:-4px}.snav .only-m{display:none}
 .dmain{min-width:0;padding:0 24px 40px;max-width:1640px;width:100%;box-sizing:border-box}
 header.dtop{padding-block:12px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;justify-content:space-between;margin-inline:-24px;padding-inline:24px}
 .dt-l{display:flex;align-items:center;gap:10px;min-width:0}
@@ -460,7 +474,36 @@ header.dtop{padding-block:12px;display:flex;flex-wrap:wrap;align-items:center;ga
 .btn.ext{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:inherit}
 .btn.ext svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .dash .sum{margin-top:6px}
+.snav-mt{position:absolute;top:26px;inset-inline-end:-14px;z-index:22;display:inline-grid;place-items:center;width:28px;height:28px;padding:0;border:1px solid var(--line);background:var(--surface);border-radius:50%;color:var(--muted);cursor:pointer;box-shadow:0 2px 8px rgba(8,14,20,.18)}
+.snav-mt:hover{color:var(--fg);border-color:var(--brand)}.snav-mt svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+.dash{transition:grid-template-columns .18s ease}
+@media(min-width:1101px){
+  body.nav-mini{--sw:68px}
+  body.nav-mini .snav-mt svg{transform:scaleX(-1)}
+  body.nav-mini .snav-h{justify-content:center;padding:14px 6px}
+  body.nav-mini .snav-h .lg{width:38px;height:38px}
+  body.nav-mini .snav-h>div,body.nav-mini .snav-lbl,body.nav-mini .snav .t,body.nav-mini .snav .chev,body.nav-mini .snav-u>div{display:none}
+  body.nav-mini .snav-b{overflow:visible;padding:10px 8px}
+  body.nav-mini .snav-b>.ni,body.nav-mini .ngh{justify-content:center;padding:9px 0;min-height:40px}
+  body.nav-mini .snav-b>.ni>.bdg,body.nav-mini .ngh>.bdg,body.nav-mini .ng.open>.ngh .bdg{display:inline-grid;position:absolute;top:1px;inset-inline-end:3px;min-width:17px;height:17px;padding:0 4px;font-size:10px}
+  body.nav-mini .ng{position:relative}
+  body.nav-mini .ng.on>.ngh{background:var(--brand-soft);color:var(--brand)}
+  body.nav-mini .ngl{display:none!important}
+  body.nav-mini .ng.fly>.ngl{display:block!important;position:absolute;top:-4px;inset-inline-start:calc(100% + 10px);margin:0;padding:6px;border:1px solid var(--line);border-radius:10px;background:var(--surface);box-shadow:0 10px 28px rgba(8,14,20,.28);min-width:220px;z-index:30}
+  body.nav-mini .ng.fly>.ngl::before{content:attr(data-title);display:block;font-size:11.5px;font-weight:700;color:var(--muted);padding:4px 10px 6px}
+  body.nav-mini .ng.fly .ngl .ni{justify-content:flex-start;padding:7px 10px}
+  body.nav-mini .ng.fly .ngl .t{display:block}
+  body.nav-mini .ngl .ni[aria-current="page"]::before{display:none}
+  body.nav-mini .snav-b>.ni[aria-current="page"]::before{inset-inline-start:-8px}
+  body.nav-mini .snav-b>.ni:hover::after,body.nav-mini .ngh:hover::after,body.nav-mini .snav-b>.ni:focus-visible::after,body.nav-mini .ngh:focus-visible::after{content:attr(data-tip);position:absolute;inset-inline-start:calc(100% + 12px);top:50%;transform:translateY(-50%);background:var(--fg);color:var(--bg);font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:31}
+  body.nav-mini .ng.fly>.ngh::after{display:none}
+  body.nav-mini .snav-f{padding:8px 6px}
+  body.nav-mini .snav-u{justify-content:center;padding:4px 0}
+  body.nav-mini .snav-ia{flex-direction:column;align-items:center;padding-top:6px}
+  body.nav-mini .snav-ia .snav-ib{flex:none;width:38px}
+}
 @media(max-width:1100px){
+  .snav-mt{display:none}
   body:has(.dash) .credit{margin-inline-start:0}
   .dash{grid-template-columns:minmax(0,1fr)}
   .snav{position:fixed;inset-block:0;inset-inline-start:0;width:min(300px,86vw);height:auto;transform:translateX(105%);transition:transform .2s ease;box-shadow:0 0 40px rgba(8,14,20,.3);visibility:hidden}
@@ -864,10 +907,16 @@ const NIC={home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10
  key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3"/>',
  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/>',
  out:'<path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3"/><path d="M15 16l4-4-4-4M19 12H9"/>',
- chev:'<path d="M6 9l6 6 6-6"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>'};
+ chev:'<path d="M6 9l6 6 6-6"/>',mini:'<path d="M7 7l5 5-5 5M13 7l5 5-5 5"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>'};
 const nsvg=(k,c)=>`<svg viewBox="0 0 24 24" aria-hidden="true"${c?` class="${c}"`:''}>${NIC[k]}</svg>`;
 const nbdg=n=>n?`<span class="bdg" aria-label="${n} جديد">${n>99?'99+':n}</span>`:'';
 try{S.ng=JSON.parse(localStorage.getItem('aei-ng')||'{}')||{}}catch(e){S.ng={}}
+try{if(localStorage.getItem('aei-mini')==='1')document.body.classList.add('nav-mini')}catch(e){}
+const miniOn=()=>document.body.classList.contains('nav-mini'),miniAct=()=>miniOn()&&innerWidth>1100,miniLbl=()=>miniOn()?'توسيع القائمة':'طي القائمة';
+const flyClose=()=>document.querySelectorAll('.ng.fly').forEach(x=>{x.classList.remove('fly');const b=x.querySelector('.ngh');b&&b.setAttribute('aria-expanded','false')});
+document.addEventListener('click',ev=>{const m=ev.target.closest('[data-nav-mini]');
+  if(m){const o=!miniOn();document.body.classList.toggle('nav-mini',o);try{localStorage.setItem('aei-mini',o?'1':'0')}catch(e){}flyClose();m.title=m.ariaLabel=miniLbl();m.setAttribute('aria-label',miniLbl());m.setAttribute('aria-expanded',String(!o));return}
+  if(!ev.target.closest('.ng.fly'))flyClose()},true);
 const siteUrl=()=>WEB?location.origin+'/?site':location.pathname+'?site';
 function navModel(){const nl=[...S.leaves.values()].filter(x=>x.status==='جديد').length,
   ok=x=>x.f===2?isSuper():x.f===3?!!S.user:isAdmin()||!x.f,it=(k,l,n,f)=>({k,l,n:n||0,f});
@@ -879,11 +928,11 @@ function navModel(){const nl=[...S.leaves.values()].filter(x=>x.status==='جدي
    .map(x=>x.items?{...x,items:x.items.filter(ok)}:x).filter(x=>x.items?x.items.length:ok(x))}
 function navCur(M){for(const x of M){if(x.k===S.tab)return {l:x.l,g:''};const i=x.items&&x.items.find(y=>y.k===S.tab);if(i)return {l:i.l,g:x.l}}return {l:'لوحة التحكم',g:''}}
 function navHTML(M){const cur=k=>S.tab===k?' aria-current="page"':'',role=isSuper()?'مدير أعلى':isAdmin()?'مدير':S.user?'مشرف':'عرض فقط',nm=S.user?S.user.name:'مستخدم العرض';
-  const body=M.map(x=>{if(!x.items)return `<button class="ni" data-tab="${x.k}"${cur(x.k)}>${nsvg(x.i)}<span class="t">${x.l}</span>${nbdg(x.n)}</button>`;
+  const body=M.map(x=>{if(!x.items)return `<button class="ni" data-tab="${x.k}" data-tip="${x.l}"${cur(x.k)}>${nsvg(x.i)}<span class="t">${x.l}</span>${nbdg(x.n)}</button>`;
     const on=x.items.some(y=>y.k===S.tab),sum=x.items.reduce((a,y)=>a+y.n,0),op=S.ng[x.g]!==undefined?S.ng[x.g]:on||sum>0;
-    return `<div class="ng${op?' open':''}${on?' on':''}"><button class="ngh" type="button" data-ng="${x.g}" aria-expanded="${op}" aria-controls="ng-${x.g}">${nsvg(x.i)}<span class="t">${x.l}</span>${nbdg(sum)}${nsvg('chev','chev')}</button>
-      <div class="ngl" id="ng-${x.g}">${x.items.map(y=>`<button class="ni" data-tab="${y.k}"${cur(y.k)}><span class="t">${y.l}</span>${nbdg(y.n)}</button>`).join('')}</div></div>`}).join('');
-  return `<aside class="snav" id="snav" aria-label="القائمة الرئيسية"><div class="snav-h"><img class="lg" src="/logo.png" width="256" height="256" alt="شعار جمعية أرض الإنسان وبرنامج الأغذية العالمي – الموارد البشرية"><div><b>سجل موظفي AEI – WFP</b><span>جمعية أرض الإنسان · WFP</span></div><button class="snav-x" type="button" data-act="navclose" aria-label="إغلاق القائمة">×</button></div>
+    return `<div class="ng${op?' open':''}${on?' on':''}"><button class="ngh" type="button" data-ng="${x.g}" data-tip="${x.l}" aria-expanded="${op}" aria-controls="ng-${x.g}">${nsvg(x.i)}<span class="t">${x.l}</span>${nbdg(sum)}${nsvg('chev','chev')}</button>
+      <div class="ngl" id="ng-${x.g}" data-title="${x.l}">${x.items.map(y=>`<button class="ni" data-tab="${y.k}"${cur(y.k)}><span class="t">${y.l}</span>${nbdg(y.n)}</button>`).join('')}</div></div>`}).join('');
+  return `<aside class="snav" id="snav" aria-label="القائمة الرئيسية"><div class="snav-h"><img class="lg" src="/logo.png" width="256" height="256" alt="شعار جمعية أرض الإنسان وبرنامج الأغذية العالمي – الموارد البشرية"><div><b>سجل موظفي AEI – WFP</b><span>جمعية أرض الإنسان · WFP</span></div><button class="snav-mt" type="button" data-nav-mini aria-expanded="${!miniOn()}" title="${miniLbl()}" aria-label="${miniLbl()}">${nsvg('mini')}</button><button class="snav-x" type="button" data-act="navclose" aria-label="إغلاق القائمة">×</button></div>
    <nav class="snav-b"><div class="snav-lbl">القائمة</div>${body}</nav>
    <div class="snav-f"><a class="ni only-m" href="${h(siteUrl())}" target="_blank" rel="noopener">${nsvg('ext')}<span class="t">زيارة الموقع العام</span></a>
     <div class="snav-u"><span class="av">${h((nm||'?').trim().charAt(0))}</span><div><b>${h(nm)}</b><span>${role}</span></div></div>
@@ -893,9 +942,10 @@ function topHTML(M){const c=navCur(M),any=M.some(x=>(x.n||0)>0||(x.items||[]).so
    <div class="dt-r"><label class="mon">الشهر<select id="g-month" aria-label="الشهر">${[...monthList(),'all'].map(m=>`<option value="${m}"${m===selMonth()?' selected':''}>${mLabel(m)}</option>`).join('')}</select></label><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm${bkDue()?' due':''}" data-act="backup" title="${h(bkLabel())}">نسخة احتياطية</button><a class="btn ext" href="${h(siteUrl())}" target="_blank" rel="noopener" title="صفحة طلبات الإجازة والتسجيل والتعديل والاستقالة وأصول النقاط">${nsvg('ext')}زيارة الموقع العام</a></div></header>`}
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-act="navopen"],[data-act="navclose"],[data-ng],.snav [data-tab],.snav [data-act]');if(!t)return;const d=t.dataset,b=document.body;
   if(d.act==='navopen'){b.classList.add('nav-open');const a=$('.snav [aria-current="page"]')||$('.snav .ni');a&&a.focus({preventScroll:true});return}
+  if(d.ng&&miniAct()){const el=t.parentElement,w=el.classList.contains('fly');flyClose();if(!w){el.classList.add('fly');t.setAttribute('aria-expanded','true');const a=el.querySelector('.ngl .ni');a&&a.focus({preventScroll:true})}return}
   if(d.ng){const el=t.parentElement,o=!el.classList.contains('open');S.ng[d.ng]=o;el.classList.toggle('open',o);t.setAttribute('aria-expanded',o);if(o){const nb=$('.snav-b'),r=el.getBoundingClientRect(),c=nb.getBoundingClientRect();if(r.bottom>c.bottom)nb.scrollTop+=Math.min(r.bottom-c.bottom+12,r.top-c.top-8)}try{localStorage.setItem('aei-ng',JSON.stringify(S.ng))}catch(e){}return}
   b.classList.remove('nav-open');if(d.tab)setTimeout(()=>scrollTo(0,0),0)});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('nav-open')&&!dlg.open){document.body.classList.remove('nav-open');const t=$('.nav-tg');t&&t.focus()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.ng.fly')){const g=document.querySelector('.ng.fly>.ngh');flyClose();g&&g.focus();return}if(e.key==='Escape'&&document.body.classList.contains('nav-open')&&!dlg.open){document.body.classList.remove('nav-open');const t=$('.nav-tg');t&&t.focus()}});
 
 function filtered(){const f=S.f,qs=nrm(f.q).split(' ').filter(Boolean);
   const hit=e=>{const t=nrm([e.name,e.id,mob(e.mobile),e.point,e.iban].join(' ')),t2=t.replace(/ /g,'');return qs.every(w=>t.includes(w))||t2.includes(qs.join(''))};
@@ -1309,15 +1359,32 @@ async function saveFocal(f){const id=f.dataset.id,e=S.emps.get(id);if(!e)return 
   catch(err){btn.disabled=false;toast('لم يُحفظ: '+(err.message||err.code))}}
 function pinDlg(){dlg.innerHTML=`<form id="pinf">`+head('تغيير رمز العرض (للمشرفين)')+`<div class="db"><div id="ferr"></div><div class="muted" style="font-size:13px">رمز العرض يفتح البيانات للمشاهدة فقط. بعد تغييره وزّع الرمز الجديد على المشرفين.</div><fieldset>${inp('new','الرمز الجديد (6 خانات على الأقل)','',{type:'password',ltr:1,req:1})}</fieldset></div><div class="df"><div><button class="btn pri">حفظ الرمز</button><button class="btn" type="button" data-act="users">رجوع</button></div></div></form>`;open()}
 /* ---------- admin accounts (super admin only) ---------- */
-async function usersDlg(){const hd=head('المستخدمون');dlg.innerHTML=hd+'<div class="db"><div class="empty">جاري التحميل…</div></div>';open();
+const uRole=x=>x.super?['r-super','مدير أعلى']:x.role==='view'?['r-view','مشرف']:['r-admin','مدير'];
+async function usersDlg(){const hd=head('المستخدمون والصلاحيات');dlg.innerHTML=hd+'<div class="db"><div class="empty">جاري التحميل…</div></div>';open();
   try{S.users=await rpc('aei_users_list',{p:PIN})||[]}catch(e){dlg.innerHTML=hd+`<div class="db"><div class="note bad">${h(e.message)}</div></div>`;return}
-  dlg.innerHTML=hd+`<div class="db"><div class="muted" style="font-size:13px">المدير الأعلى يرى سجل التعديلات ويدير الحسابات. المدير له كل صلاحيات الإدارة عدا ذلك. المشرف يرى البيانات للعرض فقط ويستلم المهام المسندة له ويتابعها. كل عملية تُسجَّل باسم منفّذها.</div>
-   <div class="tw"><table><thead><tr><th>اسم المستخدم</th><th>الاسم</th><th>الصلاحية</th><th>المشرف المرتبط</th><th>الحالة</th><th>آخر دخول</th><th></th></tr></thead><tbody>${S.users.map(x=>`<tr style="cursor:default"><td class="num">${h(x.username)}</td><td class="nm">${h(x.name||'—')}</td><td>${x.super?'<span class="fp" style="margin:0">مدير أعلى</span>':x.role==='view'?'مشرف (عرض + مهام)':'مدير'}</td><td>${h(x.sup||'—')}</td><td>${!x.active?'<span class="st st-no">معطّل</span>':x.locked?'<span class="st st-new">مقفل مؤقتاً</span>':'<span class="st st-ok">مفعّل</span>'}</td><td class="num">${x.last_login?h(new Date(x.last_login).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})):'—'}</td><td><button class="btn sm" data-act="uedit" data-u="${h(x.username)}">تعديل</button></td></tr>`).join('')}</tbody></table></div></div>
+  const U=S.users,dt=v=>v?new Date(v).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'لم يدخل بعد',
+    nAdm=U.filter(x=>x.role!=='view').length,nView=U.filter(x=>x.role==='view').length,nLink=U.filter(x=>x.sup).length,nOff=U.filter(x=>!x.active).length;
+  const card=x=>{const [rc,rl]=uRole(x),me=S.user&&x.username===S.user.u;
+    return `<article class="ucard${x.active?'':' off'}${me?' me':''}"><div class="uc-h"><span class="av">${h((x.name||x.username).trim().charAt(0))}</span><div><b>${h(x.name||'—')}${me?' <span class="muted" style="font-size:12px;font-weight:400">(أنت)</span>':''}</b><span class="num" dir="ltr">${h(x.username)}</span></div><span class="rchip ${rc}">${rl}</span></div>
+     <dl class="uc-kv"><dt>المشرف المرتبط</dt><dd>${x.sup?h(x.sup):x.role==='view'?'<span class="nolink">غير مرتبط · لا يظهر في إسناد المهام</span>':'<span class="dim">غير مرتبط</span>'}</dd>
+      <dt>الحالة</dt><dd>${!x.active?'<span class="st st-no">معطّل</span>':x.locked?'<span class="st st-new">مقفل مؤقتاً</span>':'<span class="st st-ok">مفعّل</span>'}</dd>
+      <dt>آخر دخول</dt><dd class="num" style="font-weight:500">${h(dt(x.last_login))}</dd></dl>
+     <div class="uc-f">${!x.sup&&x.active?`<button class="btn sm" type="button" data-act="ulink" data-u="${h(x.username)}" title="يظهر باسم «${h(x.name||x.username)}» ضمن المشرفين عند إسناد المهام">ربط باسمه كمشرف</button>`:''}<button class="btn sm" data-act="uedit" data-u="${h(x.username)}">تعديل</button></div></article>`};
+  dlg.innerHTML=hd+`<div class="db">
+   <ul class="u-legend"><li><span class="rchip r-super">مدير أعلى</span>كل الصلاحيات، ويرى سجل التعديلات ويدير الحسابات.</li><li><span class="rchip r-admin">مدير</span>كل صلاحيات الإدارة عدا السجل والحسابات.</li><li><span class="rchip r-view">مشرف</span>يرى البيانات للعرض فقط، ويستلم المهام المسندة له ويتابعها.</li></ul>
+   <div class="u-sum"><span><b>${U.length}</b> حساب</span><span><b>${nAdm}</b> إدارة</span><span><b>${nView}</b> مشرف</span><span><b>${nLink}</b> مرتبط بإسناد المهام</span>${nOff?`<span><b>${nOff}</b> معطّل</span>`:''}</div>
+   <div class="ulist">${U.map(card).join('')}</div>
+   <div class="muted" style="font-size:12.5px">«المشرف المرتبط» هو الاسم الذي يظهر به الحساب ضمن «المشرفين» عند إسناد المهام. كل عملية على الحسابات تُسجَّل باسم منفّذها.</div></div>
    <div class="df"><div><button class="btn pri" data-act="unew">إضافة مستخدم</button></div></div>`}
+async function linkUser(btn){const x=(S.users||[]).find(z=>z.username===btn.dataset.u);if(!x)return;btn.disabled=true;
+  try{await rpc('aei_user_save',{p:PIN,u:x.username,d:{name:x.name,role:x.role||'admin',super:!!x.super,active:!!x.active,sup:x.name||x.username},n:false});S.logDocs=null;toast('رُبط «'+(x.name||x.username)+'» ضمن المشرفين لإسناد المهام');usersDlg()}
+  catch(e){btn.disabled=false;toast('لم يُربط: '+e.message)}}
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-act="ulink"]');if(t)linkUser(t)});
 function userForm(un){const x=un?(S.users||[]).find(z=>z.username===un):null,me=!!(x&&S.user&&x.username===S.user.u);
   dlg.innerHTML=`<form id="usrf" data-u="${h(x?x.username:'')}">`+head(x?'تعديل حساب: '+h(x.username):'إضافة مستخدم')+`<div class="db"><div id="ferr"></div><fieldset>${x?'':inp('username','اسم المستخدم (أحرف إنجليزية صغيرة وأرقام)','',{ltr:1,req:1})}${inp('name','الاسم الظاهر في سجل التعديلات',x?x.name:'',{req:1})}${inp('pw',x?'كلمة مرور جديدة (اتركها فارغة لإبقاء الحالية)':'كلمة المرور (6 خانات على الأقل)','',{type:'password',ltr:1,req:!x})}
    <label>الصلاحية<select id="e-perm" name="perm"${me?' disabled':''}><option value="view"${!x||(x.role==='view')?' selected':''}>مشرف (عرض فقط + مهامه)</option><option value="admin"${x&&x.role!=='view'&&!x.super?' selected':''}>مدير</option><option value="super"${x&&x.super?' selected':''}>مدير أعلى (السجل + الحسابات)</option></select></label>
-   <label>المشرف المرتبط (لإسناد المهام)<select id="e-sup" name="sup">${opts(uniq('sup').filter(v=>v!=='إداري'),x?x.sup||'':'','—')}</select></label>
+   <label>المشرف المرتبط (لإسناد المهام)<input id="e-sup" name="sup" list="l-usup" maxlength="60" autocomplete="off" placeholder="اختر من القائمة أو اكتب الاسم" value="${h(x?x.sup||'':'')}"><datalist id="l-usup">${opts([...new Map([...supList(),...(S.users||[]).map(z=>z.name).filter(Boolean)].filter(v=>v!=='إداري').reverse().map(v=>[nrm(v),v])).values()].sort((a,b)=>a.localeCompare(b,'ar')))}</datalist></label>
+   <div class="fhint">اتركه فارغاً إذا لا يُسند للحساب مهام. الحساب المرتبط يظهر ضمن «المشرفين» في نافذة إسناد المهام، ويمكن ربط أي حساب (مشرف أو مدير).</div>
    <label>الحالة<select id="e-active" name="active"${me?' disabled':''}><option value="1">مفعّل</option><option value=""${x&&!x.active?' selected':''}>معطّل</option></select></label></fieldset>
    ${me?'<div class="muted" style="font-size:13px">لا يمكنك تعطيل حسابك أو تغيير صلاحيتك بنفسك.</div>':''}</div>
    <div class="df"><div><button class="btn pri">حفظ</button><button class="btn" type="button" data-act="users">رجوع</button></div>${x&&!me?`<div><button class="btn danger" type="button" data-act="udel" data-u="${h(x.username)}">حذف الحساب</button></div>`:''}</div></form>`;
