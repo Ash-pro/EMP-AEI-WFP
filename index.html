@@ -393,7 +393,7 @@ tr.axhid td{opacity:.55}
 .tk-det{white-space:pre-line;line-height:1.8;margin:0;background:var(--sunk);padding:10px 12px;border-radius:var(--r);overflow-wrap:anywhere}
 .tk-sec{margin:0;font-size:15px}
 .tk-sum{margin-top:14px}.tk-sum summary{cursor:pointer;font-weight:600;font-size:14px;padding:6px 0}
-@media (max-width:640px){.tk-list{grid-template-columns:1fr}.tk-rp{grid-template-columns:1fr}.tk-top{align-items:stretch}.tk-top>.acts,.tk-top>.acts .btn{flex:1}}
+@media (max-width:640px){.tk-list{grid-template-columns:1fr}.tk-rp{grid-template-columns:1fr}.tk-top{align-items:stretch}.tk-top{flex-direction:column;align-items:stretch}.tk-top>.lgchips{justify-content:stretch}.tk-top>.lgchips .lgc{flex:1;justify-content:center}.tk-top>.acts{flex-wrap:nowrap}.tk-top>.acts .btn{flex:1;white-space:nowrap}.tk-top>span:empty{display:none}}
 @media print{.tk-f,.tk-rv{display:none}}
 
 /* ===== Dashboard shell: side menu + top bar ===== */
@@ -425,7 +425,8 @@ body:has(.dash) .credit{margin-inline-start:var(--sw)}
 .ngl .ni[aria-current="page"]::before{inset-inline-start:-29px}
 .ng.open>.ngh .bdg{display:none}
 .snav-f{border-top:1px solid var(--line);padding:10px}
-.snav-u{display:flex;align-items:center;gap:10px;padding:6px 8px 8px}
+.snav-u{display:flex;align-items:center;gap:10px;padding:4px 4px 2px}.snav-u>div{flex:1}
+.snav-ia{display:flex;gap:4px;flex:none}.snav-ib{width:34px;height:34px;display:inline-grid;place-items:center;border:1px solid var(--line);background:var(--surface);border-radius:8px;color:var(--muted);cursor:pointer;padding:0}.snav-ib:hover{color:var(--fg);border-color:var(--brand)}.snav-ib.out{color:var(--bad)}.snav-ib.out:hover{border-color:var(--bad)}.snav-ib svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .snav-u .av{width:34px;height:34px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-weight:700;flex:none}
 .snav-u div{min-width:0}.snav-u b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.snav-u span{font-size:12px;color:var(--muted)}
 .snav-f .ni{font-weight:500;font-size:13.5px;min-height:34px;padding-block:6px}
@@ -857,16 +858,15 @@ function navHTML(M){const cur=k=>S.tab===k?' aria-current="page"':'',role=isSupe
       <div class="ngl" id="ng-${x.g}">${x.items.map(y=>`<button class="ni" data-tab="${y.k}"${cur(y.k)}><span class="t">${y.l}</span>${nbdg(y.n)}</button>`).join('')}</div></div>`}).join('');
   return `<aside class="snav" id="snav" aria-label="القائمة الرئيسية"><div class="snav-h"><img class="lg" src="/logo.png" width="256" height="256" alt="شعار جمعية أرض الإنسان وبرنامج الأغذية العالمي – الموارد البشرية"><div><b>سجل موظفي AEI – WFP</b><span>جمعية أرض الإنسان · WFP</span></div><button class="snav-x" type="button" data-act="navclose" aria-label="إغلاق القائمة">×</button></div>
    <nav class="snav-b"><div class="snav-lbl">القائمة</div>${body}</nav>
-   <div class="snav-f"><div class="snav-u"><span class="av">${h((nm||'?').trim().charAt(0))}</span><div><b>${h(nm)}</b><span>${role}</span></div></div>
-    ${isSuper()?`<button class="ni" data-act="users">${nsvg('users')}<span class="t">المستخدمون والصلاحيات</span></button>`:''}${S.user?`<button class="ni" data-act="mypw">${nsvg('key')}<span class="t">تغيير كلمة المرور</span></button>`:''}
-    <a class="ni only-m" href="${h(siteUrl())}" target="_blank" rel="noopener">${nsvg('ext')}<span class="t">زيارة الموقع العام</span></a>
-    <button class="ni out" data-act="logout">${nsvg('out')}<span class="t">تسجيل الخروج</span></button></div></aside>`}
+   <div class="snav-f"><a class="ni only-m" href="${h(siteUrl())}" target="_blank" rel="noopener">${nsvg('ext')}<span class="t">زيارة الموقع العام</span></a>
+    <div class="snav-u"><span class="av">${h((nm||'?').trim().charAt(0))}</span><div><b>${h(nm)}</b><span>${role}</span></div>
+    <span class="snav-ia">${isSuper()?`<button class="snav-ib" type="button" data-act="users" title="المستخدمون والصلاحيات" aria-label="المستخدمون والصلاحيات">${nsvg('users')}</button>`:''}${S.user?`<button class="snav-ib" type="button" data-act="mypw" title="تغيير كلمة المرور" aria-label="تغيير كلمة المرور">${nsvg('key')}</button>`:''}<button class="snav-ib out" type="button" data-act="logout" title="تسجيل الخروج" aria-label="تسجيل الخروج">${nsvg('out')}</button></span></div></div></aside>`}
 function topHTML(M){const c=navCur(M),any=M.some(x=>(x.n||0)>0||(x.items||[]).some(y=>y.n>0));
   return `<header class="top dtop"><div class="dt-l"><button class="nav-tg" type="button" data-act="navopen" aria-label="فتح القائمة" aria-controls="snav">${nsvg('menu')}${any?'<span class="dot"></span>':''}</button><div><div class="crumb">${c.g?h(c.g):'لوحة التحكم'}</div><h1>${h(c.l)}</h1></div></div>
    <div class="dt-r"><label class="mon">الشهر<select id="g-month" aria-label="الشهر">${[...monthList(),'all'].map(m=>`<option value="${m}"${m===selMonth()?' selected':''}>${mLabel(m)}</option>`).join('')}</select></label><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm${bkDue()?' due':''}" data-act="backup" title="${h(bkLabel())}">نسخة احتياطية</button><a class="btn ext" href="${h(siteUrl())}" target="_blank" rel="noopener" title="صفحة طلبات الإجازة والتسجيل والتعديل والاستقالة وأصول النقاط">${nsvg('ext')}زيارة الموقع العام</a></div></header>`}
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-act="navopen"],[data-act="navclose"],[data-ng],.snav [data-tab],.snav [data-act]');if(!t)return;const d=t.dataset,b=document.body;
   if(d.act==='navopen'){b.classList.add('nav-open');const a=$('.snav [aria-current="page"]')||$('.snav .ni');a&&a.focus({preventScroll:true});return}
-  if(d.ng){const el=t.parentElement,o=!el.classList.contains('open');S.ng[d.ng]=o;el.classList.toggle('open',o);t.setAttribute('aria-expanded',o);try{localStorage.setItem('aei-ng',JSON.stringify(S.ng))}catch(e){}return}
+  if(d.ng){const el=t.parentElement,o=!el.classList.contains('open');S.ng[d.ng]=o;el.classList.toggle('open',o);t.setAttribute('aria-expanded',o);if(o){const nb=$('.snav-b'),r=el.getBoundingClientRect(),c=nb.getBoundingClientRect();if(r.bottom>c.bottom)nb.scrollTop+=Math.min(r.bottom-c.bottom+12,r.top-c.top-8)}try{localStorage.setItem('aei-ng',JSON.stringify(S.ng))}catch(e){}return}
   b.classList.remove('nav-open');if(d.tab)setTimeout(()=>scrollTo(0,0),0)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('nav-open')&&!dlg.open){document.body.classList.remove('nav-open');const t=$('.nav-tg');t&&t.focus()}});
 
@@ -882,7 +882,7 @@ function render(){const n=S.emps.size, bad=all().filter(e=>issues(e).length).len
    <div class="sum"><span><b>${n}</b> موظف</span>${trStats(all())}
    <span><b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة</span>${mRes().length?`<span><b>${mRes().length}</b> استقالة</span>`:''}${mLeaves().length?`<span><b>${mLeaves().length}</b> إجازة</span>`:''}${[...S.leaves.values()].some(x=>x.status==='جديد')?`<span><b>${[...S.leaves.values()].filter(x=>x.status==='جديد').length}</b> طلب إجازة جديد</span>`:''}${bad?`<span style="color:var(--warn)"><b>${bad}</b> بحاجة لمراجعة</span>`:''}</div>
    ${isArch()?`<div class="note">أرشيف ${mLabel(selMonth())}: بيانات الموظفين كما كانت في نهاية ذلك الشهر، للعرض والتصدير فقط. للتعديل ارجع إلى الشهر الحالي.</div>`:''}
-   <main id="view"></main></div></div>`;{const nb=$('.snav-b');if(nb)nb.scrollTop=nsc}
+   <main id="view"></main></div></div>`;{const nb=$('.snav-b');if(nb){nb.scrollTop=nsc;if(S.navT!==S.tab){S.navT=S.tab;const a=nb.querySelector('[aria-current="page"]');if(a){const r=a.getBoundingClientRect(),c=nb.getBoundingClientRect();if(r.bottom>c.bottom-8)nb.scrollTop+=r.bottom-c.bottom+24;else if(r.top<c.top+8)nb.scrollTop-=c.top-r.top+24}}}}
   if(!n&&S.tab!=='tasks'&&S.tab!=='res'&&S.tab!=='log'&&S.tab!=='leave'&&S.tab!=='plan'&&S.tab!=='reg'&&S.tab!=='upd'&&S.tab!=='ast'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
   if(S.tab==='log'&&!isSuper())S.tab=isAdmin()?'home':'db';
   ({tasks:vTasks,home:vHome,plan:vPlan,db:vDb,points:vPoints,pts:vPts,sups:vSups,leave:vLeave,reg:vReg,upd:vUpd,res:vRes,log:vLog,ast:vAst})[S.tab]();
