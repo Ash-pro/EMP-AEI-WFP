@@ -403,6 +403,31 @@ tr.axhid td{opacity:.55}
 @media (max-width:640px){.tk-list{grid-template-columns:1fr}.tk-rp{grid-template-columns:1fr}.tk-top{align-items:stretch}.tk-top{flex-direction:column;align-items:stretch}.tk-top>.lgchips{justify-content:stretch}.tk-top>.lgchips .lgc{flex:1;justify-content:center}.tk-top>.acts{flex-wrap:nowrap}.tk-top>.acts .btn{flex:1;white-space:nowrap}.tk-top>span:empty{display:none}}
 @media print{.tk-f,.tk-rv{display:none}}
 
+/* ===== Notifications ===== */
+.ntf-b{position:relative;display:inline-grid;place-items:center;width:40px;height:38px;min-height:38px;padding:0}
+.ntf-b svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ntf-b .bdg{position:absolute;top:-7px;inset-inline-end:-7px;border:2px solid var(--bg)}
+.ntf-b[aria-expanded="true"]{border-color:var(--brand);color:var(--brand)}
+#ntfp{position:fixed;z-index:40;width:380px;max-width:calc(100vw - 16px);max-height:min(560px,calc(100vh - 90px));display:flex;flex-direction:column;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 40px rgba(8,14,20,.32);overflow:hidden;font-family:var(--font)}
+.ntp-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}.ntp-h b{font-size:15px}
+.ntp-l{overflow-y:auto;flex:1;overscroll-behavior:contain}
+.ntp-f{border:0;border-top:1px solid var(--line);background:var(--sunk);color:var(--brand);font:inherit;font-weight:600;font-size:13.5px;padding:11px;cursor:pointer}.ntp-f:hover{text-decoration:underline}
+.ntl-btn{background:none;border:0;padding:0;font:inherit;font-size:12.5px;font-weight:600;color:var(--brand);cursor:pointer}.ntl-btn:disabled{color:var(--muted);cursor:default}
+.nti{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:start;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 14px;cursor:pointer;color:inherit;font:inherit}
+.nti:hover,.nti:focus-visible{background:var(--sunk);outline:none}.nti.un{background:color-mix(in srgb,var(--brand) 8%,transparent)}.nti.un:hover{background:color-mix(in srgb,var(--brand) 13%,transparent)}
+.nti-i{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--sunk);color:var(--muted)}
+.nti-i svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nti-i.k-task{background:var(--brand-soft);color:var(--brand)}.nti-i.k-leave{background:var(--t-prev-bg);color:var(--t-prev)}.nti-i.k-reg,.nti-i.k-upd{background:var(--t-adm-bg);color:var(--t-adm)}.nti-i.k-res{background:var(--bad-soft);color:var(--bad)}.nti-i.k-ast{background:var(--t-cash-bg);color:var(--t-cash)}
+.nti-b{flex:1;min-width:0;display:grid;gap:2px}.nti-b b{font-size:13.5px;line-height:1.5;font-weight:600}.nti.un .nti-b b{font-weight:700}
+.nti-b span{font-size:12.5px;color:var(--muted);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.nti-b time{font-size:11.5px;color:var(--muted)}
+.nti-dot{width:9px;height:9px;border-radius:50%;background:var(--brand);flex:none;margin-top:7px}
+.ntpg-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-block:12px 4px}.ntpg-top .lgchips{margin:0}
+.ntg{margin-top:16px}.ntg h3{font-size:13px;color:var(--muted);margin:0 0 6px;font-weight:600}
+.ntg-l{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}.ntg-l .nti:last-child{border-bottom:0}
+.nt-more{display:block;margin:16px auto 0}
+@media(max-width:640px){#ntfp{width:auto}}
+@media print{#ntfp,.ntf-b{display:none!important}}
 /* ===== Theme toggle ===== */
 .thb{display:inline-grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:99px;cursor:pointer;transition:border-color .12s,color .12s}
 .thb:hover{border-color:var(--brand);color:var(--brand)}
@@ -867,7 +892,7 @@ async function bkRestore(btn){if(!BKF)return;const cs=[...document.querySelector
     log('استعادة نسخة احتياطية',{id:'',name:'النظام'},`نسخة ${BKF.created.slice(0,10)} · ${cs.map(c=>(BK_COLLS.find(x=>x[0]===c)||[c,c])[1]).join('، ')} · ${n} سجل`);dlg.close();toast(`استُعيد ${n} سجل`)}
   catch(e){btn.disabled=false;if(st)st.textContent=`توقفت بعد ${n} سجل: ${e.message}`;toast('توقفت الاستعادة: '+e.message)}}
 function bkNag(){if(!bkDue())return;try{if(sessionStorage.getItem('bknag'))return;sessionStorage.setItem('bknag','1')}catch(e){}setTimeout(()=>toast(bkDays()===null?'تذكير: لم تُؤخذ نسخة احتياطية من البيانات بعد. اضغط «نسخة احتياطية» في الأعلى.':`تذكير: مرّ ${bkDays()} يوماً على آخر نسخة احتياطية. اضغط «نسخة احتياطية» في الأعلى.`,9000),1200)}
-function start(){document.body.classList.toggle('ro',!isAdmin());S.tab=isAdmin()?'home':S.user?'tasks':'db';if(S.user)tkBadge();
+function start(){document.body.classList.toggle('ro',!isAdmin());S.tab=isAdmin()?'home':S.user?'tasks':'db';if(S.user){tkBadge();ntCount(true)}
   app.innerHTML='<div class="empty">جاري تحميل بيانات الموظفين…</div>';
   unsub=S.db.collection('emp').limit(1000).onSnapshot(snap=>{S.live=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));S.ready=true;applyMonth();render()},
     e=>{app.innerHTML=`<div class="empty">تعذّر تحميل البيانات: ${h(e.message||e.code)}</div>`});
@@ -920,7 +945,7 @@ document.addEventListener('click',ev=>{const m=ev.target.closest('[data-nav-mini
 const siteUrl=()=>WEB?location.origin+'/?site':location.pathname+'?site';
 function navModel(){const nl=[...S.leaves.values()].filter(x=>x.status==='جديد').length,
   ok=x=>x.f===2?isSuper():x.f===3?!!S.user:isAdmin()||!x.f,it=(k,l,n,f)=>({k,l,n:n||0,f});
-  return [{k:'home',l:'الرئيسية',i:'home',f:1},{k:'tasks',l:'المهام',i:'tasks',n:TK.badge.total||0,f:3},
+  return [{k:'home',l:'الرئيسية',i:'home',f:1},{k:'tasks',l:'المهام',i:'tasks',n:TK.badge.total||0,f:3},{k:'notif',l:'الإشعارات',i:'bell',n:NT.unread,f:3},
     {g:'data',l:'البيانات',i:'data',items:[it('db','قاعدة البيانات'),it('points','التوزيع حسب النقاط'),it('pts','بيانات النقاط'),it('sups','حسب المشرفين')]},
     {g:'ops',l:'الدوام والأصول',i:'ops',items:[it('plan','الخطة الأسبوعية'),it('ast','أصول النقاط',pendAst().length,1)]},
     {g:'req',l:'الطلبات',i:'req',items:[it('leave','الإجازات',nl),it('reg','طلبات التسجيل',newRegs().length,1),it('upd','طلبات التعديل',newUpds().length,1)]},
@@ -928,7 +953,7 @@ function navModel(){const nl=[...S.leaves.values()].filter(x=>x.status==='جدي
    .map(x=>x.items?{...x,items:x.items.filter(ok)}:x).filter(x=>x.items?x.items.length:ok(x))}
 function navCur(M){for(const x of M){if(x.k===S.tab)return {l:x.l,g:''};const i=x.items&&x.items.find(y=>y.k===S.tab);if(i)return {l:i.l,g:x.l}}return {l:'لوحة التحكم',g:''}}
 function navHTML(M){const cur=k=>S.tab===k?' aria-current="page"':'',role=isSuper()?'مدير أعلى':isAdmin()?'مدير':S.user?'مشرف':'عرض فقط',nm=S.user?S.user.name:'مستخدم العرض';
-  const body=M.map(x=>{if(!x.items)return `<button class="ni" data-tab="${x.k}" data-tip="${x.l}"${cur(x.k)}>${nsvg(x.i)}<span class="t">${x.l}</span>${nbdg(x.n)}</button>`;
+  const body=M.map(x=>{if(!x.items)return `<button class="ni" data-tab="${x.k}" data-tip="${x.l}"${cur(x.k)}>${nsvg(x.i)}<span class="t">${x.l}</span>${x.k==='notif'?ntBdgHTML():nbdg(x.n)}</button>`;
     const on=x.items.some(y=>y.k===S.tab),sum=x.items.reduce((a,y)=>a+y.n,0),op=S.ng[x.g]!==undefined?S.ng[x.g]:on||sum>0;
     return `<div class="ng${op?' open':''}${on?' on':''}"><button class="ngh" type="button" data-ng="${x.g}" data-tip="${x.l}" aria-expanded="${op}" aria-controls="ng-${x.g}">${nsvg(x.i)}<span class="t">${x.l}</span>${nbdg(sum)}${nsvg('chev','chev')}</button>
       <div class="ngl" id="ng-${x.g}" data-title="${x.l}">${x.items.map(y=>`<button class="ni" data-tab="${y.k}"${cur(y.k)}><span class="t">${y.l}</span>${nbdg(y.n)}</button>`).join('')}</div></div>`}).join('');
@@ -939,7 +964,7 @@ function navHTML(M){const cur=k=>S.tab===k?' aria-current="page"':'',role=isSupe
     <div class="snav-ia"><button class="snav-ib thb" type="button" data-theme-toggle title="${thLabel()}" aria-label="${thLabel()}">${thIcons()}</button>${isSuper()?`<button class="snav-ib" type="button" data-act="users" title="المستخدمون والصلاحيات" aria-label="المستخدمون والصلاحيات">${nsvg('users')}</button>`:''}${S.user?`<button class="snav-ib" type="button" data-act="mypw" title="تغيير كلمة المرور" aria-label="تغيير كلمة المرور">${nsvg('key')}</button>`:''}<button class="snav-ib out" type="button" data-act="logout" title="تسجيل الخروج" aria-label="تسجيل الخروج">${nsvg('out')}</button></div></div></aside>`}
 function topHTML(M){const c=navCur(M),any=M.some(x=>(x.n||0)>0||(x.items||[]).some(y=>y.n>0));
   return `<header class="top dtop"><div class="dt-l"><button class="nav-tg" type="button" data-act="navopen" aria-label="فتح القائمة" aria-controls="snav">${nsvg('menu')}${any?'<span class="dot"></span>':''}</button><div><div class="crumb">${c.g?h(c.g):'لوحة التحكم'}</div><h1>${h(c.l)}</h1></div></div>
-   <div class="dt-r"><label class="mon">الشهر<select id="g-month" aria-label="الشهر">${[...monthList(),'all'].map(m=>`<option value="${m}"${m===selMonth()?' selected':''}>${mLabel(m)}</option>`).join('')}</select></label><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm${bkDue()?' due':''}" data-act="backup" title="${h(bkLabel())}">نسخة احتياطية</button><a class="btn ext" href="${h(siteUrl())}" target="_blank" rel="noopener" title="صفحة طلبات الإجازة والتسجيل والتعديل والاستقالة وأصول النقاط">${nsvg('ext')}زيارة الموقع العام</a></div></header>`}
+   <div class="dt-r">${S.user?`<button class="btn ntf-b" type="button" data-ntf aria-haspopup="dialog" aria-expanded="false" title="الإشعارات" aria-label="الإشعارات">${nsvg('bell')}${ntBdgHTML()}</button>`:''}<label class="mon">الشهر<select id="g-month" aria-label="الشهر">${[...monthList(),'all'].map(m=>`<option value="${m}"${m===selMonth()?' selected':''}>${mLabel(m)}</option>`).join('')}</select></label><button class="btn pri adm" data-act="add">إضافة موظف</button><button class="btn adm" data-act="export">تصدير Excel</button><button class="btn adm${bkDue()?' due':''}" data-act="backup" title="${h(bkLabel())}">نسخة احتياطية</button><a class="btn ext" href="${h(siteUrl())}" target="_blank" rel="noopener" title="صفحة طلبات الإجازة والتسجيل والتعديل والاستقالة وأصول النقاط">${nsvg('ext')}زيارة الموقع العام</a></div></header>`}
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-act="navopen"],[data-act="navclose"],[data-ng],.snav [data-tab],.snav [data-act]');if(!t)return;const d=t.dataset,b=document.body;
   if(d.act==='navopen'){b.classList.add('nav-open');const a=$('.snav [aria-current="page"]')||$('.snav .ni');a&&a.focus({preventScroll:true});return}
   if(d.ng&&miniAct()){const el=t.parentElement,w=el.classList.contains('fly');flyClose();if(!w){el.classList.add('fly');t.setAttribute('aria-expanded','true');const a=el.querySelector('.ngl .ni');a&&a.focus({preventScroll:true})}return}
@@ -960,9 +985,9 @@ function render(){const n=S.emps.size, bad=all().filter(e=>issues(e).length).len
    <span><b>${uniq('point').filter(p=>p!=='إداري').length}</b> نقطة</span>${mRes().length?`<span><b>${mRes().length}</b> استقالة</span>`:''}${mLeaves().length?`<span><b>${mLeaves().length}</b> إجازة</span>`:''}${[...S.leaves.values()].some(x=>x.status==='جديد')?`<span><b>${[...S.leaves.values()].filter(x=>x.status==='جديد').length}</b> طلب إجازة جديد</span>`:''}${bad?`<span style="color:var(--warn)"><b>${bad}</b> بحاجة لمراجعة</span>`:''}</div>
    ${isArch()?`<div class="note">أرشيف ${mLabel(selMonth())}: بيانات الموظفين كما كانت في نهاية ذلك الشهر، للعرض والتصدير فقط. للتعديل ارجع إلى الشهر الحالي.</div>`:''}
    <main id="view"></main></div></div>`;{const nb=$('.snav-b');if(nb){nb.scrollTop=nsc;if(S.navT!==S.tab){S.navT=S.tab;const a=nb.querySelector('[aria-current="page"]');if(a){const r=a.getBoundingClientRect(),c=nb.getBoundingClientRect();if(r.bottom>c.bottom-8)nb.scrollTop+=r.bottom-c.bottom+24;else if(r.top<c.top+8)nb.scrollTop-=c.top-r.top+24}}}}
-  if(!n&&S.tab!=='tasks'&&S.tab!=='res'&&S.tab!=='log'&&S.tab!=='leave'&&S.tab!=='plan'&&S.tab!=='reg'&&S.tab!=='upd'&&S.tab!=='ast'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
+  if(!n&&S.tab!=='tasks'&&S.tab!=='notif'&&S.tab!=='res'&&S.tab!=='log'&&S.tab!=='leave'&&S.tab!=='plan'&&S.tab!=='reg'&&S.tab!=='upd'&&S.tab!=='ast'){$('#view').innerHTML='<div class="empty">لا يوجد موظفون بعد. اضغط «إضافة موظف» لإدخال أول سجل.</div>';return}
   if(S.tab==='log'&&!isSuper())S.tab=isAdmin()?'home':'db';
-  ({tasks:vTasks,home:vHome,plan:vPlan,db:vDb,points:vPoints,pts:vPts,sups:vSups,leave:vLeave,reg:vReg,upd:vUpd,res:vRes,log:vLog,ast:vAst})[S.tab]();
+  ({tasks:vTasks,notif:vNotif,home:vHome,plan:vPlan,db:vDb,points:vPoints,pts:vPts,sups:vSups,leave:vLeave,reg:vReg,upd:vUpd,res:vRes,log:vLog,ast:vAst})[S.tab]();
   if(keep){const el=document.getElementById(keep);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(e){}}}}
 function vDb(){const f=S.f,rows=filtered();
   $('#view').innerHTML=`<div class="filters">
@@ -2017,6 +2042,66 @@ document.addEventListener('input',ev=>{const el=ev.target;
   else if(f.id==='axrv')axAfter(); else if(f.id==='axaf'){if(el.id==='e-pt'||el.id==='e-item'||el.id==='e-type'){f.querySelectorAll('#e-ng,#e-nd').forEach(x=>x.value='');axAddSync()}}
   else if(f.id==='axmf'&&el.id==='e-from')axMoveRows()});
 
+/* ---------- notifications ---------- */
+const NT={unread:0,last:0,pop:null,items:new Map(),page:[],f:'all',end:false,busy:false,seq:0};
+Object.assign(NIC,{bell:'<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',pen:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+  box:'<path d="M3 7.5l9-4.5 9 4.5v9l-9 4.5-9-4.5z"/><path d="M3 7.5l9 4.5 9-4.5M12 12v9"/>',uplus:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6"/>'});
+const NTK={task:'tasks',leave:'cal',reg:'uplus',upd:'pen',res:'out',ast:'box',log:'rec'};
+function ntAgo(ms){const s=(Date.now()-ms)/1000,d=new Date(ms),t=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  if(s<60)return 'الآن';if(s<3600)return 'منذ '+Math.floor(s/60)+' دقيقة';
+  if(d.toDateString()===new Date().toDateString())return 'اليوم '+t;
+  if(d.toDateString()===new Date(Date.now()-864e5).toDateString())return 'أمس '+t;
+  return d.toLocaleDateString('en-GB')+' '+t}
+const ntItem=x=>`<button type="button" class="nti${x.read?'':' un'}" data-ntf-go="${x.id}"><span class="nti-i k-${h(x.kind)}">${nsvg(NTK[x.kind]||'bell')}</span><span class="nti-b"><b>${h(x.title)}</b>${x.body?`<span>${h(x.body)}</span>`:''}<time>${ntAgo(x.at)}</time></span>${x.read?'':'<i class="nti-dot" title="غير مقروء"></i>'}</button>`;
+const ntBdgHTML=()=>`<span class="bdg" data-ntf-bdg${NT.unread?'':' hidden'} aria-label="${NT.unread} إشعار غير مقروء">${NT.unread>99?'99+':NT.unread}</span>`;
+function ntBadge(){document.querySelectorAll('[data-ntf-bdg]').forEach(e=>{e.textContent=NT.unread>99?'99+':NT.unread;e.hidden=!NT.unread;e.setAttribute('aria-label',NT.unread+' إشعار غير مقروء')});
+  const a=$('#ntfp [data-ntf-all]'),b=$('.ntpg-top [data-ntf-all]');if(a)a.disabled=!NT.unread;if(b)b.disabled=!NT.unread}
+async function ntCount(first){if(!S.user)return;
+  try{const r=await rpc('aei_notif_count',{p:PIN});if(!r)return;const ch=r.unread!==NT.unread,nw=!first&&r.last>NT.last&&r.unread>NT.unread;NT.unread=r.unread;NT.last=r.last;
+    if(nw){try{const l=await rpc('aei_notif_list',{p:PIN,f:'unread',lim:1});const x=l&&l.items&&l.items[0];if(x)toast('إشعار جديد: '+x.title,4500)}catch(e){}}
+    if(ch){ntBadge();if(S.tab==='notif'&&!dlg.open&&!NT.pop)ntLoad(true);else if(S.ready&&!dlg.open&&!NT.pop&&!first)render()}}catch(e){}}
+function ntPlace(){const el=NT.pop,btn=$('.ntf-b');if(!el||!btn)return;const r=btn.getBoundingClientRect();
+  el.style.top=Math.round(r.bottom+8)+'px';if(innerWidth<=640){el.style.left='8px';el.style.right='8px'}else{el.style.right='';el.style.left=Math.round(Math.max(8,Math.min(innerWidth-el.offsetWidth-8,r.right-el.offsetWidth)))+'px'}}
+function ntClose(){if(!NT.pop)return;NT.pop.remove();NT.pop=null;const b=$('.ntf-b');if(b)b.setAttribute('aria-expanded','false')}
+async function ntOpen(){if(NT.pop)return ntClose();const el=document.createElement('div');el.id='ntfp';el.dir='rtl';el.lang='ar';el.setAttribute('role','dialog');el.setAttribute('aria-label','الإشعارات');
+  el.innerHTML=`<div class="ntp-h"><b>الإشعارات</b><button class="ntl-btn" type="button" data-ntf-all${NT.unread?'':' disabled'}>تعليم الكل كمقروء</button></div><div class="ntp-l"><div class="empty" style="padding:28px 16px">جاري التحميل…</div></div><button class="ntp-f" type="button" data-ntf-page>عرض كل الإشعارات</button>`;
+  document.body.appendChild(el);NT.pop=el;const b=$('.ntf-b');if(b)b.setAttribute('aria-expanded','true');ntPlace();
+  try{const l=await rpc('aei_notif_list',{p:PIN,f:'all',lim:15});if(NT.pop!==el)return;NT.unread=l.unread;ntBadge();(l.items||[]).forEach(x=>NT.items.set(x.id,x));
+    el.querySelector('.ntp-l').innerHTML=(l.items||[]).map(ntItem).join('')||'<div class="empty" style="padding:32px 16px">لا توجد إشعارات بعد.</div>';ntPlace()}
+  catch(e){if(NT.pop===el)el.querySelector('.ntp-l').innerHTML=`<div class="note bad" style="margin:12px">${h(e.message)}</div>`}}
+const navTabs=()=>navModel().flatMap(x=>x.items?x.items.map(y=>y.k):[x.k]);
+async function ntGo(id){const x=NT.items.get(+id);ntClose();if(!x)return;
+  if(!x.read){x.read=true;NT.unread=Math.max(0,NT.unread-1);ntBadge();rpc('aei_notif_read',{p:PIN,ids:[x.id]}).catch(()=>{})}
+  if(x.tab&&navTabs().includes(x.tab)){if(dlg.open)dlg.close();S.tab=x.tab;render();scrollTo(0,0);if(x.tab==='tasks'&&x.ref&&/^\d+$/.test(x.ref)){TK.edit=false;tkOpen(x.ref)}}
+  else if(S.tab==='notif')ntDraw()}
+async function ntReadAll(btn){if(btn)btn.disabled=true;try{await rpc('aei_notif_read',{p:PIN,ids:null});NT.unread=0;NT.items.forEach(x=>x.read=true);ntBadge();
+  if(NT.pop)NT.pop.querySelectorAll('.nti.un').forEach(e=>{e.classList.remove('un');const d=e.querySelector('.nti-dot');d&&d.remove()});if(S.tab==='notif'){ntDraw();ntLoad(true)}toast('عُلّمت كل الإشعارات كمقروءة')}catch(e){if(btn)btn.disabled=false;toast(e.message)}}
+function vNotif(){if(!S.user){$('#view').innerHTML='<div class="empty">الإشعارات تتطلب الدخول باسم المستخدم وكلمة المرور.</div>';return}
+  const F=[['all','الكل'],['unread','غير المقروءة'],['task','المهام'],['leave,reg,upd,res','الطلبات']].concat(isAdmin()?[['ast','الأصول']]:[]).concat(isSuper()?[['log','نشاط النظام']]:[]);
+  $('#view').innerHTML=`<div class="ntpg-top"><div class="lgchips" role="tablist" aria-label="تصفية الإشعارات">${F.map(([k,l])=>`<button type="button" role="tab" aria-selected="${NT.f===k}" class="lgc${NT.f===k?' on':''}" data-ntf-f="${k}">${l}</button>`).join('')}</div><button class="btn" type="button" data-ntf-all${NT.unread?'':' disabled'}>تعليم الكل كمقروء</button></div>
+   ${isSuper()?'<div class="hint"><span>بصفتك مديراً أعلى تصلك كل إشعارات النظام، بما فيها نشاط المستخدمين الآخرين.</span></div>':''}<div id="ntl"><div class="empty">جاري التحميل…</div></div>`;
+  ntLoad(true)}
+async function ntLoad(reset){if(!reset&&NT.busy)return;const seq=reset?++NT.seq:NT.seq;NT.busy=true;
+  let l;try{const before=!reset&&NT.page.length?NT.page[NT.page.length-1].id:null;l=await rpc('aei_notif_list',{p:PIN,f:NT.f,lim:30,before})}
+  catch(e){if(seq===NT.seq){NT.busy=false;const v=$('#ntl');if(v)v.innerHTML=`<div class="note bad">${h(e.message)}</div>`}return}
+  if(seq!==NT.seq)return;NT.busy=false;if(reset){NT.page=[];NT.end=false}NT.unread=l.unread;ntBadge();(l.items||[]).forEach(x=>{NT.items.set(x.id,x);NT.page.push(x)});if((l.items||[]).length<30)NT.end=true;ntDraw()}
+function ntDraw(){const v=$('#ntl');if(!v||S.tab!=='notif')return;if(!NT.page.length){v.innerHTML=`<div class="empty">${NT.f==='unread'?'لا توجد إشعارات غير مقروءة.':'لا توجد إشعارات.'}</div>`;return}
+  const g=new Map(),today=new Date().toDateString(),yest=new Date(Date.now()-864e5).toDateString();
+  NT.page.forEach(x=>{const d=new Date(x.at).toDateString(),k=d===today?'اليوم':d===yest?'أمس':new Date(x.at).toLocaleDateString('ar-EG-u-nu-latn',{weekday:'long',day:'numeric',month:'long',year:'numeric'});if(!g.has(k))g.set(k,[]);g.get(k).push(x)});
+  v.innerHTML=[...g].map(([k,xs])=>`<section class="ntg"><h3>${h(k)}</h3><div class="ntg-l">${xs.map(ntItem).join('')}</div></section>`).join('')+(NT.end?'':'<button class="btn nt-more" type="button" data-ntf-more>عرض إشعارات أقدم</button>')}
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-ntf],[data-ntf-go],[data-ntf-all],[data-ntf-page],[data-ntf-f],[data-ntf-more]');
+  if(NT.pop&&!ev.target.closest('#ntfp')&&!(t&&t.hasAttribute('data-ntf')))ntClose();if(!t)return;const d=t.dataset;
+  if(t.hasAttribute('data-ntf'))return ntOpen();
+  if(d.ntfGo)return ntGo(d.ntfGo);
+  if(t.hasAttribute('data-ntf-all'))return ntReadAll(t);
+  if(t.hasAttribute('data-ntf-page')){ntClose();if(dlg.open)dlg.close();S.tab='notif';render();return scrollTo(0,0)}
+  if(d.ntfF){NT.f=d.ntfF;return vNotif()}
+  if(t.hasAttribute('data-ntf-more')){t.disabled=true;return ntLoad(false)}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&NT.pop){ntClose();const b=$('.ntf-b');b&&b.focus()}});
+addEventListener('resize',()=>NT.pop&&ntPlace());
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)ntCount()});
+setInterval(()=>{if(S.user&&!document.hidden)ntCount()},45000);
 /* ===================== المهام ===================== */
 const TK={list:null,at:0,busy:false,err:'',cur:null,users:null,badge:{total:0},f:{q:'',st:'open',who:'',pr:'',scope:'all',vs:''}};
 const TK_AS={new:['جديدة','st-new'],received:['مستلمة','tk-s1'],in_progress:['قيد التنفيذ','tk-s1'],review:['بانتظار الاعتماد','tk-s2'],done:['معتمدة','st-ok'],returned:['مُرجعة','st-no']};
