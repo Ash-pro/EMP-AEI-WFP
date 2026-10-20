@@ -1376,6 +1376,7 @@ async function usersDlg(){const hd=head('المستخدمون والصلاحيا
    <div class="ulist">${U.map(card).join('')}</div>
    <div class="muted" style="font-size:12.5px">«المشرف المرتبط» هو الاسم الذي يظهر به الحساب ضمن «المشرفين» عند إسناد المهام. كل عملية على الحسابات تُسجَّل باسم منفّذها.</div></div>
    <div class="df"><div><button class="btn pri" data-act="unew">إضافة مستخدم</button></div></div>`}
+document.addEventListener('change',ev=>{if(ev.target.id!=='e-supsel')return;const o=ev.target.value==='__other',w=$('#e-supo');if(w){w.hidden=!o;if(o){const i=$('#e-sup');i.required=true;i.focus()}else $('#e-sup').required=false}});
 async function linkUser(btn){const x=(S.users||[]).find(z=>z.username===btn.dataset.u);if(!x)return;btn.disabled=true;
   try{await rpc('aei_user_save',{p:PIN,u:x.username,d:{name:x.name,role:x.role||'admin',super:!!x.super,active:!!x.active,sup:x.name||x.username},n:false});S.logDocs=null;toast('رُبط «'+(x.name||x.username)+'» ضمن المشرفين لإسناد المهام');usersDlg()}
   catch(e){btn.disabled=false;toast('لم يُربط: '+e.message)}}
@@ -1383,7 +1384,9 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-act="uli
 function userForm(un){const x=un?(S.users||[]).find(z=>z.username===un):null,me=!!(x&&S.user&&x.username===S.user.u);
   dlg.innerHTML=`<form id="usrf" data-u="${h(x?x.username:'')}">`+head(x?'تعديل حساب: '+h(x.username):'إضافة مستخدم')+`<div class="db"><div id="ferr"></div><fieldset>${x?'':inp('username','اسم المستخدم (أحرف إنجليزية صغيرة وأرقام)','',{ltr:1,req:1})}${inp('name','الاسم الظاهر في سجل التعديلات',x?x.name:'',{req:1})}${inp('pw',x?'كلمة مرور جديدة (اتركها فارغة لإبقاء الحالية)':'كلمة المرور (6 خانات على الأقل)','',{type:'password',ltr:1,req:!x})}
    <label>الصلاحية<select id="e-perm" name="perm"${me?' disabled':''}><option value="view"${!x||(x.role==='view')?' selected':''}>مشرف (عرض فقط + مهامه)</option><option value="admin"${x&&x.role!=='view'&&!x.super?' selected':''}>مدير</option><option value="super"${x&&x.super?' selected':''}>مدير أعلى (السجل + الحسابات)</option></select></label>
-   <label>المشرف المرتبط (لإسناد المهام)<input id="e-sup" name="sup" list="l-usup" maxlength="60" autocomplete="off" placeholder="اختر من القائمة أو اكتب الاسم" value="${h(x?x.sup||'':'')}"><datalist id="l-usup">${opts([...new Map([...supList(),...(S.users||[]).map(z=>z.name).filter(Boolean)].filter(v=>v!=='إداري').reverse().map(v=>[nrm(v),v])).values()].sort((a,b)=>a.localeCompare(b,'ar')))}</datalist></label>
+   ${(()=>{const cur=x?x.sup||'':'',L=[...new Map([...supList(),...(S.users||[]).map(z=>z.name).filter(Boolean)].filter(v=>v!=='إداري').reverse().map(v=>[nrm(v),v])).values()].sort((a,b)=>a.localeCompare(b,'ar'));if(cur&&!L.includes(cur))L.unshift(cur);
+     return `<label>المشرف المرتبط (لإسناد المهام)<select id="e-supsel" name="supsel"><option value="">— غير مرتبط —</option>${L.map(v=>`<option${v===cur?' selected':''}>${h(v)}</option>`).join('')}<option value="__other">اسم آخر…</option></select></label>
+   <label id="e-supo" hidden>اكتب اسم المشرف<input id="e-sup" name="sup" maxlength="60" autocomplete="off"></label>`})()}
    <div class="fhint">اتركه فارغاً إذا لا يُسند للحساب مهام. الحساب المرتبط يظهر ضمن «المشرفين» في نافذة إسناد المهام، ويمكن ربط أي حساب (مشرف أو مدير).</div>
    <label>الحالة<select id="e-active" name="active"${me?' disabled':''}><option value="1">مفعّل</option><option value=""${x&&!x.active?' selected':''}>معطّل</option></select></label></fieldset>
    ${me?'<div class="muted" style="font-size:13px">لا يمكنك تعطيل حسابك أو تغيير صلاحيتك بنفسك.</div>':''}</div>
@@ -1393,7 +1396,7 @@ async function saveUser(f){const o=formData(f),isNew=!f.dataset.u,un=isNew?Strin
   if(!/^[a-z0-9_.-]{3,30}$/.test(un))return ferr('اسم المستخدم: 3 إلى 30 خانة من أحرف إنجليزية صغيرة وأرقام.');
   if(o.pw&&o.pw.length<6)return ferr('كلمة المرور يجب أن تكون 6 خانات على الأقل.');
   const cur=isNew?null:(S.users||[]).find(z=>z.username===un),me=!!(cur&&S.user&&un===S.user.u),perm=me?(cur.super?'super':cur.role||'admin'):o.perm||'view';
-  const d={name:o.name,role:perm==='view'?'view':'admin',super:perm==='super',active:me?true:!!o.active,sup:o.sup||''};if(o.pw)d.pw=o.pw;const b=f.querySelector('.btn.pri');b.disabled=true;
+  const d={name:o.name,role:perm==='view'?'view':'admin',super:perm==='super',active:me?true:!!o.active,sup:(o.supsel==='__other'?o.sup:o.supsel)||''};if(o.pw)d.pw=o.pw;const b=f.querySelector('.btn.pri');b.disabled=true;
   try{await rpc('aei_user_save',{p:PIN,u:un,d,n:isNew});if(S.user&&un===S.user.u){S.user.name=o.name||un;render()}S.logDocs=null;toast(isNew?'أُضيف الحساب':'حُفظ الحساب');usersDlg()}catch(e){b.disabled=false;ferr('لم يُحفظ: '+e.message)}}
 async function delUser(btn){if(!btn.dataset.sure){btn.dataset.sure=1;btn.textContent='تأكيد حذف الحساب نهائياً';return}
   btn.disabled=true;try{await rpc('aei_user_delete',{p:PIN,u:btn.dataset.u});S.logDocs=null;toast('حُذف الحساب');usersDlg()}catch(e){btn.disabled=false;ferr('لم يُحذف: '+e.message)}}
