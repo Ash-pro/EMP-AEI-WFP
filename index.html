@@ -1317,7 +1317,7 @@ function showEmp(id){const e=S.emps.get(id);if(!e)return;const is=issues(e);
    ${sec('الدوام',kv('النقطة',e.point)+kv('القسم',e.dept)+kv('الفئة الوظيفية',e.cat)+kv('مشرف النقطة',e.psup)+kv('المشرف المباشر',e.sup)+kv('النطاق الجغرافي',e.region)+kv('منطقة النقطة',e.area)+kv('تاريخ بداية الدوام',e.start?fd(e.start):'',1)+(e.note?wide('ملاحظة الدوام',e.note):''))}
    ${sec('المؤهل العلمي',kv('الجامعة',e.uni)+kv('الدرجة العلمية',e.degree)+kv('تاريخ الشهادة',fd(e.grad),1)+wide('التخصص',e.major))}
    ${sec('الراتب',kv('طريقة تلقي الراتب',e.pay)+`<div class="wide2"><dt>الأيبان / رقم المحفظة</dt><dd class="ibn"><span class="num">${h(e.iban||'—')}</span>${e.iban?`<button class="btn sm" data-copy="${h(e.iban)}" type="button">نسخ</button>`:''}</dd></div>`)}</div>
-   <div class="df"><div><button class="btn pri adm" data-edit="${h(id)}">تعديل البيانات</button><button class="btn adm" data-move="${h(id)}">نقل إلى نقطة أخرى</button><button class="btn" data-focal="${h(id)}">${e.focal?'إلغاء الفوكال':'تعيين فوكال'}</button></div><div class="adm"><button class="btn danger" data-resign="${h(id)}">استقالة موظف</button></div></div>`;
+   <div class="df"><div><button class="btn pri adm" data-edit="${h(id)}">تعديل البيانات</button><button class="btn adm" data-move="${h(id)}">نقل إلى نقطة أخرى</button><button class="btn" data-focal="${h(id)}">${e.focal?'إلغاء الفوكال':'تعيين فوكال'}</button>${isSuper()?`<button class="btn" type="button" data-idfix="${h(id)}">تعديل رقم الهوية</button>`:''}</div><div class="adm"><button class="btn danger" data-resign="${h(id)}">استقالة موظف</button></div></div>`;
   open()}
 function open(){if(!dlg.open)dlg.showModal();dlg.scrollTop=0}
 dlg.addEventListener('close',()=>{if(S.ready&&!S.pub)setTimeout(()=>{if(!dlg.open)render()},60)});
@@ -1330,7 +1330,7 @@ function selx(k,l,arr,v,req){if(v&&!arr.includes(v))arr=[...arr,v];return `<labe
 const lists=()=>`<datalist id="l-point">${opts(allPoints())}</datalist><datalist id="l-sup">${opts([...new Set([...uniq('psup'),...uniq('sup')])])}</datalist><datalist id="l-region">${opts(uniq('region'))}</datalist><datalist id="l-area">${opts(uniq('area'))}</datalist><datalist id="l-uni">${opts(uniq('uni'))}</datalist>`;
 function editEmp(id,pre,rid){const e=id?S.emps.get(id):(pre||{pay:'بنك فلسطين'});
   dlg.innerHTML=`<form id="empf" data-id="${h(id||'')}" data-reg="${h(rid||'')}">`+head(id?'تعديل: '+h(e.name):rid?'مراجعة طلب تسجيل: '+h(e.name):'إضافة موظف جديد')+`<div class="db">${lists()}<div id="ferr"></div>
-   <fieldset><legend>البيانات الأساسية</legend>${inp('name','الاسم الرباعي',e.name,{req:1,wide:1})}${inp('id','رقم الهوية (9 أرقام)',e.id,{req:1,ltr:1,ro:!!id})}${inp('mobile','رقم الجوال',mob(e.mobile),{ltr:1})}
+   <fieldset><legend>البيانات الأساسية</legend>${inp('name','الاسم الرباعي',e.name,{req:1,wide:1})}${inp('id','رقم الهوية (9 أرقام)',e.id,{req:1,ltr:1,ro:!!id})}${id&&isSuper()?`<div class="muted" style="font-size:12.5px;align-self:end">رقم الهوية لا يُعدَّل من هنا. <button class="lnk" type="button" data-idfix="${h(id)}" style="padding:0;color:var(--brand)">تعديل رقم الهوية</button></div>`:''}${inp('mobile','رقم الجوال',mob(e.mobile),{ltr:1})}
     ${inp('dob','تاريخ الميلاد',e.dob,{type:'date'})}${sel('marital','الحالة الاجتماعية',MARITAL,e.marital)}</fieldset>
    <fieldset><legend>الدوام</legend>${selx('point','النقطة',allPoints(),e.point,1)}${sel('track','المسار',TRACKS,e.track)}${sel('dept','القسم',DEPTS,e.dept)}${sel('cat','الفئة الوظيفية',CATS,e.cat)}
     ${selx('psup','مشرف النقطة',supList(),e.psup)}${selx('sup','المشرف المباشر',supList(),e.sup)}${selx('region','النطاق الجغرافي',uniq('region'),e.region)}${selx('area','منطقة النقطة',uniq('area'),e.area)}
@@ -1433,6 +1433,26 @@ const ferr=m=>{const el=$('#ferr');if(el){el.innerHTML=`<div class="note bad">${
 const log=(type,e,text)=>S.db.collection('log').add({ts:Date.now(),type,empId:e.id,name:e.name,text}).catch(()=>{});
 function formData(f){const o={};for(const el of f.elements)if(el.name)o[el.name]=el.type==='checkbox'?el.checked:el.value.trim();return o}
 
+const idChk=n=>/^\d{9}$/.test(n)&&[...n].reduce((a,c,i)=>{const d=+c*(i%2?2:1);return a+Math.floor(d/10)+d%10},0)%10===0;
+function idFixDlg(id){if(!isSuper())return toast('هذه الصلاحية للمدير الأعلى فقط');const e=S.emps.get(id)||S.res.get(id);if(!e)return;
+  dlg.innerHTML=`<form id="idfxf" data-id="${h(id)}">`+head('تعديل رقم الهوية: '+h(e.name))+`<div class="db"><div id="ferr"></div>
+   <div class="note bad">هذه العملية للمدير الأعلى فقط، وتُستخدم عند إدخال رقم هوية خاطئ. يُنقل سجل الموظف إلى الرقم الجديد مع إجازاته وطلباته وسجل تعديلاته، وتُسجَّل العملية باسمك.</div>
+   <fieldset>${inp('cur','رقم الهوية الحالي',id,{ltr:1,ro:1})}${inp('n1','رقم الهوية الصحيح',''
+   ,{req:1,ltr:1})}${inp('n2','أعد كتابة الرقم الصحيح',''
+   ,{req:1,ltr:1})}<label class="wide">سبب التعديل<textarea id="e-why" name="why" maxlength="300" required placeholder="مثال: خطأ في إدخال رقم الهوية عند التسجيل"></textarea></label>
+   <label class="chk wide" style="white-space:normal"><input id="e-sure" name="sure" type="checkbox"> تأكدت من الرقم الصحيح من بطاقة الهوية أو من الموظف</label></fieldset></div>
+   <div class="df"><div><button class="btn pri">تعديل رقم الهوية</button><button class="btn" type="button" data-act="close">إلغاء</button></div></div></form>`;open();const i=$('#e-n1');if(i)i.focus()}
+async function idFixSave(f){const id=f.dataset.id,o=formData(f),n=o.n1.replace(/\D/g,''),n2=o.n2.replace(/\D/g,'');
+  if(!/^\d{9}$/.test(n))return ferr('رقم الهوية يجب أن يكون 9 أرقام.');if(!idChk(n))return ferr('رقم الهوية غير صحيح (رقم التحقق لا يطابق). راجع الأرقام.');
+  if(n!==n2)return ferr('الرقمان غير متطابقين.');if(n===id)return ferr('الرقم الجديد مطابق للرقم الحالي.');
+  const ex=S.emps.get(n)||S.res.get(n);if(ex)return ferr('هذا الرقم مسجّل لموظف آخر: '+ex.name);
+  if(o.why.length<3)return ferr('اكتب سبب التعديل.');if(!o.sure)return ferr('ضع علامة التأكيد أولاً.');
+  const btn=f.querySelector('.pri');btn.disabled=true;btn.textContent='جاري التعديل…';
+  try{await rpc('aei_change_id',{p:PIN,o:id,n,why:o.why});for(const c of ['emp','resigned','leave','upd','resreq','reg'])await refresh(c).catch(()=>{});S.logDocs=null;
+    dlg.close();toast('عُدّل رقم الهوية إلى '+n);setTimeout(()=>{if(S.emps.has(n))showEmp(n)},300)}
+  catch(x){btn.disabled=false;btn.textContent='تعديل رقم الهوية';ferr('لم يُعدَّل: '+(x.message||x))}}
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-idfix]');if(t){ev.preventDefault();idFixDlg(t.dataset.idfix)}});
+document.addEventListener('submit',ev=>{if(ev.target.id==='idfxf'){ev.preventDefault();idFixSave(ev.target)}});
 async function saveEmp(f){const id0=f.dataset.id,o=formData(f),old=id0?S.emps.get(id0):null;
   o.id=o.id.replace(/\D/g,'');o.mobile=mob(o.mobile).replace(/^0/,'');o.iban=o.iban.replace(/[\s‎‏']/g,'');
   if(!/^\d{9}$/.test(o.id))return ferr('رقم الهوية يجب أن يكون 9 أرقام.');
